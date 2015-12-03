@@ -20,3 +20,15 @@ simple projects and assist with the speed of all projects.
 everything from small residences to large commercial buildings. The
 drawings for each project typically include layout plans, elevations, 
 details, and a bill of materials.)
+
+
+
+As part of this project, I learned AutoLISP from scratch - never having even 
+seen LISP before. Over the course of two months working about 3 hours per 
+week - so as not to interfere with my daily duties - I learned the language, 
+developed the programs in this repository, and demoed them for other users 
+in the company with very positive feedback. The total work for the project 
+has only been about 24 man hours do date.
+
+I look forward to improving the programs through user testing and feedback 
+in a very iterative and continual improvement process.
