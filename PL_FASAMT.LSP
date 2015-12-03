@@ -11,9 +11,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
 ;;  12/02/2015 - JD                             ;;
+;;  - Added a simple version of this function   ;;
+;;    to PARTS_COUNT for the demo. I may just   ;;
+;;    leave it there and stop working on this   ;;
+;;    separate app.                             ;;
 ;;  - Got the basic function to work without    ;;
 ;;    dealing with dynamic blocks! Guess that   ;;
-;;    was just the rotating block counting.     ;;
+;;    was just needed for counting blocks that  ;;
+;;    that have been rotated. I just commented  ;;
+;;    out the anonymous block functions in      ;;
+;;    case they are needed later.               ;;
 ;;                                              ;;
 ;;  Todo:                                       ;;
 ;;  - Need to add a check to verify that the    ;;

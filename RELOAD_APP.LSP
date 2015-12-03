@@ -3,7 +3,8 @@
 ;;  Uses global variable *appToLoad* to load    ;;
 ;;  (or reload) an AutoLISP app and uses        ;;
 ;;  global variable *appToRun* to run (or       ;;
-;;  re-run) an AutoLISP app.                    ;;
+;;  re-run) an AutoLISP app. (Much faster than  ;;
+;;  using the built-in AutoCAD commands.)       ;;
 ;;                                              ;;
 ;;::::::::::::::::::::::::::::::::::::::::::::::;;
 ;;                                              ;;
