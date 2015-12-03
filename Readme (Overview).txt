@@ -1,7 +1,7 @@
 AutoLISP Programs to Improve Drafting Efficiency
 
 The files in this repository are AutoLISP files that provide automation 
-of specific tasks in AutoCAD for myself and other drafters I work with. 
+of specific tasks in AutoCAD for myself and other my drafting coworkers. 
 The language is a basic LISP variant that includes specific commands 
 that integrate with AutoCAD and its functions.
 
@@ -31,4 +31,5 @@ in the company with very positive feedback. The total work for the project
 has only been about 24 man hours do date.
 
 I look forward to improving the programs through user testing and feedback 
-in a very iterative and continual improvement process.
+in a very iterative and continual improvement process. It's really fun to 
+have found a way to use my programming skills in my current drafting job.
