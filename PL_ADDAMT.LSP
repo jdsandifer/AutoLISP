@@ -1,7 +1,7 @@
 ;;;;;;;[  Parts List - Add Amount  ];;;;;;;;;;;;;;
 ;;                                              ;;
-;;  User can select parts list blocks and       ;;
-;;  then enter an amount to add to the counts.  ;;
+;;  User can select a parts list block and      ;;
+;;  then enter an amount to add to the count.   ;;
 ;;  The quantity is increased by that amount.   ;;
 ;;  (The amount can be negative or 0.)          ;;
 ;;                                              ;;
@@ -34,8 +34,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun c:pladdamt ( / selectedPLBlocks selectedPLBlock
-                      amountToAdd )
+(defun c:pladdamt ( / selectedPLBlocks
+		      selectedPLBlock              amountToAdd)
    (setvar "cmdecho" 0)			; Turn off command line output
 
    
@@ -59,12 +59,13 @@
 
 ;;; AddAmountToQty - Adds the provided amount to the "QTY" field in the provided block.
 
-(defun AddAmountToQty (selectedPLBlock amountToAdd / selectedPLBlockAtt   selectedPLBlockInfo
-                                                     amountItem           currentAmount
-                                                     newAmount )
+(defun AddAmountToQty (selectedPLBlock amountToAdd / selectedPLBlockAtt
+		                                     selectedPLBlockInfo  amountItem
+		                                     currentAmount        newAmount)
    (princ "\naddamounttoqty")
       
    ;; Find the right amount attribute
+   
    (setq selectedPLBlockAtt (entnext selectedPLBlock))
    (setq selectedPLBlockInfo (entget selectedPLBlockAtt))                                 
    

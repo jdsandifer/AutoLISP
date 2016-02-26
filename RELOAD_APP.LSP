@@ -1,10 +1,9 @@
-;;;;;;;[   Reload App   ];;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;[  Reload App  ];;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
 ;;  Uses global variable *appToLoad* to load    ;;
 ;;  (or reload) an AutoLISP app and uses        ;;
 ;;  global variable *appToRun* to run (or       ;;
-;;  re-run) an AutoLISP app. (Much faster than  ;;
-;;  using the built-in AutoCAD commands.)       ;;
+;;  re-run) an AutoLISP app.                    ;;
 ;;                                              ;;
 ;;::::::::::::::::::::::::::::::::::::::::::::::;;
 ;;                                              ;;
@@ -12,6 +11,14 @@
 ;;  Written: 10/20/2015                         ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                              ;;
+;;  02/08/2016 - J.D.                           ;;
+;;  - Changed load behavior to default to last  ;;
+;;    choice - regardless of its success.       ;;
+;;                                              ;;
+;;  12/08/2015 - J.D.                           ;;
+;;  - Changed run behavior to default to last   ;;
+;;    choice - regardless of its success.       ;;
 ;;                                              ;;
 ;;  11/28/2015                                  ;;
 ;;  - Revised for cleaner, more functional      ;;
@@ -46,18 +53,17 @@
    
    (if (or (= *appToLoad* nil) (= *appToLoad* ""))
       (setq *appToLoad* "PLANDRAW"))
-
-   ;; Prompt for LISP app to load, but only assign a new value to *appToLoad*.
+		
+	;; Prompt for LISP app to load, but only assign a new value to *appToLoad*.
    (setq promptString (strcat "\nChoose LISP to reload <" *appToLoad* ">: "))
    (setq input (getstring promptString))
    (setq input (strcase input))		; To ALL CAPS
-   (if (/= input "")
-      (setq newApp input)
-      (setq newApp *appToLoad*))
-
-   (load newApp)
-   (princ (strcat newApp " loaded."))
-   (setq *appToLoad* newApp)		; Only make this app the new default if the load worked. (Else error on load.)
+   (if (and (/= input "") (/= input nil))
+      (setq *appToLoad* input))
+	
+   (load *appToLoad*)
+   (princ (strcat *appToLoad* " loaded."))
+   ;(setq *appToLoad* newApp)		; Only make this app the new default if the load worked. (Else error on load.)
 
 
    (if (or (= *appToRun* nil) (= *appToRun* ""))
@@ -69,11 +75,9 @@
    (setq input (strcase input))
    (cond ((/= input "Q")
       (if (/= input "")
-         (setq newApp input)
-	 (setq newApp *appToRun*))
-      (setq commandString (strcat "(C:" newApp ")"))
+         (setq *appToRun* input))
+      (setq commandString (strcat "(C:" *appToRun* ")"))
       (eval (read commandString))))		; Run commandString like in the command line
-   (setq *appToRun* newApp)			; If it ran, make it the default.
    
    (setq *error* oldError)
    

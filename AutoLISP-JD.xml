@@ -1,0 +1,64 @@
+<NotepadPlus>
+    <UserLang name="AutoLISP" ext="lsp" udlVersion="2.1">
+        <Settings>
+            <Global caseIgnored="yes" allowFoldOfComments="yes" foldCompact="yes" forcePureLC="0" decimalSeparator="0" />
+            <Prefix Keywords1="yes" Keywords2="yes" Keywords3="no" Keywords4="yes" Keywords5="no" Keywords6="no" Keywords7="no" Keywords8="no" />
+        </Settings>
+        <KeywordLists>
+            <Keywords name="Comments">00; 01 02|; 03;| 04|;</Keywords>
+            <Keywords name="Numbers, prefix1"></Keywords>
+            <Keywords name="Numbers, prefix2"></Keywords>
+            <Keywords name="Numbers, extras1"></Keywords>
+            <Keywords name="Numbers, extras2"></Keywords>
+            <Keywords name="Numbers, suffix1"></Keywords>
+            <Keywords name="Numbers, suffix2"></Keywords>
+            <Keywords name="Numbers, range"></Keywords>
+            <Keywords name="Operators1"></Keywords>
+            <Keywords name="Operators2"></Keywords>
+            <Keywords name="Folders in code1, open">(</Keywords>
+            <Keywords name="Folders in code1, middle"></Keywords>
+            <Keywords name="Folders in code1, close">)</Keywords>
+            <Keywords name="Folders in code2, open"></Keywords>
+            <Keywords name="Folders in code2, middle"></Keywords>
+            <Keywords name="Folders in code2, close"></Keywords>
+            <Keywords name="Folders in comment, open"></Keywords>
+            <Keywords name="Folders in comment, middle"></Keywords>
+            <Keywords name="Folders in comment, close"></Keywords>
+            <Keywords name="Keywords1">_ c:</Keywords>
+            <Keywords name="Keywords2">@ &amp; * vl- vla- vlisp- acad dos_ dcl_ g</Keywords>
+            <Keywords name="Keywords3">/ /= _autoarxload _autoload _autoqload _internal-load-all-file _ver ~ + &lt; &lt;= = &gt; &gt;= 1- 1+ abs acad_colordlg acad_helpdlg acad_strlsort acad_truecolorcli acad_truecolordlg acad-pop-dbmod acad-push-dbmod accov-remove accov-visit acdimenableupdate action_tile add_list ads alert alloc and angle angtof angtos append apply arx arxload arxunload ascii assoc atan atof atoi atom atoms-family autoarxacedload autoarxload autoload autonativeload bhatch bherrs boole boundp bpoly caaaar caaadr caaar caadar caaddr caadr caar cadaar cadadr cadar caddar cadddr caddr cadr car cdaaar cdaadr cdaar cdadar cdaddr cdadr cdar cddaar cddadr cddar cdddar cddddr cdddr cddr cdr chr client_data_tile close command cond cons cos cvunit defun defun-q defun-q-list-ref defun-q-list-set dictadd dictnext dictremove dictrename dictsearch dimx_tile dimy_tile distance distof done_dialog end_image end_list entdel entget entlast entmake entmakex entmod entnext entsel entupd eq equal eval exit exp expand expt fill_image findfile fitstr2len fix float fnsplitl foreach function gc gcd get_attr get_tile getangle getcfg getcname getcorner getdist getenv getfiled getint getkword getorient getpoint getreal getstring geturl getvar graphscr grclear grdraw grread grtext grvecs handent help if imagefile import3ds initdia initget inters is_lead_byte ismnugrploaded isort itoa lambda last layoutlist length lisped list listp load load_dialog loadedp log logand logior lsh mapcar max maxminpnt mem member menucmd menugroup min minusp mode_tile namedobjdict nentsel nentselp new_dialog not nth null numberp open or osnap polar pragma prin1 princ print progn prompt quit quote read read-char read-line redraw regapp rem repeat report reverse rtos safearray safearray-get-dim safearray-get-element safearray-get-l-bound safearray-get-u-bound safearray-put-element safearray-type safearray-value set set_tile setcfg setenv setfunhelp setq seturl setvar setview sin slide_image snvalid sqrt ssadd ssdel ssget ssgetfirst sslength ssmemb ssname ssnamex sssetfirst start_dialog start_image start_list startapp strcase strcat strlen subst substr tablet tblnext tblobjname tblsearch term_dialog terpri textbox textpage textscr trace trans type unload_dialog untrace variant variant-type variant-value vector_image ver verify_arxapp_loaded vmon vports wcmatch while write-char write-line xdroom xdsize xstrcase zerop</Keywords>
+            <Keywords name="Keywords4">: &apos; &apos;(</Keywords>
+            <Keywords name="Keywords5"></Keywords>
+            <Keywords name="Keywords6"></Keywords>
+            <Keywords name="Keywords7"></Keywords>
+            <Keywords name="Keywords8"></Keywords>
+            <Keywords name="Delimiters">00&quot; 01\ 02&quot; 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23</Keywords>
+        </KeywordLists>
+        <Styles>
+            <WordsStyle name="DEFAULT" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="COMMENTS" fgColor="00B300" bgColor="F4F4F4" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="LINE COMMENTS" fgColor="008000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="NUMBERS" fgColor="FF8080" bgColor="FFFFFF" fontName="" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS1" fgColor="0080FF" bgColor="FFFFFF" fontName="" fontStyle="1" nesting="0" />
+            <WordsStyle name="KEYWORDS2" fgColor="0000FF" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS3" fgColor="0080FF" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS4" fgColor="DF00DF" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS5" fgColor="FF0000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS6" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS7" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="KEYWORDS8" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="OPERATORS" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN CODE1" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN CODE2" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="FOLDER IN COMMENT" fgColor="FF8040" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS1" fgColor="8000FF" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS2" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS3" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS4" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS5" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS6" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS7" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+            <WordsStyle name="DELIMITERS8" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" nesting="0" />
+        </Styles>
+    </UserLang>
+</NotepadPlus>
