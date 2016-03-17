@@ -1,8 +1,8 @@
+
 ;;;;;;;[  Post Call Out Counting  ];;;;;;;;;;;;;;;
 ;;                                              ;;
-;;  Counts post call-out blocks within a        ;;
-;;  selected area based on 2 hard-coded block   ;;
-;;  names.                                      ;;
+;;  Counts post call-outs within a selected     ;;
+;;  area based on 2 hard-coded block names.     ;;
 ;;                                              ;;
 ;;::::::::::::::::::::::::::::::::::::::::::::::;;
 ;;                                              ;;
@@ -10,6 +10,9 @@
 ;;  Written: 10/28/2015                         ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                              ;;
+;;  01/19/2016 - JD                             ;;
+;;  - Removed shared helper functions.          ;;
 ;;                                              ;;
 ;;  12/02/2015 - JD                             ;;
 ;;  - Added back "POST-DRILLED CALL-OUT" for    ;;
@@ -25,10 +28,12 @@
 ;;    postCallOut & postCallOut2.               ;;
 ;;                                              ;;
 ;;  Todo:                                       ;;
-;;  - Add options for user input of names of    ;;
-;;    blocks to count? (May not be wanted.)     ;;
+;;  - Add options for names of blocks to        ;;
+;;    count?                                    ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 
 
 (defun c:pcocount (/ resultList)	; Define function (inc. local variables)
@@ -52,10 +57,7 @@
 
    
    (setvar "cmdecho" 1)		; Command line back on
-   (princ)			; Hide last return value (clean exit)
-)
-
-(princ)				; Clean load
+   (princ)	)		; Hide last return value (clean exit)
 
 
 
@@ -64,78 +66,39 @@
 ;; no arguments - just local variables
 
 (defun CountPostCallOuts (/ postList i blockSelSet key)
-   
    (setq blockSelSet (ssget (list '(0 . "INSERT")
 			       '(-4 . "<or")
 			       (cons 2 postCallOut)
 			       (cons 2 postCallOut2)
 			       '(-4 . "or>"))))
-
    (setq i 0)
    (while (< i (sslength blockSelSet))
       (progn
-	 (setq key  (cdr (assoc 1  (entget (entnext (ssname blockSelSet i))) )) ) 
+			(setq key  (cdr (assoc 1  (entget (entnext (ssname blockSelSet i))) )) ) 
          (setq postList (assoc++ key postList))
-	 (setq i (1+ i))
-      )
-   )
-
+			(setq i (1+ i)) ))
    ;this returns the list
-   (setq i postList)
-   
-)
+   (setq i postList) )
 
-
-
-
-;; OrderListAscending - List ordering function directly from AutoCAD AutoLISP help online
-;; list - [association list] Sorts in ascending (alphabetical) order by keys. 
-
-(defun OrderListAscending (list)
-   
-   (vl-sort
-      list
-      (function
-	 (lambda
-	    (e1 e2)
-	    (< (car e1) (car e2) )
-	 )
-      )
-   )
-
-)
-
-
+	
 
 
 ;; DisplayCount - Displays the count list as a table: label then quantity
 ;; result - [association list] Labels paired with quantities.
 
-(defun DisplayCount (result)
+;(defun DisplayCount (result)
+;   (princ "\n=#===Qty=\n")
+;   (foreach item result
+;      (progn
+;			(princ " ")
+;			(princ (car item))
+;			(princ " . ")
+;			(princ (cdr item))
+;			(princ "\n") ))
+;   (princ "=========\n") )
 
-   (princ "\n=#===Qty=\n")
-   (foreach item result
-      (progn
-	 (princ " ")
-	 (princ (car item))
-	 (princ " . ")
-	 (princ (cdr item))
-	 (princ "\n")))
-   (princ "=========\n"))
+	
+	
 
+(princ)				; Clean load
 
-
-
-;; Assoc++  -  Lee Mac
-;; Increments the value of a key in an association list if present, else adds key to the list.
-;; key - [any] Key of an element in the list
-;; lst - [lst] Association list (may be nil)
-
-(defun assoc++ ( key lst / itm )
-   
-    (if (setq itm (assoc key lst))
-        (subst (cons key (1+ (cdr itm))) itm lst)
-        (cons  (cons key 1) lst)
-    )
-   
-)

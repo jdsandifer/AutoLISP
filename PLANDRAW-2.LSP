@@ -76,21 +76,21 @@
    (setvar "blipmode" 0)
 
    ; Set block & layer names, & other options
-   (setq intPostBlock "P-TRIM")
+   (setq intPostBlock "POST-STANCHION")
    (setq endPlateBlock "END_PLATE")
-   (setq ctrLineLayer "Center")
-   (setq postLayer "Detail")
+   (setq ctrLineLayer "A-HRAL-CNTR")
+   (setq postLayer "A-HRAL-POST")
    (setq dimLayer "Dims")
-   (setq railLayer "1")
-   (setq dimOffset "24")		; String means easy concatenation later
+   (setq railLayer "A-HRAL-RAIL")
+   (setq dimOffset "18")		; String means easy concatenation later
 	(setq snapMode 10)
 	(setq infillStockLength 242)
 	
 	; Get user input 
    ;(setq postSpacing (getreal "\nMax post spacing in inches:"))
-	(setq postSpacing 48)
+	(setq postSpacing 60)
    ;(setq railWidth (getreal "\nRail width in inches:"))
-	(setq railWidth "2-11/16")		; String or integer work here
+	(setq railWidth "3")		; String or integer work here
 
    ;(ResetInfillCutList)
    

@@ -19,16 +19,53 @@
 ; Runs all unit tests
 ; Output: T if all unit tests passed, else nil
 
-(defun C:UnitTests ( / )
+(defun C:UnitTests ( / testList testResults)
 
+	(princ "\n")
 	;(ReloadFile "UNIT_TESTS")
-	(princ "\npassed...FakeTest_1")
-	(princ "\npassed...FakeTest_2")
-	(princ "\npassed...FakeTest_3")
-	(princ "\nfailed...FakeTest_4\n")
-	(setq testResults (CountBooleans '(T T T nil)))
-	(PrintTestResults testResults))
 	
+	(princ "isInserted\n")
+	(Assert 'isInserted "not-a-block" nil)
+	(Assert 'isInserted "36-16-BLOCK-2" nil)
+	(Assert 'isInserted "BP" T)
+	
+	(setq testResults (CountBooleans testList))
+	(PrintTestResults testResults))
+		
+	
+	
+; Checks if function operates as expected and add result to testList
+; Input: function (symbol), argument for the function, expected result
+; Output: result of test
+; Return: none
+
+
+(defun Assert ( functionName argumentForFunction expectedResult / 
+					 actualResult passed)
+	(cond
+		((= (setq actualResult ((eval functionName) argumentForFunction))
+			  expectedResult)
+			(princ "passed...(")
+			(setq passed T)
+			(setq actualResult nil))
+		(T
+			(princ "failed...(")
+			(setq passed nil)
+			(setq actualResult 
+				(strcat (vl-symbol-name actualResult) " instead of "))))
+	
+	;; continue printing result...
+	(princ (strcase (vl-symbol-name functionName) T))
+	(princ " ")
+	(prin1 (eval argumentForFunction))
+	(princ ") returned ")
+	(if actualResult (princ actualResult))
+	(princ expectedResult)
+	(princ "\n")
+	(setq testList (append testList (list passed)))
+	
+	passed)
+		
 	
 	
 ; Counts boolean values
@@ -53,7 +90,7 @@
 ;			----------------
 ;			 10 tests passed
 ;			  0 tests failed
-; Note: there's space for a three digit number before each result
+; Note: there are always four characters before each "tests"
 
 (defun PrintTestResults ( testResults / trues falses)
 	(princ "\nResults:")
@@ -61,6 +98,12 @@
 	
 	(setq trues (cdr (Assoc "T" testResults)))
 	(setq falses (cdr (Assoc "F" testResults)))
+	
+	(if (= trues nil)
+		(setq trues 0))
+	(if (= falses nil)
+		(setq falses 0))
+	
 	
 	; add code to count digits in numbers and add correct space before
 	; and use test vs. tests correctly?
