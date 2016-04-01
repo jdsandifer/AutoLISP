@@ -82,6 +82,8 @@
 	
 	(setvar "clayer" tagLayer)
 	(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+	(setq lastTag (entget (entnext (entlast))))
+	(entmod (subst (cons 1 "B") (assoc 1 lastTag) lastTag))
 	
 	(foreach Pt3 pointList
 		(setq incomingAngle (angle Pt2 Pt1))
@@ -117,6 +119,8 @@
 		
 		(setvar "clayer" tagLayer)
 		(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+		(setq lastTag (entget (entnext (entlast))))
+		(entmod (subst (cons 1 "D") (assoc 1 lastTag) lastTag))
 		
 		(princ "\n")
 		; Prep for next round
@@ -139,6 +143,8 @@
 	
 	(setvar "clayer" tagLayer)
 	(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+	(setq lastTag (entget (entnext (entlast))))
+	(entmod (subst (cons 1 "C") (assoc 1 lastTag) lastTag))
 	
 	(JD:ResetVar "clayer" 'systemVariables)
 	
