@@ -30,8 +30,10 @@
    ; Set block & layer names, & other options
    (setq endPostBlock "P")
    (setq cornerPostBlock endPostBlock)
+	(setq tagBlock "POST-DRILLED CALL-OUT")
    (setq postLayer "Detail")
 	(setq dimLayer "Dims")
+	(setq tagLayer "POST-TAG")
 	
 	; Get user input for this??
    (setq edgeOffsetDistance 5.125)
@@ -70,47 +72,48 @@
 	(setq Pt1offset (polar Pt1offset offsetAngle edgeOffsetDistance))
 	(setq Pt1offset (list (car Pt1offset) (cadr Pt1offset)))
 	
+	(setq postTagPt (polar Pt1offset offsetAngle 12))
+	(setq postTagPt (list (car postTagPt) (cadr postTagPt)))
+	
 	(JD:Save&ChangeVar "clayer" 'systemVariables postLayer)
 	(setq theAngle (angtos lineAngle 0 9))	
    (command "._insert" endPostBlock "s" 1 "r" theAngle Pt1offset)
 	
+	(setvar "clayer" tagLayer)
+	(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+	
 	(foreach Pt3 pointList
-		(princ "\nPt1: ")(princ pt1)
-		(princ "\nPt2: ")(princ pt2)
-		
 		(setq incomingAngle (angle Pt2 Pt1))
 		(setq outgoingAngle (angle Pt2 Pt3))
+		
+		
 		; determine average angle (bisector of the two angles)
-		
-		(princ "\nincomingAngle: ")(princ incomingAngle)
-		(princ "\noutgoingAngle: ")(princ outgoingAngle)
-		
 		(cond
 			((> outgoingAngle incomingAngle)
 			 (setq offsetAngle
-			    (- (+ (/ (- outgoingAngle incomingAngle) 2) incomingAngle) PI))
-			 (setq offsetDistance	(/ edgeOffsetDistance 
-			    (sin (abs (- incomingAngle offsetAngle))))))
+			    (- (+ (/ (- outgoingAngle incomingAngle) 2) incomingAngle) PI)))
 			
 			((> incomingAngle outgoingAngle)	 
 			 (setq offsetAngle
-				 (+ (/ (- incomingAngle outgoingAngle) 2) outgoingAngle))
-			 (setq offsetDistance	(/ edgeOffsetDistance 
-			    (sin (abs (- incomingAngle offsetAngle)))))))
+				 (+ (/ (- incomingAngle outgoingAngle) 2) outgoingAngle))))
 		
 		; determine offset distance (trig math)
-				
-		(princ "\noffsetAngle: ")(princ offsetAngle)
-		(princ "\noffsetDistance: ")(princ offsetDistance)
+		(setq offsetDistance	(/ edgeOffsetDistance 
+			    (sin (abs (- incomingAngle offsetAngle)))))
 				
 		(setq Pt2offset (polar Pt2 offsetAngle offsetDistance))
 		(setq Pt2offset (list (car Pt2offset) (cadr Pt2offset)))
 		
-		(princ "\nPt2: ")(princ pt2)
-		(princ "\nPt2Offset: ")(princ pt2offset)
+		(setq postTagPt (polar Pt2offset offsetAngle 12))
+		(setq postTagPt (list (car postTagPt) (cadr postTagPt)))
 				
 		(setq theAngle (angtos outgoingAngle 0 9))
+		(setvar "clayer" postLayer)
 		(command "._insert" cornerPostBlock "s" 1 "r" theAngle Pt2offset)
+		
+		(setvar "clayer" tagLayer)
+		(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+		
 		(princ "\n")
 		; Prep for next round
 		(setq Pt1 Pt2)
@@ -123,8 +126,14 @@
 	(setq Pt2offset (polar Pt2offset offsetAngle edgeOffsetDistance))
 	(setq Pt2offset (list (car Pt2offset) (cadr Pt2offset)))
 	
+	(setq postTagPt (polar Pt2offset offsetAngle 12))
+	(setq postTagPt (list (car postTagPt) (cadr postTagPt)))
+	
 	(setq theAngle (angtos lineAngle 0 9))
    (command "._insert" endPostBlock "s" 1 "r" theAngle Pt2offset)
+	
+	(setvar "clayer" tagLayer)
+	(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
 	
 	(JD:ResetVar "clayer" 'systemVariables)
 	
