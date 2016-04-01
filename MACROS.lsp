@@ -16,7 +16,8 @@
 ;|==========================================|;
 
 (defun C:placeposts (/  systemVariables cornerPostBlock postLayer snapMode 
-							   egdeOffsetDistance wallOffsetDistance pointList)
+							   egdeOffsetDistance wallOffsetDistance pointList
+								dimLayer)
  
    ; Start UNDO group so the entire process can be easily reversed
 	(command "._UNDO" "_Begin")
@@ -27,19 +28,19 @@
    (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
 
    ; Set block & layer names, & other options
-   (setq endPostBlock "KnifePlatePost-Roof")
+   (setq endPostBlock "P")
    (setq cornerPostBlock endPostBlock)
    (setq postLayer "Detail")
+	(setq dimLayer "Dims")
 	
 	; Get user input for this??
-   (setq edgeOffsetDistance 3.31294279)
+   (setq edgeOffsetDistance 5.125)
    (setq wallOffsetDistance 4.5)
 
 
 	(setq pointList (GetPointList))
 	
 	(PlaceMainPosts pointList)
-	(princ "dims")
 	(DimExterior pointList)
 	
               
@@ -50,7 +51,7 @@
 	
 	
 
-; Helper function for above - for now... 3/23/2016
+; Helper function for above - for now... 3/30/2016
 	
 (defun PlaceMainPosts ( pointList / Pt1 Pt2 Pt2offset Pt1offset)
 	
@@ -84,13 +85,21 @@
 		(princ "\nincomingAngle: ")(princ incomingAngle)
 		(princ "\noutgoingAngle: ")(princ outgoingAngle)
 		
-		(setq offsetAngle
-			(+ (/ (- incomingAngle outgoingAngle) 2) outgoingAngle))
+		(cond
+			((> outgoingAngle incomingAngle)
+			 (setq offsetAngle
+			    (- (+ (/ (- outgoingAngle incomingAngle) 2) incomingAngle) PI))
+			 (setq offsetDistance	(/ edgeOffsetDistance 
+			    (sin (abs (- incomingAngle offsetAngle))))))
+			
+			((> incomingAngle outgoingAngle)	 
+			 (setq offsetAngle
+				 (+ (/ (- incomingAngle outgoingAngle) 2) outgoingAngle))
+			 (setq offsetDistance	(/ edgeOffsetDistance 
+			    (sin (abs (- incomingAngle offsetAngle)))))))
 		
 		; determine offset distance (trig math)
-		(setq offsetDistance
-			(/ edgeOffsetDistance (sin (abs (- offsetAngle outgoingAngle)))))
-		
+				
 		(princ "\noffsetAngle: ")(princ offsetAngle)
 		(princ "\noffsetDistance: ")(princ offsetDistance)
 				
@@ -107,23 +116,19 @@
 		(setq Pt1 Pt2)
 		(setq Pt2 Pt3))
 	
-	(princ "\nlast pt")
 	(setq lineAngle (angle Pt1 Pt2))	
 	(setq offsetAngle (+ lineAngle (/ PI 2)))
 	
-	(princ "\ncalc")
 	(setq Pt2offset (polar Pt2 lineAngle (- 0 wallOffsetDistance)))
 	(setq Pt2offset (polar Pt2offset offsetAngle edgeOffsetDistance))
 	(setq Pt2offset (list (car Pt2offset) (cadr Pt2offset)))
 	
-	(princ "\ninsert")
 	(setq theAngle (angtos lineAngle 0 9))
    (command "._insert" endPostBlock "s" 1 "r" theAngle Pt2offset)
 	
-	(princ "\nreset")
 	(JD:ResetVar "clayer" 'systemVariables)
 	
-	)	
+	(princ))	
 
 
 	
@@ -141,7 +146,7 @@
 	(command "._UNDO" "_Begin")		; Start UNDO group
    
 	(setq snapMode 191)
-	(setq dimOffset 36)
+	(setq dimOffset 48)
 	
 	(JD:ClearVars 'systemVariables)
 	(JD:Save&ChangeVar "osmode" 'systemVariables snapMode)
@@ -168,15 +173,15 @@
 
 
 	
-; Helper function version of above - for now... 3/22/2016
+; Helper function version of above - for now... 3/30/2016
 
 (defun DimExterior ( pointList / snapMode  dimOffset lastPoint)
 
 	
-	(setq snapMode 191)
-	(setq dimOffset 48)
+	(setq dimOffset 42)
 	
-	(JD:Save&ChangeVar "osmode" 'systemVariables snapMode)
+	(JD:Save&ChangeVar "osmode" 'systemVariables 0)
+	(JD:Save&ChangeVar "clayer" 'systemVariables dimLayer)
 	
 	(setq lastPoint (car pointList))
 	(setq pointList (cdr pointList))
@@ -191,8 +196,10 @@
 		      
       (setq lastPoint currentPoint))
       
-	
-   (princ))
+	(JD:ResetVar "clayer" 'systemVariables)
+	(JD:ResetVar "osmode" 'systemVariables)
+   
+	(princ))
 	
 	
 	

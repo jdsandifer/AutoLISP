@@ -70,23 +70,23 @@
    (JD:SaveVar "clayer" 'systemVariables)
    
    ; Set block & layer names, & other options
-   (setq intPostBlock "KnifePlatePost-Roof")
+   (setq intPostBlock "P-TRIM")
    (setq endPlateBlock "end_plate")
    (setq ctrLineLayer "Center")
    (setq postLayer "Detail")
    (setq dimLayer "Dims")
-   (setq railLayer "Detail")
-   (setq dimOffset "30")			; String means easy concatenation later
+   (setq railLayer "1")
+   (setq dimOffset "24")			; String means easy concatenation later
 	(setq snapMode 191)
-	(setq infillStockLength 242)
+	(setq infillStockLength 180)
 	
-	; Get user input
+	; Get user input?
    ;(setq postSpacing (getreal "\nMax post spacing in inches:"))
-	(setq postSpacing 60)
+	(setq postSpacing 48)
    ;(setq railWidth (getreal "\nRail width in inches:"))
-	(setq railWidth "3")		; String or integer works here
-	(setq isCableRailing nil)
-	(setq isPicketRailing T)
+	(setq railWidth "2-11/16")		; String or integer works here
+	(setq isCableRailing T)
+	(setq isPicketRailing nil)
 	
    ;(ResetInfillCutList)
    
@@ -180,9 +180,10 @@
 
    (setvar "osmode" 0)
    
-   (setvar "clayer" railLayer)
-   (command "insert" endPlateBlock "y" railWidth "r" 
-		(angtos lineAngle 0 9) Pt1)
+	;(if endPlateBlock
+		(setvar "clayer" railLayer)
+		(command "insert" endPlateBlock "y" railWidth "r" 
+			(angtos lineAngle 0 9) Pt1)
 
    (setvar "clayer" railLayer)
    (setq settingsList (list "_.mline" "justification" "zero" "scale" railWidth "style" "TOP_RAIL"))
