@@ -70,7 +70,7 @@
    (JD:SaveVar "clayer" 'systemVariables)
    
    ; Set block & layer names, & other options
-   (setq intPostBlock "KnifePlatePost")
+   (setq intPostBlock "KnifePlatePost-Roof")
    (setq endPlateBlock "end_plate")
    (setq ctrLineLayer "Center")
    (setq postLayer "Detail")
@@ -84,7 +84,7 @@
    ;(setq postSpacing (getreal "\nMax post spacing in inches:"))
 	(setq postSpacing 60)
    ;(setq railWidth (getreal "\nRail width in inches:"))
-	(setq railWidth "1-11/16")		; String or integer works here
+	(setq railWidth "3")		; String or integer works here
 	(setq isCableRailing nil)
 	(setq isPicketRailing T)
 	

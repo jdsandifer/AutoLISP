@@ -12,7 +12,7 @@
 ;| Automatic end post and total dimension   |;
 ;| placement for based on offset distances. |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 03/23/2016 |;
+;| Author: J.D. Sandifer    Rev: 03/29/2016 |;
 ;|==========================================|;
 
 (defun C:placeposts (/  systemVariables cornerPostBlock postLayer snapMode 
@@ -27,18 +27,19 @@
    (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
 
    ; Set block & layer names, & other options
-   (setq endPostBlock "KnifePlatePost")
+   (setq endPostBlock "KnifePlatePost-Roof")
    (setq cornerPostBlock endPostBlock)
    (setq postLayer "Detail")
 	
 	; Get user input for this??
-   (setq edgeOffsetDistance 4.5)
+   (setq edgeOffsetDistance 3.31294279)
    (setq wallOffsetDistance 4.5)
 
 
 	(setq pointList (GetPointList))
 	
 	(PlaceMainPosts pointList)
+	(princ "dims")
 	(DimExterior pointList)
 	
               
@@ -73,37 +74,53 @@
    (command "._insert" endPostBlock "s" 1 "r" theAngle Pt1offset)
 	
 	(foreach Pt3 pointList
-		(setq incomingAngle (angle Pt1 Pt2))
+		(princ "\nPt1: ")(princ pt1)
+		(princ "\nPt2: ")(princ pt2)
+		
+		(setq incomingAngle (angle Pt2 Pt1))
 		(setq outgoingAngle (angle Pt2 Pt3))
 		; determine average angle (bisector of the two angles)
+		
+		(princ "\nincomingAngle: ")(princ incomingAngle)
+		(princ "\noutgoingAngle: ")(princ outgoingAngle)
+		
 		(setq offsetAngle
 			(+ (/ (- incomingAngle outgoingAngle) 2) outgoingAngle))
-		(princ "\ndist")	
-		(princ offsetAngle)(princ outgoingAngle)
+		
 		; determine offset distance (trig math)
 		(setq offsetDistance
-			(/ egdeOffsetDistance (sin (abs (- offsetAngle outgoingAngle)))))
-		(princ offsetDistance)
-		(princ "polar")	
+			(/ edgeOffsetDistance (sin (abs (- offsetAngle outgoingAngle)))))
+		
+		(princ "\noffsetAngle: ")(princ offsetAngle)
+		(princ "\noffsetDistance: ")(princ offsetDistance)
+				
 		(setq Pt2offset (polar Pt2 offsetAngle offsetDistance))
 		(setq Pt2offset (list (car Pt2offset) (cadr Pt2offset)))
-		(princ "insert")	
+		
+		(princ "\nPt2: ")(princ pt2)
+		(princ "\nPt2Offset: ")(princ pt2offset)
+				
 		(setq theAngle (angtos outgoingAngle 0 9))
 		(command "._insert" cornerPostBlock "s" 1 "r" theAngle Pt2offset)
+		(princ "\n")
 		; Prep for next round
 		(setq Pt1 Pt2)
 		(setq Pt2 Pt3))
-		
+	
+	(princ "\nlast pt")
 	(setq lineAngle (angle Pt1 Pt2))	
 	(setq offsetAngle (+ lineAngle (/ PI 2)))
 	
+	(princ "\ncalc")
 	(setq Pt2offset (polar Pt2 lineAngle (- 0 wallOffsetDistance)))
 	(setq Pt2offset (polar Pt2offset offsetAngle edgeOffsetDistance))
 	(setq Pt2offset (list (car Pt2offset) (cadr Pt2offset)))
-		
+	
+	(princ "\ninsert")
 	(setq theAngle (angtos lineAngle 0 9))
    (command "._insert" endPostBlock "s" 1 "r" theAngle Pt2offset)
 	
+	(princ "\nreset")
 	(JD:ResetVar "clayer" 'systemVariables)
 	
 	)	
@@ -159,7 +176,6 @@
 	(setq snapMode 191)
 	(setq dimOffset 48)
 	
-	(JD:ClearVars 'systemVariables)
 	(JD:Save&ChangeVar "osmode" 'systemVariables snapMode)
 	
 	(setq lastPoint (car pointList))
