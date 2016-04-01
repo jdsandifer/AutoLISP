@@ -12,7 +12,7 @@
 ;| Automatic end post and total dimension   |;
 ;| placement for based on offset distances. |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 03/29/2016 |;
+;| Author: J.D. Sandifer    Rev: 03/31/2016 |;
 ;|==========================================|;
 
 (defun C:placeposts (/  systemVariables cornerPostBlock postLayer snapMode 
@@ -54,7 +54,7 @@
 	
 	
 
-; Helper function for above - for now... 3/30/2016
+; Helper function for above - for now... 3/31/2016
 	
 (defun PlaceMainPosts ( pointList / Pt1 Pt2 Pt2offset Pt1offset)
 	
@@ -122,7 +122,6 @@
 		(setq lastTag (entget (entnext (entlast))))
 		(entmod (subst (cons 1 "D") (assoc 1 lastTag) lastTag))
 		
-		(princ "\n")
 		; Prep for next round
 		(setq Pt1 Pt2)
 		(setq Pt2 Pt3))

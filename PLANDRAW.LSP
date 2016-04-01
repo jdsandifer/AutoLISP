@@ -42,6 +42,9 @@
 ;;    dim (just distance on a single dim).      ;;
 ;;  - Moved helper functions to separate file.  ;;
 ;;                                              ;;
+;;  03/31/2016                                  ;;
+;;  - Added post call-out placement.            ;;
+;;                                              ;;
 ;;  Todo:                                       ;;
 ;;  - Combine with PlanDrawGoal & Comm w/       ;;
 ;;    appropriate options.                      ;;
@@ -55,10 +58,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun C:plandraw (/ intPostBlock ctrLineLayer
-		     postLayer dimLayer dimOffset snapMode infillStockLength
-			  postSpacing railWidth isCableRailing isPicketRailing)
-			  
+(defun C:plandraw (/ intPostBlock ctrLineLayer postLayer dimLayer dimOffset 							snapMode infillStockLength postSpacing railWidth
+							isCableRailing isPicketRailing cableOffsetDistance
+							tagOffsetDistance tagLayer tagBlock cableLayer)
+	
    (command "._UNDO" "_Begin")		; Start UNDO group
 	
 	; Save system variables and change to needed values
@@ -79,9 +82,11 @@
    (setq dimLayer "Dims")
    (setq railLayer "1")
 	(setq tagLayer "POST-TAG")
+	(setq cableLayer "Cable")
 	; and other options
    (setq dimOffset "24")			; String means easy concatenation later
 	(setq tagOffsetDistance 9)
+	(setq cableOffsetDistance 12)
 	(setq snapMode 191)
 	(setq infillStockLength 180)
 	
@@ -129,7 +134,7 @@
 
    ; (Start loop for drawing each run)
    (while (/= (setq Pt2 (getpoint Pt1 "\nChoose next point:")) nil)
-      (setq pointList (cons Pt2 pointList))
+      (setq pointList (append pointList (list Pt2)))
       (setvar "osmode" 0)
 
       (setq lineAngle (angle Pt1 Pt2))
@@ -203,6 +208,9 @@
    (setq settingsList (list "_.mline" "justification" "zero" "scale" railWidth "style" "TOP_RAIL"))
    (setq settingsList (append settingsList pointList (list "")))
    (apply 'command settingsList) 
+	
+	(setvar "clayer" cableLayer)
+	(DrawCableLine pointList cableOffsetDistance)
    
    (setq *infillcutlist* (OrderList *infillCutlist*))
    
@@ -221,6 +229,57 @@
 	
    (princ))
 	
+	
+	
+;|========={ Draw cable lines }=============|;
+;| Draw polyline for cable run base on      |;
+;| a provided point list and distance.      |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 03/31/2016 |;
+;|==========================================|;
+
+(defun DrawCableLine (pointList cableOffsetDistance / 
+										  Pt1 Pt2 Pt3 lineAngle offsetAngle
+										  Pt1offset Pt2offset lastPt1offset
+										  lastLineAngle)
+
+	(JD:ChangeVar "osmode" 0)
+	
+	(setq Pt1 (car pointList))
+	(setq pointList (cdr pointList))
+	
+	(setq Pt2 (car pointList))
+	(setq pointList (cdr pointList))
+	
+	(setq lineAngle (angle Pt1 Pt2))
+	(setq offsetAngle (- lineAngle (/ PI 2)))
+		
+	(setq Pt1offset (polar Pt1 offsetAngle cableOffsetDistance))	
+	(setq Pt2offset (polar Pt2 offsetAngle cableOffsetDistance))
+	
+	(command "._line" Pt1offset Pt2offset "")
+	
+	(setq lastPt1offset Pt2offset)
+	(setq lastLineAngle)
+	(setq Pt1 Pt2)
+	
+	(foreach Pt2 pointList
+		
+		(setq lineAngle (angle Pt1 Pt2))
+		(setq offsetAngle (- lineAngle (/ PI 2)))
+		
+		(setq Pt1offset (polar Pt1 offsetAngle cableOffsetDistance))
+		(setq Pt2offset (polar Pt2 offsetAngle cableOffsetDistance))
+		
+		(command "._arc" "c" Pt1 lastPt1offset Pt1offset)
+		(command "._line" Pt1offset Pt2offset "")
+			
+		; Prep for next round
+		(setq lastPt1offset Pt2offset)
+		(setq lastLineAngle)
+		(setq Pt1 Pt2))
+		
+	(princ))
 
 	
 ;|=========={ Get point list }==============|;
