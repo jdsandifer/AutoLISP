@@ -38,6 +38,7 @@
 	; Get user input for this??
    (setq edgeOffsetDistance 5.125)
    (setq wallOffsetDistance 4.5)
+	(setq tagOffsetDistance 9)
 
 
 	(setq pointList (GetPointList))
@@ -72,7 +73,7 @@
 	(setq Pt1offset (polar Pt1offset offsetAngle edgeOffsetDistance))
 	(setq Pt1offset (list (car Pt1offset) (cadr Pt1offset)))
 	
-	(setq postTagPt (polar Pt1offset offsetAngle 12))
+	(setq postTagPt (polar Pt1offset offsetAngle tagOffsetDistance))
 	(setq postTagPt (list (car postTagPt) (cadr postTagPt)))
 	
 	(JD:Save&ChangeVar "clayer" 'systemVariables postLayer)
@@ -97,14 +98,17 @@
 			 (setq offsetAngle
 				 (+ (/ (- incomingAngle outgoingAngle) 2) outgoingAngle))))
 		
-		; determine offset distance (trig math)
+		;; determine corner offset distances (trig math)
 		(setq offsetDistance	(/ edgeOffsetDistance 
 			    (sin (abs (- incomingAngle offsetAngle)))))
+		(setq cornerTagOffsetDistance
+			(/ tagOffsetDistance (sin (abs (- incomingAngle offsetAngle)))))
 				
 		(setq Pt2offset (polar Pt2 offsetAngle offsetDistance))
 		(setq Pt2offset (list (car Pt2offset) (cadr Pt2offset)))
 		
-		(setq postTagPt (polar Pt2offset offsetAngle 12))
+		
+		(setq postTagPt (polar Pt2offset offsetAngle cornerTagOffsetDistance))
 		(setq postTagPt (list (car postTagPt) (cadr postTagPt)))
 				
 		(setq theAngle (angtos outgoingAngle 0 9))
@@ -126,10 +130,11 @@
 	(setq Pt2offset (polar Pt2offset offsetAngle edgeOffsetDistance))
 	(setq Pt2offset (list (car Pt2offset) (cadr Pt2offset)))
 	
-	(setq postTagPt (polar Pt2offset offsetAngle 12))
+	(setq postTagPt (polar Pt2offset offsetAngle tagOffsetDistance))
 	(setq postTagPt (list (car postTagPt) (cadr postTagPt)))
 	
 	(setq theAngle (angtos lineAngle 0 9))
+	(setvar "clayer" postLayer)
    (command "._insert" endPostBlock "s" 1 "r" theAngle Pt2offset)
 	
 	(setvar "clayer" tagLayer)

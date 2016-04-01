@@ -69,14 +69,19 @@
 	(JD:SaveVar "osmode" 'systemVariables)
    (JD:SaveVar "clayer" 'systemVariables)
    
-   ; Set block & layer names, & other options
+   ; Set block names
    (setq intPostBlock "P-TRIM")
    (setq endPlateBlock "end_plate")
+	(setq tagBlock "POST-DRILLED CALL-OUT")
+	; layer names
    (setq ctrLineLayer "Center")
    (setq postLayer "Detail")
    (setq dimLayer "Dims")
    (setq railLayer "1")
+	(setq tagLayer "POST-TAG")
+	; and other options
    (setq dimOffset "24")			; String means easy concatenation later
+	(setq tagOffsetDistance 9)
 	(setq snapMode 191)
 	(setq infillStockLength 180)
 	
@@ -152,14 +157,14 @@
       ;; This section calculates points for dimensions and draws them
       ; Got the angle earlier - lineAngle (in radians)
       (setq spaceLength (/ lineLength spaces))
-      (setvar "clayer" dimLayer)
       (setq currentPt Pt1)
       (setq dimIndex spaces)
 
       (while (> dimIndex 0)
          (setq nextPt (polar currentPt lineAngle spaceLength))
          (setq offsetString (strcat "@" dimOffset "<" (angtos (- lineAngle (/ PI 2)) 0 9)))
-         (command "dimaligned" currentPt nextPt offsetString)
+         (setvar "clayer" dimLayer)
+			(command "dimaligned" currentPt nextPt offsetString)
 			; Get last dimension.
 			(setq lastDim (entget (entlast)))
 			;; Is this the second-to-last one? If so use the full label.
@@ -171,7 +176,16 @@
 					(entmod (subst (cons 1 label) (assoc 1 lastDim) lastDim)))
 				(T
 					(entmod (subst (cons 1 "EQ") (assoc 1 lastDim) lastDim))))
-	 
+			
+			;; adds post call out for intermediate posts
+			(cond
+				((> dimIndex 1)	
+				 (setq postTagPt 
+					(polar nextPt (+ (/ PI 2) lineAngle) tagOffsetDistance))
+				 (setvar "clayer" tagLayer)
+				 (command "._insert" tagBlock "s" 1 "r" 0 postTagPt)))
+			
+			; prep for next loop
 			(setq currentPt nextPt)
 			(setq dimIndex (1- dimIndex)))
       
