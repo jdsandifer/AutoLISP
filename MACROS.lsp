@@ -8,11 +8,113 @@
 
 
 
+;|============{ Post Placing }==============|;
+;| Automatic end post and total dimension   |;
+;| placement for based on offset distances. |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 03/23/2016 |;
+;|==========================================|;
+
+(defun C:placeposts (/  systemVariables cornerPostBlock postLayer snapMode 
+							   egdeOffsetDistance wallOffsetDistance pointList)
+ 
+   ; Start UNDO group so the entire process can be easily reversed
+	(command "._UNDO" "_Begin")
+	; setup custom error message?
+	(JD:ClearVars 'systemVariables)
+	(JD:Save&ChangeVar "cmdEcho" 'systemVariables 0)
+   (JD:Save&ChangeVar "attreq" 'systemVariables 0)
+   (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
+
+   ; Set block & layer names, & other options
+   (setq endPostBlock "KnifePlatePost")
+   (setq cornerPostBlock endPostBlock)
+   (setq postLayer "Detail")
+	
+	; Get user input for this??
+   (setq edgeOffsetDistance 4.5)
+   (setq wallOffsetDistance 4.5)
+
+
+	(setq pointList (GetPointList))
+	
+	(PlaceMainPosts pointList)
+	(DimExterior pointList)
+	
+              
+	(JD:ResetAllVars 'systemVariables)
+   (command "._UNDO" "_End")		; End UNDO group
+   
+   (princ))	
+	
+	
+
+; Helper function for above - for now... 3/23/2016
+	
+(defun PlaceMainPosts ( pointList / Pt1 Pt2 Pt2offset Pt1offset)
+	
+	(JD:Save&ChangeVar "osmode" 'systemVariables 0)
+	
+	(setq Pt1 (car pointList))
+	(setq pointList (cdr pointList))
+	
+	(setq Pt2 (car pointList))
+	(setq pointList (cdr pointList))
+	
+	(setq lineAngle (angle Pt1 Pt2))
+	(setq offsetAngle (+ lineAngle (/ PI 2)))
+		
+	(setq Pt1offset (polar Pt1 lineAngle wallOffsetDistance))
+	(setq Pt1offset (polar Pt1offset offsetAngle edgeOffsetDistance))
+	(setq Pt1offset (list (car Pt1offset) (cadr Pt1offset)))
+	
+	(JD:Save&ChangeVar "clayer" 'systemVariables postLayer)
+	(setq theAngle (angtos lineAngle 0 9))	
+   (command "._insert" endPostBlock "s" 1 "r" theAngle Pt1offset)
+	
+	(foreach Pt3 pointList
+		(setq incomingAngle (angle Pt1 Pt2))
+		(setq outgoingAngle (angle Pt2 Pt3))
+		; determine average angle (bisector of the two angles)
+		(setq offsetAngle
+			(+ (/ (- incomingAngle outgoingAngle) 2) outgoingAngle))
+		(princ "\ndist")	
+		(princ offsetAngle)(princ outgoingAngle)
+		; determine offset distance (trig math)
+		(setq offsetDistance
+			(/ egdeOffsetDistance (sin (abs (- offsetAngle outgoingAngle)))))
+		(princ offsetDistance)
+		(princ "polar")	
+		(setq Pt2offset (polar Pt2 offsetAngle offsetDistance))
+		(setq Pt2offset (list (car Pt2offset) (cadr Pt2offset)))
+		(princ "insert")	
+		(setq theAngle (angtos outgoingAngle 0 9))
+		(command "._insert" cornerPostBlock "s" 1 "r" theAngle Pt2offset)
+		; Prep for next round
+		(setq Pt1 Pt2)
+		(setq Pt2 Pt3))
+		
+	(setq lineAngle (angle Pt1 Pt2))	
+	(setq offsetAngle (+ lineAngle (/ PI 2)))
+	
+	(setq Pt2offset (polar Pt2 lineAngle (- 0 wallOffsetDistance)))
+	(setq Pt2offset (polar Pt2offset offsetAngle edgeOffsetDistance))
+	(setq Pt2offset (list (car Pt2offset) (cadr Pt2offset)))
+		
+	(setq theAngle (angtos lineAngle 0 9))
+   (command "._insert" endPostBlock "s" 1 "r" theAngle Pt2offset)
+	
+	(JD:ResetVar "clayer" 'systemVariables)
+	
+	)	
+
+
+	
 ;|========{ Continuous Dimlinear }==========|;
 ;| Allows for continual dimensioning at     |;
 ;| a specific distance from the points.     |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 02/24/2016 |;
+;| Author: J.D. Sandifer    Rev: 03/16/2016 |;
 ;|==========================================|;
 
 
@@ -21,13 +123,12 @@
 
 	(command "._UNDO" "_Begin")		; Start UNDO group
    
-	(setq snapMode 1)
+	(setq snapMode 191)
 	(setq dimOffset 36)
 	
 	(JD:ClearVars 'systemVariables)
+	(JD:Save&ChangeVar "osmode" 'systemVariables snapMode)
 	
-	(JD:SaveVar "osmode" 'systemVariables)
-	(setvar "osmode" snapMode)
 	
    (setq lastPoint (getpoint "\nChoose first point:"))
 
@@ -38,39 +139,63 @@
       (setq angleToOffset (- (angle lastPoint currentPoint) (/ PI 2)))
 		(setq offsetPoint (polar currentPoint angleToOffset dimOffset))
       
+		
       (command "dimlinear" lastPoint currentPoint offsetPoint)
 		      
       (setq lastPoint currentPoint))
       
 	(JD:ResetAllVars 'systemVariables)
-	
-   (command "._UNDO" "_End")		; End UNDO group
+	(command "._UNDO" "_End")		; End UNDO group
 	
    (princ))
 
 
 	
+; Helper function version of above - for now... 3/22/2016
+
+(defun DimExterior ( pointList / snapMode  dimOffset lastPoint)
+
+	
+	(setq snapMode 191)
+	(setq dimOffset 48)
+	
+	(JD:ClearVars 'systemVariables)
+	(JD:Save&ChangeVar "osmode" 'systemVariables snapMode)
+	
+	(setq lastPoint (car pointList))
+	(setq pointList (cdr pointList))
+	   
+   (foreach currentPoint pointList
+		
+      (setq angleToOffset (- (angle lastPoint currentPoint) (/ PI 2)))
+		(setq offsetPoint (polar currentPoint angleToOffset dimOffset))
+      
+		
+      (command "dimaligned" lastPoint currentPoint offsetPoint)
+		      
+      (setq lastPoint currentPoint))
+      
+	
+   (princ))
+	
+	
+	
 ;|============{ Draw Handrail }=============|;
 ;| Places beginning, end, and mid post      |;
 ;| lines for 1.9" dia. handrail elevation.  |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 02/01/2016 |;
+;| Author: J.D. Sandifer    Rev: 03/16/2016 |;
 ;|==========================================|;
 
 
-(defun c:DrawHandrail (/ oldCmdEcho oldOsmode point0
+(defun c:DrawHandrail (/ systemVariables point0
 								 point1     point2    point3 point4)
-	(command "._UNDO" "_Begin")		; Start UNDO group
-
-	; Save the current value CMDECHO so it can be restored
-	(setq oldCmdEcho (getvar "CMDECHO"))
-	; Turn off command echo so the user only sees our prompts
-	(setvar "CMDECHO" 0)
-	; Save the current value of OSMODE so it can be restored
-	(setq oldOsmode (getvar "OSMODE"))
-	; Set snaps to intersection and endpoint
-	(setvar "OSMODE" 33)
-	
+	(command "._UNDO" "_Begin")
+	; setup custom error message?
+	(JD:ClearVars 'systemVariables)
+	(JD:Save&ChangeVar "CMDECHO" 'systemVariables 0)
+	(JD:Save&ChangeVar "OSMODE" 'systemVariables 33)
+		
 	; Get beginning (left-most) point from user
 	(initget 1)
 	(setq point0 (getpoint "Please select the beginning point."))
@@ -125,12 +250,8 @@
    (setq point4 (polar point3 (dtr 90) 42)) 	
 	(command "._PLINE" point1 point2 point3 point4 "")
 	
-	; Return snaps to the previous value
-	(setvar "OSMODE" oldOsmode)
-		; Return command echo to the previous value
-	(setvar "CMDECHO" oldCmdEcho)
-	
-   (command "._UNDO" "_End")		; End UNDO group
+	(JD:ResetAllVars 'systemVariables)
+	(command "._UNDO" "_End")		; End UNDO group
 	
 	(princ))
 	
@@ -140,16 +261,18 @@
 ;| Rotates a user-selected block 90 degrees |;
 ;| (counter-clockwise) about its insertion. |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 01/26/2016 |;
+;| Author: J.D. Sandifer    Rev: 03/16/2016 |;
 ;|==========================================|;
 
+;; Note: Only works in world/standard UCS.
 
-(defun c:RotateBlock90 (/ oldCmdEcho block selSet 
-								  entityInfo point oldOsmode)
-	; Save the current value CMDECHO so it can be restored
-	(setq oldCmdEcho (getvar "CMDECHO"))
-	; Turn off command echo so the user only sees our prompts
-	(setvar "CMDECHO" 0)
+(defun c:RotateBlock90 (/ systemVariables block selSet 
+								  entityInfo point )
+	(command "._UNDO" "_Begin")
+	; setup custom error message?
+	(JD:ClearVars 'systemVariables)
+	(JD:Save&ChangeVar "CMDECHO" 'systemVariables 0)
+	(JD:SaveVar "OSMODE" 'systemVariables)
 	
 	; Get block entity name
 	(setq block (car (entsel "\nSelect block to rotate 90 degrees:")))
@@ -162,17 +285,14 @@
 	; and extract the insertion point
 	(setq point (cdr (assoc 10 entityInfo)))
 	
-	; Save the current value of OSMODE so it can be restored
-	(setq oldOsmode (getvar "OSMODE"))
+	
 	; Turn off snaps so it doesn't affect this
 	(setvar "OSMODE" 0)
 	; Rotate the block 90° (counter-clockwise) about it's insertion point
 	(command "._ROTATE" selSet "" point "90")
-	; Return snaps to the previous value
-	(setvar "OSMODE" oldOsmode)
 	
-	; Return command echo to the previous value
-	(setvar "CMDECHO" oldCmdEcho)
+	(JD:ResetAllVars 'systemVariables)
+	(command "._UNDO" "_End")		; End UNDO group
 	
 	(princ) )
 	

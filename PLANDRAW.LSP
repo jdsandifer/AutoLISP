@@ -55,58 +55,47 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun C:plandraw (/ oldAttributesRequiredSwitch oldSnapMode oldBlipMode
-		     oldLayer oldCmdEcho intPostBlock ctrLineLayer
+(defun C:plandraw (/ intPostBlock ctrLineLayer
 		     postLayer dimLayer dimOffset snapMode infillStockLength
-			  postSpacing railWidth)
-   	             ; Define function (inc. local variables)
+			  postSpacing railWidth isCableRailing isPicketRailing)
+			  
    (command "._UNDO" "_Begin")		; Start UNDO group
+	
+	; Save system variables and change to needed values
+   (JD:ClearVars 'systemVariables)
+	(JD:Save&ChangeVar "cmdEcho" 'systemVariables 0)
+	(JD:Save&ChangeVar "attreq" 'systemVariables 0)
+   (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
+	(JD:SaveVar "osmode" 'systemVariables)
+   (JD:SaveVar "clayer" 'systemVariables)
    
-   (setq oldCmdEcho (getvar "cmdecho"))
-   (setvar "cmdecho" 0)			; Turn off command line output
-					
-   ; Save system variables that will be changed
-   (setq oldAttributesRequiredSwitch (getvar "attreq"))
-   (setq oldSnapMode (getvar "osmode"))
-   (setq oldBlipMode (getvar "blipmode"))
-   (setq oldLayer (getvar "clayer"))
-
-   ; Change system vriables
-   (setvar "attreq" 0)
-   (setvar "blipmode" 0)
-
    ; Set block & layer names, & other options
-   (setq intPostBlock "P-TRIM")
-   (setq endPlateBlock "END_PLATE")
+   (setq intPostBlock "KnifePlatePost")
+   (setq endPlateBlock "end_plate")
    (setq ctrLineLayer "Center")
    (setq postLayer "Detail")
    (setq dimLayer "Dims")
-   (setq railLayer "1")
-   (setq dimOffset "24")		; String means easy concatenation later
-	(setq snapMode 10)
+   (setq railLayer "Detail")
+   (setq dimOffset "30")			; String means easy concatenation later
+	(setq snapMode 191)
 	(setq infillStockLength 242)
 	
-	; Get user input 
+	; Get user input
    ;(setq postSpacing (getreal "\nMax post spacing in inches:"))
-	(setq postSpacing 48)
+	(setq postSpacing 60)
    ;(setq railWidth (getreal "\nRail width in inches:"))
-	(setq railWidth "2-11/16")		; String or integer work here
-
+	(setq railWidth "1-11/16")		; String or integer works here
+	(setq isCableRailing nil)
+	(setq isPicketRailing T)
+	
    ;(ResetInfillCutList)
    
    (PlanDrawTool)			; Actual work done in this function
 
-   ; Reset system variables      
-   (setvar "attreq" oldAttributesRequiredSwitch)
-   (setvar "osmode" oldSnapMode)
-   (setvar "blipmode" oldBlipMode)
-   (setvar "clayer" oldLayer)
-   (setvar "cmdecho" oldCmdEcho)
-
+   (JD:ResetAllVars 'systemVariables)
    (command "._UNDO" "_End")		; End UNDO group
    
    (princ))			; Hide last return value (clean exit)
-
 
 
 
@@ -116,18 +105,9 @@
    (princ "\n")
    (princ msg)
 
-   ;; Reset system variables      
-   (setvar "attreq" oldAttributesRequiredSwitch)
-   (setvar "osmode" oldSnapMode)
-   (setvar "blipmode" oldBlipMode)
-   (setvar "clayer" oldLayer)
-   (setvar "cmdecho" oldCmdEcho)
-
-   (princ "\nSystem variables reset")
-   (princ "\n")
+   (JD:ResetAllVars 'systemVariables)
    
    (princ))			; Hide last return value (clean exit)
-
 
 
 
@@ -148,7 +128,7 @@
       (setvar "osmode" 0)
 
       (setq lineAngle (angle Pt1 Pt2))
-      (if (/= isFirstTime nil)
+      (if isFirstTime
          (progn
             (setvar "clayer" railLayer)
             (command "insert" endPlateBlock "y" railWidth "r" (angtos (- lineAngle PI) 0 9) Pt1)
@@ -225,9 +205,31 @@
 	(princ "\n")
 	
    (princ))
+	
+
+	
+;|=========={ Get point list }==============|;
+;| Get a series of points from the user     |;
+;| and return a list of the points.         |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 03/22/2016 |;
+;|==========================================|;
+
+
+(defun GetPointList ( / selectedPoint lastPoint pointList)
+
+	(setq selectedPoint (getpoint "\nChoose first point:"))
+	(setq pointList (append pointlist (list selectedPoint)))
+	(setq lastPoint selectedPoint)
+
+	(while (/= 
+		(setq selectedPoint (getpoint lastPoint "\nChoose next point:"))
+		nil)
+		(setq pointList (append pointlist (list selectedPoint)))
+		(setq lastPoint selectedPoint))
+      
+	pointList)
 
  
-
-
 
 (princ)		; Clean load
