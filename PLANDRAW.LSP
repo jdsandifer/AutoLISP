@@ -186,7 +186,7 @@
 			
 			;; adds post call out for intermediate posts
 			(cond
-				((> dimIndex 1)	
+				((and isCableRailing (> dimIndex 1))	
 				 (setq postTagPt 
 					(polar nextPt (+ (/ PI 2) lineAngle) tagOffsetDistance))
 				 (setvar "clayer" tagLayer)

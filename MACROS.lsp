@@ -17,7 +17,7 @@
 
 (defun C:placeposts (/  systemVariables cornerPostBlock postLayer snapMode 
 							   egdeOffsetDistance wallOffsetDistance pointList
-								dimLayer)
+								dimLayer isCableRailing isPicketRailing)
  
    ; Start UNDO group so the entire process can be easily reversed
 	(command "._UNDO" "_Begin")
@@ -34,6 +34,8 @@
    (setq postLayer "Detail")
 	(setq dimLayer "Dims")
 	(setq tagLayer "POST-TAG")
+	(setq isCableRailing T)
+	(setq isPicketRailing nil)
 	
 	; Get user input for this??
    (setq edgeOffsetDistance 5.125)
@@ -80,10 +82,11 @@
 	(setq theAngle (angtos lineAngle 0 9))	
    (command "._insert" endPostBlock "s" 1 "r" theAngle Pt1offset)
 	
-	(setvar "clayer" tagLayer)
-	(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
-	(setq lastTag (entget (entnext (entlast))))
-	(entmod (subst (cons 1 "B") (assoc 1 lastTag) lastTag))
+	(cond (isCableRailing
+			(setvar "clayer" tagLayer)
+			(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+			(setq lastTag (entget (entnext (entlast))))
+			(entmod (subst (cons 1 "B") (assoc 1 lastTag) lastTag))))
 	
 	(foreach Pt3 pointList
 		(setq incomingAngle (angle Pt2 Pt1))
@@ -117,10 +120,11 @@
 		(setvar "clayer" postLayer)
 		(command "._insert" cornerPostBlock "s" 1 "r" theAngle Pt2offset)
 		
-		(setvar "clayer" tagLayer)
-		(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
-		(setq lastTag (entget (entnext (entlast))))
-		(entmod (subst (cons 1 "D") (assoc 1 lastTag) lastTag))
+		(cond (isCableRailing
+			(setvar "clayer" tagLayer)
+			(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+			(setq lastTag (entget (entnext (entlast))))
+			(entmod (subst (cons 1 "D") (assoc 1 lastTag) lastTag))))
 		
 		; Prep for next round
 		(setq Pt1 Pt2)
@@ -140,10 +144,11 @@
 	(setvar "clayer" postLayer)
    (command "._insert" endPostBlock "s" 1 "r" theAngle Pt2offset)
 	
-	(setvar "clayer" tagLayer)
-	(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
-	(setq lastTag (entget (entnext (entlast))))
-	(entmod (subst (cons 1 "C") (assoc 1 lastTag) lastTag))
+	(cond (isCableRailing
+		(setvar "clayer" tagLayer)
+		(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+		(setq lastTag (entget (entnext (entlast))))
+		(entmod (subst (cons 1 "C") (assoc 1 lastTag) lastTag))))
 	
 	(JD:ResetVar "clayer" 'systemVariables)
 	
