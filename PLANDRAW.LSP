@@ -58,18 +58,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun C:plandraw (/ intPostBlock ctrLineLayer postLayer dimLayer dimOffset 							snapMode infillStockLength postSpacing railWidth
+(defun C:plandraw (/ intPostBlock ctrLineLayer postLayer dimLayer dimOffset
+						   snapMode infillStockLength postSpacing railWidth
 							isCableRailing isPicketRailing cableOffsetDistance
 							tagOffsetDistance tagLayer tagBlock cableLayer)
 	
    (command "._UNDO" "_Begin")		; Start UNDO group
 	
-	; Save system variables and change to needed values
+   ; Save system variables and change to needed values
    (JD:ClearVars 'systemVariables)
-	(JD:Save&ChangeVar "cmdEcho" 'systemVariables 0)
-	(JD:Save&ChangeVar "attreq" 'systemVariables 0)
+   (JD:Save&ChangeVar "cmdEcho" 'systemVariables 0)
+   (JD:Save&ChangeVar "attreq" 'systemVariables 0)
    (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
-	(JD:SaveVar "osmode" 'systemVariables)
+   (JD:SaveVar "osmode" 'systemVariables)
    (JD:SaveVar "clayer" 'systemVariables)
    
    ; Set block names
@@ -155,7 +156,8 @@
 			(command "divide" centerLine "B" intPostBlock "Y" spaces))
 
       ;; This section adds to cut list for infill/bottom rail/series 100
-      (setq infillLength (RoundUpTo 3 (/ lineLength spaces)))         ; calc infill length & round up to the nearest 3"
+      (setq infillLength (RoundUpTo 3 (/ lineLength spaces)))
+				; calc infill length & round up to the nearest 3"
       (setq *infillCutList* (Assoc+Qty infillLength *infillCutList* spaces))
 
      
@@ -200,9 +202,9 @@
    (setvar "osmode" 0)
    
 	;(if endPlateBlock
+		(setq insertAngle (angtos lineAngle 0 9))
 		(setvar "clayer" railLayer)
-		(command "insert" endPlateBlock "y" railWidth "r" 
-			(angtos lineAngle 0 9) Pt1)
+		(command "insert" endPlateBlock "y" railWidth "r" insertAngle Pt1)
 
    (setvar "clayer" railLayer)
    (setq settingsList (list "_.mline" "justification" "zero" "scale" railWidth "style" "TOP_RAIL"))
@@ -229,7 +231,7 @@
 	
    (princ))
 	
-	
+
 	
 ;|========={ Draw cable lines }=============|;
 ;| Draw polyline for cable run base on      |;
@@ -260,7 +262,7 @@
 	(command "._line" Pt1offset Pt2offset "")
 	
 	(setq lastPt1offset Pt2offset)
-	(setq lastLineAngle)
+	(setq lastLineAngle lineAngle)
 	(setq Pt1 Pt2)
 	
 	(foreach Pt2 pointList
@@ -276,7 +278,7 @@
 			
 		; Prep for next round
 		(setq lastPt1offset Pt2offset)
-		(setq lastLineAngle)
+		(setq lastLineAngle lineAngle)
 		(setq Pt1 Pt2))
 		
 	(princ))
@@ -306,4 +308,4 @@
 
  
 
-(princ)		; Clean load
+(princ)		; Clean load 
