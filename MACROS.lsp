@@ -38,7 +38,7 @@
 	(setq isPicketRailing nil)
 	
 	; Get user input for this??
-   (setq edgeOffsetDistance 5.125)
+   (setq edgeOffsetDistance 6.5)
    (setq wallOffsetDistance 4.5)
 	(setq tagOffsetDistance 9)
 

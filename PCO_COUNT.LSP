@@ -11,6 +11,16 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  04/05/2016 - JD                             ;;
+;;  - Added cable tag counting (new block).     ;;
+;;  - Changed name of print function so it      ;;
+;;    could be used to neaten the results.      ;;
+;;  - Moved sorting into the count function     ;;
+;;    (for now). May move out later.            ;;
+;;  - Added a multiplier for cable runs to the  ;;
+;;    print function (for now).                 ;;
+;;  - Added local variables to list.            ;;
+;;                                              ;;
 ;;  01/19/2016 - JD                             ;;
 ;;  - Removed shared helper functions.          ;;
 ;;                                              ;;
@@ -35,30 +45,24 @@
 
 
 
-
-(defun c:pcocount (/ resultList)	; Define function (inc. local variables)
+(defun c:pcocount (/ resultList postCallOut postCallOut2 postCallOut3
+							cableMultiplier)
    (setvar "cmdecho" 0)			; Turn off command line output
 
    ; Set block & layer names
    (setq postCallOut "POST-DRILLED CALL-OUT")
    (setq postCallOut2 "PICKET PANEL CALL-OUT")
+	(setq postCallOut3 "CABLE TAG")
+	(setq cableMultiplier 13)
 
    ; Counting handled in this function
    (setq resultList (CountPostCallOuts))	
-   (princ "Counting...")
-
-   ;Ordering the list in this function
-   (setq resultList (OrderListAscending resultList))
-   (princ "ordering list...\n")
 
    ; Display handled in this function
-   (DisplayCount resultList)		
-   (princ "\nComplete.")
+   (DisplayCountTable resultList)
 
-   
    (setvar "cmdecho" 1)		; Command line back on
    (princ)	)		; Hide last return value (clean exit)
-
 
 
 
@@ -70,6 +74,7 @@
 			       '(-4 . "<or")
 			       (cons 2 postCallOut)
 			       (cons 2 postCallOut2)
+					 (cons 2 postCallOut3)
 			       '(-4 . "or>"))))
    (setq i 0)
    (while (< i (sslength blockSelSet))
@@ -77,26 +82,27 @@
 			(setq key  (cdr (assoc 1  (entget (entnext (ssname blockSelSet i))) )) ) 
          (setq postList (assoc++ key postList))
 			(setq i (1+ i)) ))
-   ;this returns the list
-   (setq i postList) )
+			
+   ;this returns the list (after sorting it)
+   (OrderListAscending postList) )
 
 	
 
-
-;; DisplayCount - Displays the count list as a table: label then quantity
+;; DisplayCountTable - Displays the count list as a table: label then quantity
 ;; result - [association list] Labels paired with quantities.
 
-;(defun DisplayCount (result)
-;   (princ "\n=#===Qty=\n")
-;   (foreach item result
-;      (progn
-;			(princ " ")
-;			(princ (car item))
-;			(princ " . ")
-;			(princ (cdr item))
-;			(princ "\n") ))
-;   (princ "=========\n") )
-
+(defun DisplayCountTable (result)
+   (princ "\n=#===Qty=\n")
+   (foreach item result
+      (progn
+			(princ " ")
+			(princ (car item))
+			(princ " . ")
+			(if (= (substr (car item) 1 3) "RUN")
+				(princ (* cableMultiplier (cdr item)))
+				(princ (cdr item)))
+			(princ "\n") ))
+   (princ "=========\n") )
 	
 	
 
