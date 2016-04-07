@@ -77,24 +77,44 @@
 
 
 
-;;; Works to count rail (mlines) if MeasureLineSegments is set to layer "1".
 ;;; Works to count infill (plines) if set to "Center" layer.
-(defun C:CountStockLengths ( / stockLength)
-	(setq stockLength 180)
+(defun C:CountTopRail ( / stockLength layerToCount)
+	(setq stockLength 240)
+	(setq roundingFactor 3)
+	(setq fudgeFactorToAdd 12)
+	
+	(setq layerToCount "1")
 	(princ 
 		(strcat "\nStock lengths: " 
 			(itoa 
 				(CountRails 
-					(OrderList
-						(ChopLongLengths
-							(MeasureLineSegments)
-							stockLength))
+					(ChopLongLengths
+							(MeasureLineSegments layerToCount roundingFactor
+														fudgeFactorToAdd)
+							stockLength)
 					stockLength))))
 	(princ))
 
 
 
-
+;;; Works to count infill (plines) if set to "Center" layer.
+(defun C:CountInfill ( / stockLength)
+	(setq stockLength 240)
+	(setq roundingFactor 2)
+	(setq fudgeFactorToAdd 2)
+	
+	(setq layerToCount "Center")
+	(princ 
+		(strcat "\nStock lengths: " 
+			(itoa 
+				(CountRails 
+					(MeasureLineSegments layerToCount roundingFactor
+													fudgeFactorToAdd)
+					stockLength))))
+	(princ))
+	
+	
+	
 (defun RailCountSub (/ floorsMultiplier qtyNeeded timeToReturn input)
    ;; Save system variables
 	(JD:SaveVar "osmode" 'systemVariables)
@@ -318,7 +338,7 @@
 				
       (princ) )
 
-   finalCutList)
+   (OrderList finalCutList))
 
 
 

@@ -50,10 +50,11 @@
 ; Input: User selects area contaning the lines.
 ; Returns: A sum of their lengths.
 
-(defun MeasureLineSegments ( / selSet lineEntity lineInfo 
+(defun MeasureLineSegments ( layerToCount roundingFactor fudgeFactorToAdd /
+									  selSet lineEntity lineInfo 
 							   linelength cutList lineList)
 	(setq lineList nil)
-   (setq selSet (ssget (list (cons 8 "1") 
+   (setq selSet (ssget (list (cons 8 layerToCount) 
 									 '(-4 . "<or")
 									 	'(0 . "*line")
 									   '(0 . "*polyline")
@@ -84,7 +85,8 @@
 	;; turn simple list into qty assoc list
 	(setq lineQtyList nil)
 	(foreach segmentLength lineList
-		(setq segmentLength (RoundUpTo 3 (+ 12 segmentLength)))
+		(setq segmentLength (RoundUpTo roundingFactor
+			(+ fudgeFactorToAdd segmentLength)))
 		(setq lineQtyList (Assoc++ segmentLength lineQtyList)))
 	(OrderList lineQtyList))
 	

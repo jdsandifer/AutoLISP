@@ -45,6 +45,10 @@
 ;;  03/31/2016                                  ;;
 ;;  - Added post call-out placement.            ;;
 ;;                                              ;;
+;;  04/04/2016                                  ;;
+;;  - Made post tag placement conditional.      ;;
+;;    (Only does it if it's a cable railing.)   ;;
+;;                                              ;;
 ;;  Todo:                                       ;;
 ;;  - Combine with PlanDrawGoal & Comm w/       ;;
 ;;    appropriate options.                      ;;
@@ -88,7 +92,7 @@
    (setq dimOffset "24")			; String means easy concatenation later
 	(setq tagOffsetDistance 9)
 	(setq cableOffsetDistance 12)
-	(setq snapMode 191)
+	(setq snapMode 64)
 	(setq infillStockLength 180)
 	
 	; Get user input?
@@ -132,46 +136,56 @@
    (setq Pt1 (getpoint "\nChoose first point:"))
    (setq pointList (list Pt1))
    (setq isFirstTime "True")
-
+	
    ; (Start loop for drawing each run)
    (while (/= (setq Pt2 (getpoint Pt1 "\nChoose next point:")) nil)
-      (setq pointList (append pointList (list Pt2)))
-      (setvar "osmode" 0)
+      ;; Keep a list of the selected points for later use
+		(setq pointList (append pointList (list Pt2)))
+      
+		;; Change snap mode so it doesn't interfere with auto-drawing
+		(setvar "osmode" 0)
 
+		;; Main calculations
       (setq lineAngle (angle Pt1 Pt2))
-      (if isFirstTime
-         (progn
-            (setvar "clayer" railLayer)
-            (command "insert" endPlateBlock "y" railWidth "r" (angtos (- lineAngle PI) 0 9) Pt1)
-            (setq isFirstTime nil)))
-
-      (setvar "clayer" ctrLineLayer)
-      (command "line" Pt1 Pt2 "")
-      (setq centerLine (entlast))
       (setq lineLength (distance Pt1 Pt2))
       (setq spaces (RoundUpInt (/ lineLength postSpacing)))
-  
-      (setvar "clayer" postLayer)
-      (if (>= spaces 2) 				; Only divide if necessary
-			(command "divide" centerLine "B" intPostBlock "Y" spaces))
+		(setq spaceLength (/ lineLength spaces))
+		
+		;; Insert the starting endplate if this is the first post
+		(if isFirstTime
+         (progn
+            (setvar "clayer" railLayer)
+            (command "insert" endPlateBlock "y" railWidth "r" 
+					(angtos (- lineAngle PI) 0 9) Pt1)
+            (setq isFirstTime nil)))
+      
+		;; Place mid posts if needed
+      (if (>= spaces 2)
+			(progn
+				(setvar "clayer" postLayer)
+				(command "line" Pt1 Pt2 "")
+				(setq centerLine (entlast))
+				(command "divide" centerLine "B" intPostBlock "Y" spaces)
+				(entdel centerLine)))
 
-      ;; This section adds to cut list for infill/bottom rail/series 100
-      (setq infillLength (RoundUpTo 3 (/ lineLength spaces)))
-				; calc infill length & round up to the nearest 3"
-      (setq *infillCutList* (Assoc+Qty infillLength *infillCutList* spaces))
-
-     
-      ;; This section calculates points for dimensions and draws them
-      ; Got the angle earlier - lineAngle (in radians)
-      (setq spaceLength (/ lineLength spaces))
+      ;; This section sets up points for dimensions and draws them
+		;; using a loop to go through segment by segment
       (setq currentPt Pt1)
-      (setq dimIndex spaces)
-
+		(setq currentPtList (list Pt1))
+      (setq dimIndex spaces)	; spaces should always be at least 1
       (while (> dimIndex 0)
-         (setq nextPt (polar currentPt lineAngle spaceLength))
-         (setq offsetString (strcat "@" dimOffset "<" (angtos (- lineAngle (/ PI 2)) 0 9)))
+         ;; Calculate next point and add it to the list for this section
+			(setq nextPt (polar currentPt lineAngle spaceLength))
+			(setq currentPtList (append currentPtList (list nextPt)))
+			
+			;; Draw the centerline (pline)
+			(setvar "clayer" ctrLineLayer)
+			(command "._pline" currentPt nextPt "")
+			
+         (setq offsetString (strcat "@" dimOffset "<" 
+												(angtos (- lineAngle (/ PI 2)) 0 9)))
          (setvar "clayer" dimLayer)
-			(command "dimaligned" currentPt nextPt offsetString)
+			(command "._dimaligned" currentPt nextPt offsetString)
 			; Get last dimension.
 			(setq lastDim (entget (entlast)))
 			;; Is this the second-to-last one? If so use the full label.
@@ -184,20 +198,25 @@
 				(T
 					(entmod (subst (cons 1 "EQ") (assoc 1 lastDim) lastDim))))
 			
-			;; adds post call out for intermediate posts
-			(cond
-				((and isCableRailing (> dimIndex 1))	
-				 (setq postTagPt 
-					(polar nextPt (+ (/ PI 2) lineAngle) tagOffsetDistance))
-				 (setvar "clayer" tagLayer)
-				 (command "._insert" tagBlock "s" 1 "r" 0 postTagPt)))
-			
-			; prep for next loop
+			;; add post call out for each intermediate post
+			(if (and (> dimIndex 1)	isCableRailing)
+				(progn
+					(setq postTagPt (polar nextPt (+ (/ PI 2) lineAngle) 		
+												  tagOffsetDistance))
+					(setvar "clayer" tagLayer)
+					(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)))
+								
+			; prep for next loop (dimensioning & call-outs on current segment)
 			(setq currentPt nextPt)
 			(setq dimIndex (1- dimIndex)))
+			
+		;; Draw centerline (pline) - when I figure out how to feed in the pts
+		;(setvar "clayer" ctrLineLayer)
+		;(command "._pline" currentPtList "")
       
-      (setq Pt1 Pt2)		; Makes the 1st point equal the current 2nd point
-      (setvar "osmode" snapMode))      ; Prep for next loop
+      ;; Prep for next loop (next railing segment)
+		(setq Pt1 Pt2)
+      (setvar "osmode" snapMode))      
 
    (setvar "osmode" 0)
    
@@ -211,27 +230,15 @@
    (setq settingsList (append settingsList pointList (list "")))
    (apply 'command settingsList) 
 	
-	(setvar "clayer" cableLayer)
-	(DrawCableLine pointList cableOffsetDistance)
+	(cond (isCableRailing
+		(setvar "clayer" cableLayer)
+		(DrawCableLine pointList cableOffsetDistance)))
    
-   (setq *infillcutlist* (OrderList *infillCutlist*))
-   
-   (princ "\nInfill cut list: ")
-   (princ *infillCutlist*)
-
-   ;; Counting for parts list handled in this function
-	(setvar "dimzin" 8)
-	(setq qtyNeeded (CountRails *infillCutList* infillStockLength))
-					
-	;; Display handled in these functions
-	(PrintCutList *fullCutlist*)
-	(princ "Stock lengths: ")
-	(DisplayCount qtyNeeded)
-	(princ "\n")
-	
+   (setvar "dimzin" 8)
+		
    (princ))
 	
-
+	
 	
 ;|========={ Draw cable lines }=============|;
 ;| Draw polyline for cable run base on      |;
@@ -269,13 +276,14 @@
 		
 		(setq lineAngle (angle Pt1 Pt2))
 		(setq offsetAngle (- lineAngle (/ PI 2)))
+		(setq oldOffsetAngle (- lastLineAngle (/ PI 2)))
 		
 		(setq Pt1offset (polar Pt1 offsetAngle cableOffsetDistance))
 		(setq Pt2offset (polar Pt2 offsetAngle cableOffsetDistance))
 		
 		(command "._arc" "c" Pt1 lastPt1offset Pt1offset)
 		(command "._line" Pt1offset Pt2offset "")
-			
+		
 		; Prep for next round
 		(setq lastPt1offset Pt2offset)
 		(setq lastLineAngle lineAngle)
