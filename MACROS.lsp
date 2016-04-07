@@ -12,7 +12,7 @@
 ;| Automatic end post and total dimension   |;
 ;| placement for based on offset distances. |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 03/31/2016 |;
+;| Author: J.D. Sandifer    Rev: 04/07/2016 |;
 ;|==========================================|;
 
 (defun C:placeposts (/  systemVariables cornerPostBlock postLayer snapMode 
@@ -24,6 +24,7 @@
 	; setup custom error message?
 	(JD:ClearVars 'systemVariables)
 	(JD:Save&ChangeVar "cmdEcho" 'systemVariables 0)
+	(JD:Save&ChangeVar "osmode" 'systemVariables 33)
    (JD:Save&ChangeVar "attreq" 'systemVariables 0)
    (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
 
@@ -56,7 +57,7 @@
 	
 	
 
-; Helper function for above - for now... 3/31/2016
+; Helper function for above - for now... 4/07/2016
 	
 (defun PlaceMainPosts ( pointList / Pt1 Pt2 Pt2offset Pt1offset)
 	
