@@ -14,13 +14,17 @@
 ;;  - Added MeasureLines function.              ;;
 ;;  - Now measures polylines, too.              ;;
 ;;                                              ;;
+;;  04/06/2016                                  ;;
+;;  - Added pline segmen measuring.             ;;
+;;  - Renamed MeasureLinear to                  ;;
+;;    MeasureLineSegments.                      ;;
+;;                                              ;;
 ;;  Todo:                                       ;;
 ;;  - Turn return value into true quantity      ;;
 ;;    list through additional helper            ;;
 ;;    functions.                                ;;
 ;;  - Refactor more. Maybe take in a selection  ;;
-;;    set as an argument? EntName is passed to  ;;
-;;    helper functions instead of EntInfo?      ;;
+;;    set as an argument?                       ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -39,17 +43,16 @@
 
 
 
-; MeasureLinear
+; MeasureLineSegments
 ; Created: 02/22/2016 by J.D. Sandifer
-; Purpose: Measures lengths of lines or plines on a specific layer and 
-; returns a list of their lengths.
+; Purpose: Measures lengths of lines, plines, or mlines on a specific layer
+; and returns a list of their lengths.
 ; Input: User selects area contaning the lines.
 ; Returns: A sum of their lengths.
 
-(defun MeasureLinear ( / selSet lineEntity lineInfo 
-							   linelength cutList totalLength)
-	;(setq totalLength 0)
-	(setq linelength 0)
+(defun MeasureLineSegments ( / selSet lineEntity lineInfo 
+							   linelength cutList lineList)
+	(setq lineList nil)
    (setq selSet (ssget (list (cons 8 "Center") 
 									 '(-4 . "<or")
 									 	'(0 . "line")
@@ -64,28 +67,26 @@
          ; get the next line entity from the list
 		(cond
 			(	(= (cdr (assoc 0 (entget lineEntity))) "LINE")
-				(setq totalLength (append totalLength (list 
-					(GetLengthOfLine lineEntity))))
-				(princ totalLength)
-				(princ "-a\n")
-					)
+				(setq lineList (append lineList (list 
+					(GetLengthOfLine lineEntity)))))
+			(	(= (cdr (assoc 0 (entget lineEntity))) "MLINE")
+				(setq lineList (append lineList (list 
+					(GetLengthOfMultiLine lineEntity)))))
 			(	(= (cdr (assoc 0 (entget lineEntity))) "LWPOLYLINE")
-				(setq totalLength (append totalLength (list 
-					(GetLengthOfPolyLine lineEntity))))
-				(princ totalLength)
-				(princ "-b\n")
-					)
-			(T (princ "\nUnknown line type snuck in...")))
-				; add it to the sum if it's a line we can measure
+				(setq lineList (append lineList 
+					(GetLengthOfEachPLineSegment lineEntity))))
+			(T (princ "\nUnknown line type snuck in...")
+				(princ (assoc 0 (entget lineEntity)))))
+				; add it to the list if it's a line we can measure
       (setq index (1+ index)))
          ; increment counter (very important)
-	(setq totalLength (vl-sort totalLength '>))
-	(princ "\nDifferent length of lines: ")
-	(foreach aLength totalLength
-		(princ "\n")
-		(princ aLength))
-	(princ "\n")
-   totalLength)
+	;(setq lineList (OrderListBy lineList '>))
+	;; turn simple list into qty assoc list
+	(setq lineQtyList nil)
+	(foreach segmentLength lineList
+		(setq segmentLength (RoundUpTo 2 segmentLength))
+		(setq lineQtyList (Assoc++ segmentLength lineQtyList)))
+	(OrderList lineQtyList))
 	
 
 	
@@ -101,11 +102,52 @@
 	)
 	
 	
-	
-(defun GetLengthOfPolyLine ( lineEntity / )
+
+(defun GetLengthOfPolyline ( lineEntity / )
 	(vl-load-com)
    (vlax-curve-getDistAtParam lineEntity
 		(vlax-curve-getEndParam lineEntity)))
+
+
+		
+(defun GetLengthOfEachPLineSegment ( lineEntity / lengthsList)
+	(setq pntList (ReadPline lineEntity))
+	(setq ptCntr 0)
+	(setq lengthsList nil)
+	(repeat (1- (length pntList))
+			(setq fpoint(nth ptCntr pntList))
+			(setq epoint(nth (1+ ptCntr) pntList))
+			(setq thr(distance fpoint epoint))
+			(setq ptCntr (1+ ptCntr))
+			(setq lengthsList (append lengthsList (list thr)))
+			))
+	
+	
+	
+;Function to Read Vertices of Selected Lines.
+(defun ReadPline(imp_Ent)
+	(setq glb_obj(vlax-ename->vla-object imp_Ent))
+	(setq glb_PntCnt(vlax-curve-getEndParam glb_obj))
+	(setq returnPTList '())
+	(setq ptCntr 1)
+	(setq glb_oName(vlax-get-property glb_obj 'ObjectName))
+	(setq glb_OClosed nil)
+	(if (= glb_oName "AcDbLine")
+		(progn
+			(setq glb_EnDetails(entget imp_Ent))
+			(setq big_Point3d(cdr (assoc 10 glb_EnDetails)))
+			(setq end_Point3d(cdr (assoc 11 glb_EnDetails)))
+			(setq returnPTList(append returnPTList (list big_Point3d)))
+			(setq returnPTList(append returnPTList (list end_point3d))))
+		(progn
+			(setq glb_OClosed(vlax-curve-isClosed glb_obj))
+			(setq glb_2dDist 0)
+			(setq old_Point nil)
+			(repeat (1+ (fix glb_PntCnt))
+				(setq cur_Point3d(vlax-curve-getPointAtParam glb_obj (1- ptCntr)))
+				(setq returnPTList(append returnPTList (list cur_Point3d)))
+				(setq ptCntr(1+ ptCntr)))))
+	(setq return returnPTList))
 
 
 		
