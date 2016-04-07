@@ -14,6 +14,11 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  04/06/2016                                  ;;
+;;  - Tweaked chopping function to fix bug.     ;;
+;;  - Added CountStockLengths to simplify       ;;
+;;    what I was typing into the command line.  ;;
+;;                                              ;;
 ;;  02/08/2016                                  ;;
 ;;  - Tweaked chopping function to fix bug.     ;;
 ;;                                              ;;
@@ -49,6 +54,8 @@
 ;;    as x#.                                    ;;
 ;;                                              ;;
 ;;  Todo:                                       ;;
+;;  - Untangle layer setting from               ;;
+;;    MeasureLineSegments.                      ;;
 ;;  - MVP best practice - cuts to a list to     ;;
 ;;    pass to a display function. Where else    ;;
 ;;    do I need to separate things like that?   ;;
@@ -67,6 +74,25 @@
 ;;    *postSpacing*                             ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;;; Works to count rail (mlines) if MeasureLineSegments is set to layer "1".
+;;; Works to count infill (plines) if set to "Center" layer.
+(defun C:CountStockLengths ( / stockLength)
+	(setq stockLength 180)
+	(princ 
+		(strcat "\nStock lengths: " 
+			(itoa 
+				(CountRails 
+					(OrderList
+						(ChopLongLengths
+							(MeasureLineSegments)
+							stockLength))
+					stockLength))))
+	(princ))
+
+
 
 
 (defun RailCountSub (/ floorsMultiplier qtyNeeded timeToReturn input)
@@ -235,14 +261,15 @@
 ;; cutList - [association list] The cut list.
 
 (defun ChopLongLengths (cutList stockLength / currentCutIndex currentCutLength
-			currentCutQuantity multiplier remainder)
+			currentCutQuantity multiplier remainder finalCutList)
 
    (princ "\nStock length: ")
    (princ stockLength)
    (princ "\n")
 
    (setq currentCutIndex 0)
-
+	(setq finalCutList nil)
+	
    (while (< currentCutIndex (length cutList))
 
       (setq currentCutLength (car (nth currentCutIndex cutList)))
@@ -266,32 +293,32 @@
 				(setq cutList
 					(vl-remove (assoc currentCutLength cutList) cutList))
 					; remove the long piece
-				(setq cutList
-					(Assoc+Qty stockLength cutList
+				(setq finalCutList
+					(Assoc+Qty stockLength finalCutList
 								  (* multiplier currentCutQuantity)))
 					; add the stock lengths
 				(cond
-					; if it's too small, make it long enough (69")
-					(	(< remainder 57)
-						(setq cutList (Assoc+Qty 81 cutList 
-													(* multiplier currentCutQuantity))))
+					; if it's too small, make it long enough (66")
+					(	(<= remainder 66)
+						(setq finalCutList (Assoc+Qty 66 finalCutList 
+													currentCutQuantity)))
 					; make sure we don't add to greater than stock length
-					(	(and (>= remainder 57) (<= remainder (- stocklength 24)))
-						(setq cutList (Assoc+Qty (+ remainder 24)
-												 cutList
-												 (* multiplier currentCutQuantity))))
+					(	(and (> remainder 66) (<= remainder (- stocklength 24)))
+						(setq finalCutList (Assoc+Qty (+ remainder 24)
+												 finalCutList
+												 currentCutQuantity)))
 					; if the remainder is long enough, add a stock length, too
 					(	(> remainder (- stocklength 24))
-						(Assoc+Qty stockLength cutList
-								  (* multiplier currentCutQuantity))
-						(setq cutList (Assoc+Qty 81 cutList 
-													(* multiplier currentCutQuantity))))))
-												 
-					; add the remainder lengths (if they're long enough)
-         (setq currentCutIndex (1+ currentCutIndex)))
+						(setq finalCutList (Assoc+Qty stockLength finalCutList
+								  currentCutQuantity)))))
+			(progn
+				(setq finalCutList 
+					(Assoc+Qty currentCutLength finalCutList currentCutQuantity))
+				(setq currentCutIndex (1+ currentCutIndex))))
+				
       (princ) )
 
-   cutList)
+   finalCutList)
 
 
 

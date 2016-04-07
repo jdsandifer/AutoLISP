@@ -53,9 +53,9 @@
 (defun MeasureLineSegments ( / selSet lineEntity lineInfo 
 							   linelength cutList lineList)
 	(setq lineList nil)
-   (setq selSet (ssget (list (cons 8 "Center") 
+   (setq selSet (ssget (list (cons 8 "1") 
 									 '(-4 . "<or")
-									 	'(0 . "line")
+									 	'(0 . "*line")
 									   '(0 . "*polyline")
 									 '(-4 . "or>"))))
       ; have the user select an area that includes the lines to measure
@@ -70,8 +70,8 @@
 				(setq lineList (append lineList (list 
 					(GetLengthOfLine lineEntity)))))
 			(	(= (cdr (assoc 0 (entget lineEntity))) "MLINE")
-				(setq lineList (append lineList (list 
-					(GetLengthOfMultiLine lineEntity)))))
+				(setq lineList (append lineList 
+					(GetLengthOfEachMultilineSegment lineEntity))))
 			(	(= (cdr (assoc 0 (entget lineEntity))) "LWPOLYLINE")
 				(setq lineList (append lineList 
 					(GetLengthOfEachPLineSegment lineEntity))))
@@ -84,7 +84,7 @@
 	;; turn simple list into qty assoc list
 	(setq lineQtyList nil)
 	(foreach segmentLength lineList
-		(setq segmentLength (RoundUpTo 2 segmentLength))
+		(setq segmentLength (RoundUpTo 3 (+ 12 segmentLength)))
 		(setq lineQtyList (Assoc++ segmentLength lineQtyList)))
 	(OrderList lineQtyList))
 	
@@ -100,6 +100,27 @@
    	; chop off the key so its just the points,
 	; measure the distance between the two points,
 	)
+	
+	
+
+(defun GetLengthOfEachMultilineSegment ( lineEntity /
+													  lineEntityInfo segmentList)
+	(setq lineEntityInfo (entget lineEntity))
+		; get line entity info list
+	(setq segmentList nil)
+	(foreach infoItem lineEntityInfo
+		(cond
+			(  (= (car infoItem) 11)
+				(setq segmentList (append segmentList (list (cdr infoItem))))
+				)))
+	(setq firstPoint (car segmentList))
+	(setq segmentList (cdr segmentList))
+	(setq lengthsList nil)
+	(foreach secondPoint segmentList
+		(setq lengthsList 
+			(append lengthsList (list (distance firstPoint secondPoint))))
+		(setq firstPoint secondPoint))
+	lengthsList)
 	
 	
 
