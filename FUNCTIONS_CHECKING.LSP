@@ -28,7 +28,8 @@
 ; Returns: T/nil
 
 (defun isInserted ( blockName )
-	(/= (tblsearch "block" blockName) nil))
+	(princ "Will check for block when finished.")
+	)
 
 
 		

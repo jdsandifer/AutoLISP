@@ -77,6 +77,11 @@
 ;;  - Added infill counting and filling.        ;;
 ;;                                              ;;
 ;;  Todo:                                       ;;
+;;  - "AutoFill" variable to choose if the app  ;;
+;;    fills in blocks as it gets quantities.    ;;
+;;    Could also choose other options: add a    ;;
+;;    text element with values, print to        ;;
+;;    command line, dialog box, etc.            ;;
 ;;  - Test infill counting.                     ;;
 ;;  - Remove hard coding of block names in      ;;
 ;;    CountPosts.                               ;;

@@ -1,6 +1,6 @@
 ;;;;;;;[  Helper Functions  ];;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
-;;  All shared helper functions.                ;;
+;;  General shared helper functions file.       ;;
 ;;                                              ;;
 ;;::::::::::::::::::::::::::::::::::::::::::::::;;
 ;;                                              ;;
@@ -8,6 +8,9 @@
 ;;  Written: 01/19/2016                         ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                              ;;
+;;  03/16/2016                                  ;;
+;;  - Moved math functions to FUNCTIONS_MATH.   ;;
 ;;                                              ;;
 ;;  01/19/2016                                  ;;
 ;;  - Added functions from PlanDraw(s).         ;;
@@ -36,7 +39,6 @@
 
 
 
-
 ;;; Assoc+Qty  -  J.D. (inspired by Assoc++ by Lee Mac)
 ;;; Adds to the value of a key in an association list if present,
 ;;; else adds key to the list with the new amount.
@@ -55,7 +57,6 @@
 
 
 
-
 ;; Assoc++ - Simplifier for Assoc+Qty
 ;; Increments the value of a key in an association list if present, 
 ;; else adds key to the list.
@@ -64,7 +65,6 @@
 
 (defun Assoc++ ( theKey theList / )
    (Assoc+Qty theKey theList 1))
-
 
 	
 
@@ -75,7 +75,6 @@
 
 (defun Assoc-- ( theKey theList / )
    (Assoc+Qty theKey theList -1))
-
 
 	
 
@@ -98,7 +97,6 @@
 			(setq index (1+ index)))	
 		(setq index 1))
 	theList)
-	
 
 	
 
@@ -122,7 +120,6 @@
 	
 	
 	
-	
 ;; DisplayCount - Displays the count list as a table: label then quantity
 ;; result - [association list] Labels paired with quantities.
 
@@ -130,30 +127,6 @@
    (princ result)
    (princ "\n")
    (princ))
-
-	
-	
-	
-;; DTR - (Converts) Degrees To Radians - useful for polar command
-;; angleInDegrees [ integer ]
-
-(defun DTR ( angleInDegrees )
-	(* PI (/ angleInDegrees 180.0)))
-
-
-
-
-;;; FindClosestIntegerDivisor
-;;; Finds the integer divisor to create a result closest to the goal (ties = smaller divisor for larger spacing).
-
-(defun FindClosestIntegerDivisor (numerator goal / aim x pivotDivisor result)
-   (setq aim (/ (* 1.0 numerator) goal))
-   (setq x (fix aim))
-   (setq pivotDivisor (/ (* 2.0 X (+ X 1.0)) (+ (* 2.0 X) 1.0)))	; Complicated equation to determine pivot divisor -
-   (if (<= aim pivotDivisor)                                      ; the one that determines which way to round.
-      (setq result x)
-      (setq result (RoundUpTo 1 aim))))
-
 	
 	
 	
@@ -202,13 +175,11 @@
 
 
 
-
 ;; OrderListAscending - List ordering using OrderListBy (legacy support)
 ;; list - [association list] Sorts in ascending (alphabetical) order by keys. 
 
 (defun OrderListAscending (theList)
    (OrderListBy theList '(lambda (e1 e2) (< (car e1) (car e2)))))
-
 
 
 
@@ -221,57 +192,12 @@
 	
 		
 	
-	
 ;;; ResetInfillCutList - Resets global infill cut list.
 
 (defun ResetInfillCutList ()
    (setq *infillCutList* nil)
    (princ "Infill cut list was reset.")
    (princ))
-
-	
-	
-
-;;; RoundTo
-;;; Rounds the value to the nearest multiple of "multiple" and returns it as an integer.
-
-(defun RoundTo (multiple value)
-   (cond
-      ((< (rem value multiple) (/ multiple 2.0))
-         (fix (- value (rem value multiple))))
-      ((>= (rem value multiple) (/ multiple 2.0))
-			(fix (+ (- value (rem value multiple)) multiple))) ))
-			
-			
-			
-			
-;;; RoundUpBy
-;;; Rounds the value up to the next multiple of "multiple" and returns it as an integer.
-
-(defun RoundUpBy (multiple value)
-   (if (= (rem value multiple) 0)
-      ; Then
-      (fix value)
-      ; Else
-      (fix (+ (- value (rem value multiple)) multiple))))
-
-		 
-
-
-;;; Rounding up helper function (legacy support - uses new RoundUpTo function)
-
-(defun RoundUpInt (value)
-   (RoundUpBy 1 value) )
-
-
-
-
-;;; RoundUpTo
-;;; Rounds the value up to the next multiple of "multiple" and returns it as an integer.
-
-(defun RoundUpTo (multiple value)
-   (RoundUpBy multiple value))
-
 
 
 		

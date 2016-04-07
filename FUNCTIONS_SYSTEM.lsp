@@ -11,6 +11,12 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  03/16/2016                                  ;;
+;;  - Small edits - spelling, etc.   				;; ;;                                              ;;
+;;  03/15/2016                                  ;;
+;;  - Added ChangeVar(iable).                   ;;
+;;  - Added Save&ChangeVar.						   ;;
+;;                                              ;;
 ;;  02/04/2016                                  ;;
 ;;  - Added SaveVar(iable).                     ;;
 ;;  - Added ClearVar(iable)s.                   ;;
@@ -47,6 +53,30 @@
 		
 	
 	
+;;; JD:ChangeVar(iable) - Copyright 2016 J.D. Sandifer
+;;; Changes the selected system variable.
+;;; variable [string] - system variable to store
+;;; newValue [varies] - the value to which to set the variable
+
+(defun JD:ChangeVar ( variable newValue / )
+	(setvar variable newValue)
+	(princ))
+		
+
+	
+;;; JD:Save&ChangeVar(iable) - Copyright 2016 J.D. Sandifer
+;;; Saves and changes the selected system variable.
+;;; variable [string] - system variable to store
+;;; variableList [symbol] - name of the variable list to use
+;;; newValue [varies] - the value to which to set the variable
+
+(defun JD:Save&ChangeVar ( variable variableList newValue / )
+	(JD:SaveVar variable variableList)
+	(JD:ChangeVar variable newValue)
+	(princ))
+		
+
+	
 ;;; JD:ResetVar(iable)s - Copyright 2016 J.D. Sandifer
 ;;; Restores a single system variable from the list (without removing it).
 ;;; variable [string] - system variable to store
@@ -72,5 +102,21 @@
 	
 	
 
+;;; Error handling function - prints error message nicely and resets system variables
+
+(defun ErrorHandler (msg)
+   (princ "\nThere's a slight problem: ")
+   (princ msg)
+
+   (JD:ResetAllVars 'systemVariables)
+	; NEED TO FIX THIS! How can I untangle the variable...?
+	
+	(command-s "._UNDO" "_End")		; End UNDO group
+   ;(command "._U")			; Undo whatever got done so far
+   
+   (princ))
+	
+	
+	
 ; Silent load	
 (princ)

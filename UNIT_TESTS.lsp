@@ -21,14 +21,9 @@
 
 (defun C:UnitTests ( / testList testResults)
 
-	(princ "\n")
 	;(ReloadFile "UNIT_TESTS")
-	
-	(princ "isInserted\n")
 	(Assert 'isInserted "not-a-block" nil)
-	(Assert 'isInserted "36-16-BLOCK-2" nil)
-	(Assert 'isInserted "BP" T)
-	
+	(Assert 'isInserted "not-a-block" T)
 	(setq testResults (CountBooleans testList))
 	(PrintTestResults testResults))
 		
@@ -40,30 +35,17 @@
 ; Return: none
 
 
-(defun Assert ( functionName argumentForFunction expectedResult / 
-					 actualResult passed)
+(defun Assert ( functionName argumentForFunction expectedResult / passed)
 	(cond
-		((= (setq actualResult ((eval functionName) argumentForFunction))
-			  expectedResult)
+		((= (functionName argumentForFunction) expectedResult)
 			(princ "passed...(")
-			(setq passed T)
-			(setq actualResult nil))
+			(setq passed T))
 		(T
 			(princ "failed...(")
-			(setq passed nil)
-			(setq actualResult 
-				(strcat (vl-symbol-name actualResult) " instead of "))))
-	
-	;; continue printing result...
-	(princ (strcase (vl-symbol-name functionName) T))
-	(princ " ")
-	(prin1 (eval argumentForFunction))
-	(princ ") returned ")
-	(if actualResult (princ actualResult))
-	(princ expectedResult)
-	(princ "\n")
-	(setq testList (append testList (list passed)))
-	
+			(setq passed nil)))
+	(princ (quote functionName))
+	(princ argumentForFunction)
+	(princ ")")
 	passed)
 		
 	
@@ -98,12 +80,6 @@
 	
 	(setq trues (cdr (Assoc "T" testResults)))
 	(setq falses (cdr (Assoc "F" testResults)))
-	
-	(if (= trues nil)
-		(setq trues 0))
-	(if (= falses nil)
-		(setq falses 0))
-	
 	
 	; add code to count digits in numbers and add correct space before
 	; and use test vs. tests correctly?

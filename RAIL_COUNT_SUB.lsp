@@ -77,7 +77,7 @@
    
    ;; Set defaults (only do global variables if they aren't set yet)
    (MakeVarNotNil '*stockLength* 242)
-   (MakeVarNotNil '*ctrLineLayer* "center")
+   (MakeVarNotNil '*ctrLineLayer* "A-HRAL-CNTR")
    (MakeVarNotNil '*choice* "Add")
 	(setq floorsMultiplier 1)
 	(princ "variable setup")
