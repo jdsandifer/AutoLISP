@@ -10,7 +10,7 @@
 
 ;|============{ Post Placing }==============|;
 ;| Automatic end post and total dimension   |;
-;| placement for based on offset distances. |;
+;| placement based on offset distances.     |;
 ;|------------------------------------------|;
 ;| Author: J.D. Sandifer    Rev: 04/07/2016 |;
 ;|==========================================|;
