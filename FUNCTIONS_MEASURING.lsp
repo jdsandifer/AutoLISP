@@ -50,15 +50,11 @@
 ; Input: User selects area contaning the lines.
 ; Returns: A sum of their lengths.
 
-(defun MeasureLineSegments ( layerToCount roundingFactor fudgeFactorToAdd /
+(defun MeasureLineSegments ( selSet roundingFactor fudgeFactorToAdd /
 									  selSet lineEntity lineInfo 
 							   linelength cutList lineList)
 	(setq lineList nil)
-   (setq selSet (ssget (list (cons 8 layerToCount) 
-									 '(-4 . "<or")
-									 	'(0 . "*line")
-									   '(0 . "*polyline")
-									 '(-4 . "or>"))))
+   
       ; have the user select an area that includes the lines to measure
       ; and filter in only lines on "A-HRAL-CNTR" layer (not case-sensitive)
    (setq index 0)

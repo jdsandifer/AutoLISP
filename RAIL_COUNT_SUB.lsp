@@ -79,17 +79,24 @@
 
 ;;; Works to count infill (plines) if set to "Center" layer.
 (defun C:CountTopRail ( / stockLength layerToCount)
-	(setq stockLength 240)
+	(setq stockLength 242)
 	(setq roundingFactor 3)
-	(setq fudgeFactorToAdd 12)
+	(setq fudgeFactorToAdd 6)
+	(setq layerToCount "A-HRAL-RAIL")
 	
-	(setq layerToCount "1")
+	(setq selSet (ssget (list (cons 8 layerToCount) 
+									 '(-4 . "<or")
+									 	'(0 . "*line")
+									   '(0 . "*polyline")
+									 '(-4 . "or>"))))
+	
+	
 	(princ 
 		(strcat "\nStock lengths: " 
 			(itoa 
 				(CountRails 
 					(ChopLongLengths
-							(MeasureLineSegments layerToCount roundingFactor
+							(MeasureLineSegments selSet roundingFactor 
 														fudgeFactorToAdd)
 							stockLength)
 					stockLength))))
@@ -99,16 +106,22 @@
 
 ;;; Works to count infill (plines) if set to "Center" layer.
 (defun C:CountInfill ( / stockLength)
-	(setq stockLength 240)
+	(setq stockLength 242)
 	(setq roundingFactor 2)
 	(setq fudgeFactorToAdd 2)
+	(setq layerToCount "A-HRAL-CNTR")
 	
-	(setq layerToCount "Center")
+	(setq selSet (ssget (list (cons 8 layerToCount) 
+									 '(-4 . "<or")
+									 	'(0 . "*line")
+									   '(0 . "*polyline")
+									 '(-4 . "or>"))))
+	
 	(princ 
 		(strcat "\nStock lengths: " 
 			(itoa 
 				(CountRails 
-					(MeasureLineSegments layerToCount roundingFactor
+					(MeasureLineSegments selSet roundingFactor
 													fudgeFactorToAdd)
 					stockLength))))
 	(princ))
@@ -281,7 +294,7 @@
 ;; cutList - [association list] The cut list.
 
 (defun ChopLongLengths (cutList stockLength / currentCutIndex currentCutLength
-			currentCutQuantity multiplier remainder finalCutList)
+			currentCutQuantity multiplier remainder finalCutList splices)
 
    (princ "\nStock length: ")
    (princ stockLength)
@@ -289,6 +302,7 @@
 
    (setq currentCutIndex 0)
 	(setq finalCutList nil)
+	(setq splices 0)
 	
    (while (< currentCutIndex (length cutList))
 
@@ -304,6 +318,7 @@
 				(princ ", ")
 				(setq multiplier (fix (/ currentCutLength stockLength)))
 				(princ multiplier)
+				(setq splices (+ splices (* multiplier currentCutQuantity)))
 					; how many stock lengths do we need (per long length)?
 				(princ ", ")
 				(setq remainder
@@ -338,6 +353,13 @@
 				
       (princ) )
 
+	(princ "\nSplices needed: ")
+	(princ splices)
+	(princ " (")
+	(princ (* 2 splices))
+	(princ " splice plates)")
+	(princ)
+		
    (OrderList finalCutList))
 
 
