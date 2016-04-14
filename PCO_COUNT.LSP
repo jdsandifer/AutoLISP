@@ -11,6 +11,12 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  04/12/2016 - JD                             ;;
+;;  - Added cable tag text counting.            ;;
+;;  - Both methods are in the main function     ;;
+;;    right now. Comment the new one out if     ;;
+;;    desired.                                  ;;
+;;                                              ;;
 ;;  04/05/2016 - JD                             ;;
 ;;  - Added cable tag counting (new block).     ;;
 ;;  - Changed name of print function so it      ;;
@@ -46,20 +52,18 @@
 
 
 (defun c:pcocount (/ resultList postCallOut postCallOut2 postCallOut3
-							cableMultiplier)
+							cableMultiplier layer1)
    (setvar "cmdecho" 0)			; Turn off command line output
 
    ; Set block & layer names
    (setq postCallOut "POST-DRILLED CALL-OUT")
    (setq postCallOut2 "PICKET PANEL CALL-OUT")
 	(setq postCallOut3 "CABLE TAG")
+	(setq layer1 "Cable")
 	(setq cableMultiplier 13)
 
-   ; Counting handled in this function
-   (setq resultList (CountPostCallOuts))	
-
-   ; Display handled in this function
-   (DisplayCountTable resultList)
+   (DisplayCountTable (CountPostCallOuts))
+	(DisplayCountTable (CountCableTextLabels))
 
    (setvar "cmdecho" 1)		; Command line back on
    (princ)	)		; Hide last return value (clean exit)
@@ -85,6 +89,32 @@
 			
    ;this returns the list (after sorting it)
    (OrderListAscending postList) )
+	
+	
+	
+;; CountPostCallOuts - Counts post call-out blocks within a user selection and returns an association list of (labels . quantities).
+;; no arguments - just local variables
+
+(defun CountCableTextLabels ( / cableList index textSelSet key)
+   (setq textSelSet 
+		(ssget 
+			(list '(0 . "TEXT") 
+				'(8 . "Cable"))))
+   (setq index 0)
+   (while (< index (sslength textSelSet))
+      (progn
+			(setq key 
+				(cdr 
+					(assoc 1 
+						(entget 
+							(ssname textSelSet index))))) 
+         (setq cableList 
+				(assoc++ key cableList))
+			(setq index 
+				(1+ index))))
+			
+   ;this returns the list (after sorting it)
+   (OrderListAscending cableList))
 
 	
 
