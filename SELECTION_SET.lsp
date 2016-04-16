@@ -11,13 +11,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
 ;;  04/15/2016                                  ;;
-;;  - Started HighlightSelectionSet and         ;;
-;;    UnhighlightSelectionSet.                  ;;
+;;  - Finished basic HighlightSelectionSet      ;;
+;;    with flag to also choose unhighlighting.  ;;
 ;;  - Moved FilterSelectionSet and              ;;
 ;;    PrintSelectionSet here.                   ;;
 ;;  - Did preliminary testing.                  ;;
 ;;                                              ;;
 ;;  Todo:                                       ;;
+;;  - Selection set to entity list function     ;;
+;;    better functional programming (mapcar).   ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
@@ -55,16 +57,17 @@
 (defun JD:HighlightSelectionSet (doHighlight selectionSet / 
 											highlightMode index)
    (cond 
-		(doHighlight)
-		(!doHighlight)
-		)
+		(doHighlight
+			(setq highlightMode 3))
+		((not doHighlight)
+			(setq highlightMode 4)))
 	
 	(setq index (sslength selectionSet))
 	(while (> index 0)
 		(setq entity (ssname selectionSet (1- index)))
-		
-		)
-   subset)
+		(redraw entity highlightMode)
+		(setq index (1- index)))
+   (princ))
 
 	
 	

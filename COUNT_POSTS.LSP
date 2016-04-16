@@ -1,5 +1,5 @@
 
-;;;;;;;[  Post Call Out Counting  ];;;;;;;;;;;;;;;
+;;;;;;;[  Post & Cable Counting  ];;;:;;;;;;;;;;;;
 ;;                                              ;;
 ;;  Counts post call-outs within a selected     ;;
 ;;  area based on 2 hard-coded block names.     ;;
@@ -51,7 +51,7 @@
 
 
 
-(defun c:pcocount (/ resultList postCallOut postCallOut2 postCallOut3
+(defun c:countposts (/ resultList postCallOut postCallOut2 postCallOut3
 							cableMultiplier layer1)
    (setvar "cmdecho" 0)			; Turn off command line output
 
@@ -60,40 +60,18 @@
    (setq postCallOut2 "PICKET PANEL CALL-OUT")
 	(setq postCallOut3 "CABLE TAG")
 	(setq layer1 "Cable")
-	(setq cableMultiplier 13)
+	(setq cableMultiplier 11)
 
    (DisplayCountTable (CountPostCallOuts))
 	(DisplayCountTable (CountCableTextLabels))
 
    (setvar "cmdecho" 1)		; Command line back on
    (princ)	)		; Hide last return value (clean exit)
-
-
-
-;; CountPostCallOuts - Counts post call-out blocks within a user selection and returns an association list of (labels . quantities).
-;; no arguments - just local variables
-
-(defun CountPostCallOuts (/ postList i blockSelSet key)
-   (setq blockSelSet (ssget (list '(0 . "INSERT")
-			       '(-4 . "<or")
-			       (cons 2 postCallOut)
-			       (cons 2 postCallOut2)
-					 (cons 2 postCallOut3)
-			       '(-4 . "or>"))))
-   (setq i 0)
-   (while (< i (sslength blockSelSet))
-      (progn
-			(setq key  (cdr (assoc 1  (entget (entnext (ssname blockSelSet i))) )) ) 
-         (setq postList (assoc++ key postList))
-			(setq i (1+ i)) ))
-			
-   ;this returns the list (after sorting it)
-   (OrderListAscending postList) )
 	
 	
 	
-;; CountPostCallOuts - Counts post call-out blocks within a user selection and returns an association list of (labels . quantities).
-;; no arguments - just local variables
+;; CountCableTextLabels - Counts cable labes (text) within a user 
+;; selection and returns an association list of (labels . quantities).
 
 (defun CountCableTextLabels ( / cableList index textSelSet key)
    (setq textSelSet 
@@ -116,8 +94,48 @@
    ;this returns the list (after sorting it)
    (OrderListAscending cableList))
 
-	
 
+	
+;; CountEndPlates - Counts endplate blocks within a user selection 
+;; and returns the total.
+
+(defun CountEndPlates (/ postList i blockSelSet key)
+   (setq blockSelSet (ssget (list '(0 . "INSERT")
+			       '(8 . "A-HRAL-RAIL"))))
+   (setq i 0)
+   (while (< i (sslength blockSelSet))
+      (progn
+			(setq key  (cdr (assoc 1  (entget (entnext (ssname blockSelSet i))) )) ) 
+         (setq postList (assoc++ key postList))
+			(setq i (1+ i)) ))
+			
+   ;this returns the list (after sorting it)
+   (OrderListAscending postList) )
+	
+	
+	
+;; CountPostCallOuts - Counts post call-out blocks within a user selection 
+;; and returns an association list of (labels . quantities).
+
+(defun CountPostCallOuts (/ postList i blockSelSet key)
+   (setq blockSelSet (ssget (list '(0 . "INSERT")
+			       '(-4 . "<or")
+			       (cons 2 postCallOut)
+			       (cons 2 postCallOut2)
+					 (cons 2 postCallOut3)
+			       '(-4 . "or>"))))
+   (setq i 0)
+   (while (< i (sslength blockSelSet))
+      (progn
+			(setq key  (cdr (assoc 1  (entget (entnext (ssname blockSelSet i))) )) ) 
+         (setq postList (assoc++ key postList))
+			(setq i (1+ i)) ))
+			
+   ;this returns the list (after sorting it)
+   (OrderListAscending postList) )
+
+
+	
 ;; DisplayCountTable - Displays the count list as a table: label then quantity
 ;; result - [association list] Labels paired with quantities.
 
