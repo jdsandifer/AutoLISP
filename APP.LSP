@@ -46,13 +46,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun C:RELOAD (/ input promptString newApp commandString)
+(defun C:RELOAD (/ *error* input promptString newApp commandString)
 
-   (setq oldError *error*
-	 *error* *errorHandler*)
+   (setq *error* *errorHandler*
+	 DEFAULT-APP-TO-LOAD "DRAW_PLAN"
+	 DEFAULT-APP-TO-RUN "DP")
    
    (if (or (= *appToLoad* nil) (= *appToLoad* ""))
-      (setq *appToLoad* "PLANDRAW"))
+      (setq *appToLoad* DEFAULT-APP-TO-LOAD))
 		
 	;; Prompt for LISP app to load, but only assign a new value to *appToLoad*.
    (setq promptString (strcat "\nChoose LISP to reload <" *appToLoad* ">: "))
@@ -67,7 +68,7 @@
 
 
    (if (or (= *appToRun* nil) (= *appToRun* ""))
-      (setq *appToRun* "PLANDRAW"))
+      (setq *appToRun* DEFAULT-APP-TO-RUN))
 
    ;; Prompt for LISP app to run, but only assign a new value to *appToRun*.
    (setq promptString (strcat "\nChoose LISP to run or Q for quit <" *appToRun* ">: "))
@@ -79,8 +80,6 @@
       (setq commandString (strcat "(C:" *appToRun* ")"))
       (eval (read commandString))))		; Run commandString like in the command line
    
-   (setq *error* oldError)
-   
    ; Keep command line clean
    (princ))
 
@@ -91,11 +90,22 @@
 
 (defun *errorHandler* (msg)
    (princ msg)
-   (setq *error* oldError)
    (princ))
 
 
 
+;;----------------------------------------------------------------------;;
 
-; Keep command line clean
+
+(princ
+    (strcat
+        "\n:: APP.lsp loaded. | \\U+00A9 J.D. Sandifer "
+        (menucmd "m=$(edtime,0,yyyy)")
+        " ::\n"
+    )
+)
 (princ)
+
+;;----------------------------------------------------------------------;;
+;;                             End of File                              ;;
+;;----------------------------------------------------------------------;;

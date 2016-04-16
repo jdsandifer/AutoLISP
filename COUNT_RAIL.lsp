@@ -77,47 +77,50 @@
 
 
 
-;;; Works to count infill (plines) if set to "Center" layer.
-(defun C:CountTopRail ( / stockLength layerToCount)
+;;; Counts toprail (mlines) and infill/bottom rail (plines).
+(defun C:CountRail ( / stockLength roundingFactorToprail
+								roundingFactorInfill layerToCountToprail fudgeFactorToAddToprail fudgeFactorToAddInfill layerToCountInfill selSet subset isConfirmed)
 	(setq stockLength 242)
-	(setq roundingFactor 3)
-	(setq fudgeFactorToAdd 6)
-	(setq layerToCount "A-HRAL-RAIL")
+	(setq roundingFactorToprail 3
+			fudgeFactorToAddToprail 9
+			layerToCountToprail "A-HRAL-RAIL")
+	(setq roundingFactorInfill 2
+			fudgeFactorToAddInfill 1
+			layerToCountInfill "A-HRAL-CNTR")
 	
-	(setq selSet (ssget '((0 . "*line"))))
-		
+	(setq selSet (ssget (list '(0 . "mline,*polyline")
+										(cons 8 
+											(strcat layerToCountToprail
+													  ","
+													  layerToCountInfill)))))
+	
+	;(JD:HighlightSelectionSet nil selSet)
+	;(JD:HighlightSelectionSet T
+	;	(setq subset
+	;		(JD:FilterSelectionSet (cons 8 layerToCount) selSet)))
+	
 	(princ 
-		(strcat "\nStock lengths: " 
+		(strcat "\nTop rail stock lengths: " 
 			(itoa 
 				(CountRails 
 					(ChopLongLengths
-							(MeasureLineSegments 
-								(FilterSelectionSet (cons 8 layerToCount) selSet)
-								roundingFactor 
-								fudgeFactorToAdd)
+							(MeasureLineSegments
+								roundingFactorToprail 
+								fudgeFactorToAddToprail
+								(JD:FilterSelectionSet (cons 8 layerToCountToprail) 
+									(JD:FilterSelectionSet (cons 0 "mline") selSet)))
 							stockLength)
 					stockLength))))
-	(princ))
 
-
-
-;;; Works to count infill (plines) if set to "Center" layer.
-(defun C:CountInfill ( / stockLength)
-	(setq stockLength 242)
-	(setq roundingFactor 2)
-	(setq fudgeFactorToAdd 1)
-	(setq layerToCount "A-HRAL-CNTR")
-	
-	(setq selSet (ssget '((0 . "*line"))))
-	
 	(princ 
-		(strcat "\nStock lengths: " 
+		(strcat "\nInfill/bottom rail stock lengths: " 
 			(itoa 
 				(CountRails 
-					(MeasureLineSegments 
-						(FilterSelectionSet (cons 8 layerToCount) selSet) 
-						roundingFactor
-						fudgeFactorToAdd)
+					(MeasureLineSegments
+						roundingFactorInfill
+						fudgeFactorToAddInfill
+						(JD:FilterSelectionSet (cons 8 layerToCountInfill)  
+							(JD:FilterSelectionSet (cons 0 "*polyline") selSet)))
 					stockLength))))
 	(princ))
 	
@@ -293,8 +296,7 @@
 
    (princ "\nStock length: ")
    (princ stockLength)
-   (princ "\n")
-
+   
    (setq currentCutIndex 0)
 	(setq finalCutList nil)
 	(setq splices 0)
@@ -353,7 +355,7 @@
 	(princ " (")
 	(princ (* 2 splices))
 	(princ " splice plates)")
-	(princ)
+	(princ "\n")
 		
    (OrderList finalCutList))
 
@@ -476,5 +478,18 @@
 
 
 
-; Clean load
-(princ)				
+;;----------------------------------------------------------------------;;
+
+
+(princ
+    (strcat
+        "\n:: COUNT_RAIL.lsp loaded. | \\U+00A9 J.D. Sandifer "
+        (menucmd "m=$(edtime,0,yyyy)")
+        " ::\n"
+    )
+)
+(princ)
+
+;;----------------------------------------------------------------------;;
+;;                             End of File                              ;;
+;;----------------------------------------------------------------------;;

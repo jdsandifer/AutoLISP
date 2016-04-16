@@ -10,6 +10,9 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  04/13/2016                                  ;;
+;;  - Changed filename to DRAW_PLAN.            ;;
+;;                                              ;;
 ;;  11/08/2015                                  ;;
 ;;  - Added infill counting aspect to           ;;
 ;;    function.                                 ;;
@@ -62,10 +65,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun C:plandraw (/ intPostBlock ctrLineLayer postLayer dimLayer dimOffset
+(defun C:dp (/ intPostBlock ctrLineLayer postLayer dimLayer dimOffset
 						   snapMode infillStockLength postSpacing railWidth
 							isCableRailing isPicketRailing cableOffsetDistance
-							tagOffsetDistance tagLayer tagBlock cableLayer)
+							tagOffsetDistance tagLayer tagBlock cableLayer 
+							placeDims placePosts placeCenteLine)
 	
    (command "._UNDO" "_Begin")		; Start UNDO group
 	
@@ -78,30 +82,37 @@
    (JD:SaveVar "clayer" 'systemVariables)
    
    ; Set block names
-   (setq intPostBlock "P-TRIM")
-   (setq endPlateBlock "end_plate")
-	(setq tagBlock "POST-DRILLED CALL-OUT")
+   (setq intPostBlock "P-TRIM"
+			endPlateBlock "end_plate"
+			tagBlock "POST-DRILLED CALL-OUT")
+			
 	; layer names
-   (setq ctrLineLayer "Center")
-   (setq postLayer "Detail")
-   (setq dimLayer "Dims")
-   (setq railLayer "1")
-	(setq tagLayer "POST-TAG")
-	(setq cableLayer "Cable")
+   (setq ctrLineLayer "A-HRAL-CNTR"
+			postLayer "Detail"
+			dimLayer "Dims"
+			railLayer "A-HRAL-RAIL"
+			tagLayer "POST-TAG"
+			cableLayer "Cable")
+			
 	; and other options
-   (setq dimOffset "24")			; String means easy concatenation later
-	(setq tagOffsetDistance 9)
-	(setq cableOffsetDistance 12)
-	(setq snapMode 64)
-	(setq infillStockLength 180)
-	
+   (setq dimOffset "24")		; String means easy concatenation later
+	(setq	tagOffsetDistance 9
+			cableOffsetDistance 12
+			snapMode 64)
+	(princ "\nSnap var: ")
+	(princ snapMode)
 	; Get user input?
    ;(setq postSpacing (getreal "\nMax post spacing in inches:"))
-	(setq postSpacing 48)
+	(setq postSpacing 60)
    ;(setq railWidth (getreal "\nRail width in inches:"))
-	(setq railWidth "2-11/16")		; String or integer works here
-	(setq isCableRailing T)
-	(setq isPicketRailing nil)
+	(setq railWidth "3")		; String or integer works here
+	
+	; Set flags to control whether certain things are drawn
+	(setq isCableRailing nil
+			isPicketRailing nil
+			placeDims nil
+			placePosts nil
+			placeCenteLine T)
 	
    ;(ResetInfillCutList)
    
@@ -160,7 +171,7 @@
             (setq isFirstTime nil)))
       
 		;; Place mid posts if needed
-      (if (>= spaces 2)
+      (if (and (>= spaces 2) placePosts)
 			(progn
 				(setvar "clayer" postLayer)
 				(command "line" Pt1 Pt2 "")
@@ -173,30 +184,40 @@
       (setq currentPt Pt1)
 		(setq currentPtList (list Pt1))
       (setq dimIndex spaces)	; spaces should always be at least 1
-      (while (> dimIndex 0)
+      (while (and (> dimIndex 0)
+						(or placeCenteLine placeDims isCableRailing))
          ;; Calculate next point and add it to the list for this section
 			(setq nextPt (polar currentPt lineAngle spaceLength))
 			(setq currentPtList (append currentPtList (list nextPt)))
 			
 			;; Draw the centerline (pline)
-			(setvar "clayer" ctrLineLayer)
-			(command "._pline" currentPt nextPt "")
+			(cond 
+				(placeCenteLine
+					(setvar "clayer" ctrLineLayer)
+					(command "._pline" currentPt nextPt "")))
 			
-         (setq offsetString (strcat "@" dimOffset "<" 
+         (cond
+				(placeDims
+					(setq offsetString (strcat "@" dimOffset "<" 
 												(angtos (- lineAngle (/ PI 2)) 0 9)))
-         (setvar "clayer" dimLayer)
-			(command "._dimaligned" currentPt nextPt offsetString)
-			; Get last dimension.
-			(setq lastDim (entget (entlast)))
-			;; Is this the second-to-last one? If so use the full label.
-			;; Otherwise, just label it "EQ". (Unless there's only one.)
-			(cond
-				((and (= dimIndex 1) (= spaces 1)))
-				((= dimIndex 2)
-					(setq label (strcat "<>\\X(" (itoa spaces) "X)"))
-					(entmod (subst (cons 1 label) (assoc 1 lastDim) lastDim)))
-				(T
-					(entmod (subst (cons 1 "EQ") (assoc 1 lastDim) lastDim))))
+					(setvar "clayer" dimLayer)
+					(command "._dimaligned" currentPt nextPt offsetString)
+					; Get last dimension.
+					(setq lastDim (entget (entlast)))
+					;; Is this the second-to-last one? If so use the full label.
+					;; Otherwise, just label it "EQ". (Unless there's only one.)
+					(cond
+						((and (= dimIndex 1) (= spaces 1)))
+						((= dimIndex 2)
+							(setq label (strcat "<>\\X(" (itoa spaces) "X)"))
+							(entmod (subst (cons 1 label) 
+											   (assoc 1 lastDim)
+												lastDim)))
+						(T
+							(entmod (subst (cons 1 "EQ") 
+												(assoc 1 lastDim) 
+												lastDim))))))
+			
 			
 			;; add post call out for each intermediate post
 			(if (and (> dimIndex 1)	isCableRailing)
@@ -216,7 +237,7 @@
       
       ;; Prep for next loop (next railing segment)
 		(setq Pt1 Pt2)
-      (setvar "osmode" snapMode))      
+      (setvar "osmode" snapMode))    
 
    (setvar "osmode" 0)
    
@@ -316,4 +337,18 @@
 
  
 
-(princ)		; Clean load 
+;;----------------------------------------------------------------------;;
+
+
+(princ
+    (strcat
+        "\n:: DRAW_PLAN.lsp loaded. | \\U+00A9 J.D. Sandifer "
+        (menucmd "m=$(edtime,0,yyyy)")
+        " ::\n"
+    )
+)
+(princ)
+
+;;----------------------------------------------------------------------;;
+;;                             End of File                              ;;
+;;----------------------------------------------------------------------;;

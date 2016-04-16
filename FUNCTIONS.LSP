@@ -203,52 +203,19 @@
    (princ))
 	
 	
-	
-;; FilterSelectionSet - J.D. Sandifer
-;; Returns a subset of a selection set based on the provided filter.
-;; filter [dot pair] - ex. (0 . "*LINE,INSERT") for blocks and all "lines."
-
-(defun FilterSelectionSet (filter selectionSet / 
-									subset filterType filterValue index)
-   (setq subset (ssadd)
-			filterType (car filter)
-			filterValue (cdr filter))
-			
-	(setq index (sslength selectionSet))
-	(while (> index 0)
-		(setq entity (ssname selectionSet (1- index)))
-		(if (= (type filterValue) 'STR)
-			(if (wcmatch (strcase (cdr (assoc filterType (entget entity))) T)
-			   			 (strcase filterValue T))
-				(setq subset (ssadd entity subset)))
-			(if (= (cdr (assoc filterType (entget entity))) filterValue)
-				(setq subset (ssadd entity subset))))
-		(setq index (1- index)))
-   subset)
-
-	
-	
-;; PrintSelectionSet - J.D. Sandifer
-;; Prints a selection set, one entity per line. (Mainly for testing...)
-;; selectionSet [sel set]
-
-(defun PrintSelectionSet (selectionSet / index)
-   (setq 
-		index (sslength selectionSet))
-	(princ "\nSelection set contains:")
-	(while 
-		(> index 0)
-		(princ "\n")
-		(princ 
-			(entget 
-				(ssname 
-					selectionSet 
-					(1- index))))
-		(setq 
-			index (1- index)))
-	(princ "\n")
-	(princ))
-	
-	
 		
-(princ)		; Clean load
+;;----------------------------------------------------------------------;;
+
+
+(princ
+    (strcat
+        "\n:: FUNCTIONS.lsp loaded. | \\U+00A9 J.D. Sandifer "
+        (menucmd "m=$(edtime,0,yyyy)")
+        " ::\n"
+    )
+)
+(princ)
+
+;;----------------------------------------------------------------------;;
+;;                             End of File                              ;;
+;;----------------------------------------------------------------------;;

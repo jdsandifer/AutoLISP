@@ -50,9 +50,9 @@
 ; Input: User selects area contaning the lines.
 ; Returns: A sum of their lengths.
 
-(defun MeasureLineSegments ( selSet roundingFactor fudgeFactorToAdd /
-									  selSet lineEntity lineInfo 
-							   linelength cutList lineList)
+(defun MeasureLineSegments (roundingFactor fudgeFactorToAdd selSet /
+									 selSet lineEntity lineInfo 
+									 linelength cutList lineList)
 	(setq lineList nil)
    
       ; have the user select an area that includes the lines to measure
@@ -170,4 +170,18 @@
 
 
 		
-(princ)		; Clean load
+;;----------------------------------------------------------------------;;
+
+
+(princ
+    (strcat
+        "\n:: MEASURE.lsp loaded. | \\U+00A9 J.D. Sandifer "
+        (menucmd "m=$(edtime,0,yyyy)")
+        " ::\n"
+    )
+)
+(princ)
+
+;;----------------------------------------------------------------------;;
+;;                             End of File                              ;;
+;;----------------------------------------------------------------------;;
