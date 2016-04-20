@@ -11,6 +11,12 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  04/18/2016 - JD                             ;;
+;;  - Combined cable and post call-out          ;;
+;;    counting into one function with one user  ;;
+;;    selection using FilterSelectionSet.       ;;
+;;  - Also cleaned up output a tad.             ;;
+;;                                              ;;
 ;;  04/12/2016 - JD                             ;;
 ;;  - Added cable tag text counting.            ;;
 ;;  - Both methods are in the main function     ;;
@@ -51,41 +57,59 @@
 
 
 
-(defun c:countposts (/ resultList postCallOut postCallOut2 postCallOut3
-							cableMultiplier layer1)
+(defun c:countposts&infill (/ postCallOut      postCallOut2  postCallOut3
+							  cableMultiplier  cableLayer    block&TextSelSet )
    (setvar "cmdecho" 0)			; Turn off command line output
 
    ; Set block & layer names
    (setq postCallOut "POST-DRILLED CALL-OUT")
    (setq postCallOut2 "PICKET PANEL CALL-OUT")
 	(setq postCallOut3 "CABLE TAG")
-	(setq layer1 "Cable")
+	(setq cableLayer "Cable")
 	(setq cableMultiplier 11)
 
-   (DisplayCountTable (CountPostCallOuts))
-	(DisplayCountTable (CountCableTextLabels))
+	(setq block&TextSelSet 
+		(ssget 
+			(list 
+				'(0 . "TEXT,INSERT") 
+				'(-4 . "<or")
+					(cons 8 cableLayer)
+					(cons 2 postCallOut)
+			      (cons 2 postCallOut2)
+					(cons 2 postCallOut3)
+			   '(-4 . "or>"))))
+	
+	(princ "\nPosts:")	
+   (DisplayCountTable
+		(JD:CountPostCallOuts
+			(JD:FilterSelectionSet
+				(cons 2 
+					(strcat postCallOut "," postCallOut2 "," postCallOut3))
+				(JD:FilterSelectionSet '(0 . "INSERT") block&TextSelSet))))
+	
+	(princ "\nCable runs:")
+	(DisplayCountTable 
+		(JD:CountCableTextLabels 
+			(JD:FilterSelectionSet (cons 8 cableLayer)
+				(JD:FilterSelectionSet '(0 . "TEXT") block&TextSelSet ))))
 
    (setvar "cmdecho" 1)		; Command line back on
-   (princ)	)		; Hide last return value (clean exit)
+   (princ))		; Hide last return value
 	
 	
 	
 ;; CountCableTextLabels - Counts cable labes (text) within a user 
 ;; selection and returns an association list of (labels . quantities).
 
-(defun CountCableTextLabels ( / cableList index textSelSet key)
-   (setq textSelSet 
-		(ssget 
-			(list '(0 . "TEXT") 
-				'(8 . "Cable"))))
+(defun JD:CountCableTextLabels (textSelectionSet / cableList index key) 
    (setq index 0)
-   (while (< index (sslength textSelSet))
+   (while (< index (sslength textSelectionSet))
       (progn
 			(setq key 
 				(cdr 
 					(assoc 1 
 						(entget 
-							(ssname textSelSet index))))) 
+							(ssname textSelectionSet index))))) 
          (setq cableList 
 				(assoc++ key cableList))
 			(setq index 
@@ -99,40 +123,44 @@
 ;; CountEndPlates - Counts endplate blocks within a user selection 
 ;; and returns the total.
 
-(defun CountEndPlates (/ postList i blockSelSet key)
+(defun JD:CountEndPlates (blockSelSet / postList index key)
    (setq blockSelSet (ssget (list '(0 . "INSERT")
 			       '(8 . "A-HRAL-RAIL"))))
-   (setq i 0)
-   (while (< i (sslength blockSelSet))
+   (setq index 0)
+   (while (< index (sslength blockSelSet))
       (progn
-			(setq key  (cdr (assoc 1  (entget (entnext (ssname blockSelSet i))) )) ) 
+			(setq key
+				(cdr 
+					(assoc 1 
+						(entget 
+							(entnext 
+								(ssname blockSelSet index)))))) 
          (setq postList (assoc++ key postList))
-			(setq i (1+ i)) ))
+			(setq index (1+ index))))
 			
    ;this returns the list (after sorting it)
-   (OrderListAscending postList) )
+   (OrderListAscending postList))
 	
 	
 	
 ;; CountPostCallOuts - Counts post call-out blocks within a user selection 
 ;; and returns an association list of (labels . quantities).
 
-(defun CountPostCallOuts (/ postList i blockSelSet key)
-   (setq blockSelSet (ssget (list '(0 . "INSERT")
-			       '(-4 . "<or")
-			       (cons 2 postCallOut)
-			       (cons 2 postCallOut2)
-					 (cons 2 postCallOut3)
-			       '(-4 . "or>"))))
-   (setq i 0)
-   (while (< i (sslength blockSelSet))
+(defun JD:CountPostCallOuts ( blockSelectionSet / postList index blockSelSet key)
+   (setq index 0)
+   (while (< index (sslength blockSelectionSet))
       (progn
-			(setq key  (cdr (assoc 1  (entget (entnext (ssname blockSelSet i))) )) ) 
+			(setq key
+				(cdr
+					(assoc 1 
+						(entget 
+							(entnext
+								(ssname blockSelectionSet index)))))) 
          (setq postList (assoc++ key postList))
-			(setq i (1+ i)) ))
+			(setq index (1+ index))))
 			
    ;this returns the list (after sorting it)
-   (OrderListAscending postList) )
+   (OrderListAscending postList))
 
 
 	
