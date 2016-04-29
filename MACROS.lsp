@@ -228,6 +228,45 @@
 	
 	
 	
+;|=========={ Dimension Labels }============|;
+;| Places label for middle dimension and    |;
+;| blanks for all others.                   |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 04/25/2016 |;
+;|==========================================|;
+
+
+(defun c:DougsDimLabels ();( / dimSelSet      index      selSetLength 
+							;  dimEntityInfo  dimEntityText)
+	(setq dimSelSet (ssget '((0 . "DIMENSION"))))
+	(setq index 0)
+	(setq selSetLength (sslength dimSelSet))
+	(while (< index selSetLength)
+		(setq dimEntity (ssname dimSelSet index))
+		(setq dimEntityInfo (entget dimEntity))
+		(setq dimEntityText (assoc 1 dimEntityInfo))
+		(setq index (1+ index))	
+		(if (= index (RoundTo 1 (/ selSetLength 2.0)))
+			(progn
+				(entmod
+					(subst 
+						(cons 1 (strcat (itoa selSetLength) " EQ. SPACES (~<>)"))
+						dimEntityText
+						dimEntityInfo))
+				(setq dimEntityInfo (entget dimEntity))	
+				(setq bgFillEntityData
+						'((-3 ("ACAD" (1000 . "DSTYLE") 
+										  (1002 . "{") 
+										  (1070 . 69) 
+										  (1070 . 1) 
+										  (1002 . "}")))))
+				(setq newDimEntityInfo (append dimEntityInfo bgFillEntityData))
+				(entmod newDimEntityInfo)
+				(vl-cmdf "_draworder" dimEntity "" "f")
+				)
+			(entmod (subst (cons 1 " ") dimEntityText dimEntityInfo))))
+	(print))
+
 ;|============{ Draw Handrail }=============|;
 ;| Places beginning, end, and mid post      |;
 ;| lines for 1.9" dia. handrail elevation.  |;
