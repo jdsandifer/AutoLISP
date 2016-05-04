@@ -17,7 +17,7 @@
 
 (defun C:placeposts (/  systemVariables cornerPostBlock postLayer snapMode 
 							   egdeOffsetDistance wallOffsetDistance pointList
-								dimLayer isCableRailing isPicketRailing)
+								dimLayer isCableRailing)
  
    ; Start UNDO group so the entire process can be easily reversed
 	(command "._UNDO" "_Begin")
@@ -29,17 +29,16 @@
    (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
 
    ; Set block & layer names, & other options
-   (setq endPostBlock "P")
+   (setq endPostBlock "FB")
    (setq cornerPostBlock endPostBlock)
 	(setq tagBlock "POST-DRILLED CALL-OUT")
    (setq postLayer "Detail")
 	(setq dimLayer "Dims")
 	(setq tagLayer "POST-TAG")
-	(setq isCableRailing T)
-	(setq isPicketRailing nil)
+	(setq isCableRailing nil)
 	
 	; Get user input for this??
-   (setq edgeOffsetDistance 6.5)
+   (setq edgeOffsetDistance (- 0 2.4375))
    (setq wallOffsetDistance 4.5)
 	(setq tagOffsetDistance 9)
 
@@ -497,9 +496,7 @@
     (strcat
         "\n:: MACROS.lsp loaded. | \\U+00A9 J.D. Sandifer "
         (menucmd "m=$(edtime,0,yyyy)")
-        " ::\n"
-    )
-)
+        " ::\n"))
 (princ)
 
 ;;----------------------------------------------------------------------;;

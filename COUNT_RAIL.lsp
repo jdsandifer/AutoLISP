@@ -78,15 +78,15 @@
 
 
 ;;; Counts toprail (mlines) and infill/bottom rail (plines).
-(defun C:CountRail ( / stockLength roundingFactorToprail
+(defun C:cr ( / stockLength roundingFactorToprail
 								roundingFactorInfill layerToCountToprail fudgeFactorToAddToprail fudgeFactorToAddInfill layerToCountInfill selSet subset isConfirmed)
 	(setq stockLength 242)
 	(setq roundingFactorToprail 3
 			fudgeFactorToAddToprail 9
-			layerToCountToprail "A-HRAL-RAIL")
+			layerToCountToprail "1")
 	(setq roundingFactorInfill 2
 			fudgeFactorToAddInfill 1
-			layerToCountInfill "A-HRAL-CNTR")
+			layerToCountInfill "Center")
 	
 	(setq selSet (ssget (list '(0 . "mline,*polyline")
 										(cons 8 
@@ -292,8 +292,13 @@
 ;; cutList - [association list] The cut list.
 
 (defun ChopLongLengths (cutList stockLength / currentCutIndex currentCutLength
-			currentCutQuantity multiplier remainder finalCutList splices)
+			currentCutQuantity multiplier remainder finalCutList splices
+			MIN-CHOP-LENGTH ROUND-UP-LENGTH)
 
+	(setq MIN-CHOP-LENGTH 87
+			ROUND-UP-LENGTH 24)
+			
+			
    (princ "\nStock length: ")
    (princ stockLength)
    
@@ -331,16 +336,18 @@
 					; add the stock lengths
 				(cond
 					; if it's too small, make it long enough (66")
-					(	(<= remainder 66)
-						(setq finalCutList (Assoc+Qty 66 finalCutList 
+					(	(<= remainder MIN-CHOP-LENGTH)
+						(setq finalCutList (Assoc+Qty MIN-CHOP-LENGTH finalCutList 
 													currentCutQuantity)))
 					; make sure we don't add to greater than stock length
-					(	(and (> remainder 66) (<= remainder (- stocklength 24)))
-						(setq finalCutList (Assoc+Qty (+ remainder 24)
+					(	(and
+							(> remainder MIN-CHOP-LENGTH)
+							(<= remainder (- stocklength ROUND-UP-LENGTH)))
+						(setq finalCutList (Assoc+Qty (+ remainder ROUND-UP-LENGTH)
 												 finalCutList
 												 currentCutQuantity)))
 					; if the remainder is long enough, add a stock length, too
-					(	(> remainder (- stocklength 24))
+					(	(> remainder (- stocklength ROUND-UP-LENGTH))
 						(setq finalCutList (Assoc+Qty stockLength finalCutList
 								  currentCutQuantity)))))
 			(progn
@@ -485,9 +492,7 @@
     (strcat
         "\n:: COUNT_RAIL.lsp loaded. | \\U+00A9 J.D. Sandifer "
         (menucmd "m=$(edtime,0,yyyy)")
-        " ::\n"
-    )
-)
+        " ::\n"))
 (princ)
 
 ;;----------------------------------------------------------------------;;

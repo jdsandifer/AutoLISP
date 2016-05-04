@@ -52,6 +52,11 @@
 ;;  - Made post tag placement conditional.      ;;
 ;;    (Only does it if it's a cable railing.)   ;;
 ;;                                              ;;
+;;  05/03/2016                                  ;;
+;;  - Made end plate placement conditional.     ;;
+;;    (Only does it if flag is true - setup     ;;
+;;    for Series 100 railing.)                  ;;
+;;                                              ;;
 ;;  Todo:                                       ;;
 ;;  - Combine with PlanDrawGoal & Comm w/       ;;
 ;;    appropriate options.                      ;;
@@ -66,10 +71,10 @@
 
 
 (defun C:dp (/ intPostBlock ctrLineLayer postLayer dimLayer dimOffset
-						   snapMode infillStockLength postSpacing railWidth
-							isCableRailing isPicketRailing cableOffsetDistance
-							tagOffsetDistance tagLayer tagBlock cableLayer 
-							placeDims placePosts placeCenteLine)
+					snapMode infillStockLength postSpacing railWidth
+					isCableRailing isPicketRailing cableOffsetDistance
+					tagOffsetDistance tagLayer tagBlock cableLayer 
+					placeDims placeEndPlates placePosts placeCenteLine)
 	
    (command "._UNDO" "_Begin")		; Start UNDO group
 	
@@ -82,39 +87,36 @@
    (JD:SaveVar "clayer" 'systemVariables)
    
    ; Set block names
-   (setq intPostBlock "P-TRIM"
+   (setq intPostBlock "FB"
 			endPlateBlock "end_plate"
-			tagBlock "POST-DRILLED CALL-OUT")
+			tagBlock "PICKET PANEL CALL-OUT")
 			
 	; layer names
-   (setq ctrLineLayer "A-HRAL-CNTR"
+   (setq ctrLineLayer "Center"
 			postLayer "Detail"
 			dimLayer "Dims"
-			railLayer "A-HRAL-RAIL"
-			tagLayer "POST-TAG"
+			railLayer "1"
+			tagLayer "PKTP-TAG"
 			cableLayer "Cable")
 			
 	; and other options
    (setq dimOffset "24")		; String means easy concatenation later
 	(setq	tagOffsetDistance 9
-			cableOffsetDistance 12
+			cableOffsetDistance 9
 			snapMode 64)
-	(princ "\nSnap var: ")
-	(princ snapMode)
 	; Get user input?
    ;(setq postSpacing (getreal "\nMax post spacing in inches:"))
 	(setq postSpacing 60)
    ;(setq railWidth (getreal "\nRail width in inches:"))
-	(setq railWidth "3")		; String or integer works here
+	(setq railWidth "5")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
 	(setq isCableRailing nil
-			isPicketRailing nil
-			placeDims nil
-			placePosts nil
+			isPicketRailing T
+			placeDims T
+			placeEndPlates T
+			placePosts T
 			placeCenteLine T)
-	
-   ;(ResetInfillCutList)
    
    (PlanDrawTool)			; Actual work done in this function
 
@@ -163,7 +165,7 @@
 		(setq spaceLength (/ lineLength spaces))
 		
 		;; Insert the starting endplate if this is the first post
-		(if isFirstTime
+		(if (and isFirstTime placeEndPlates)
          (progn
             (setvar "clayer" railLayer)
             (command "insert" endPlateBlock "y" railWidth "r" 
@@ -185,7 +187,7 @@
 		(setq currentPtList (list Pt1))
       (setq dimIndex spaces)	; spaces should always be at least 1
       (while (and (> dimIndex 0)
-						(or placeCenteLine placeDims isCableRailing))
+						(or placeCenteLine placeDims isCableRailing isPicketRailing))
          ;; Calculate next point and add it to the list for this section
 			(setq nextPt (polar currentPt lineAngle spaceLength))
 			(setq currentPtList (append currentPtList (list nextPt)))
@@ -220,12 +222,24 @@
 			
 			
 			;; add post call out for each intermediate post
-			(if (and (> dimIndex 1)	isCableRailing)
-				(progn
+			(cond
+				(	(and (> dimIndex 1)	isCableRailing)
 					(setq postTagPt (polar nextPt (+ (/ PI 2) lineAngle) 		
 												  tagOffsetDistance))
 					(setvar "clayer" tagLayer)
-					(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)))
+					(command "._insert" tagBlock "s" 1 "r" 0 postTagPt))
+					
+				(	isPicketRailing
+					(setq postTagPt 
+						(polar
+							(polar nextPt 
+									 (+ (/ PI 2) lineAngle) 		
+									 tagOffsetDistance)
+							lineAngle
+							(- 0 (/ spaceLength 2))))
+					(setvar "clayer" tagLayer)
+					(command "._insert" tagBlock "s" 0.5 "r" 0 postTagPt)
+					))
 								
 			; prep for next loop (dimensioning & call-outs on current segment)
 			(setq currentPt nextPt)
@@ -241,10 +255,11 @@
 
    (setvar "osmode" 0)
    
-	;(if endPlateBlock
-		(setq insertAngle (angtos lineAngle 0 9))
-		(setvar "clayer" railLayer)
-		(command "insert" endPlateBlock "y" railWidth "r" insertAngle Pt1)
+	(if placeEndPlates
+		(progn
+			(setq insertAngle (angtos lineAngle 0 9))
+			(setvar "clayer" railLayer)
+			(command "insert" endPlateBlock "y" railWidth "r" insertAngle Pt1)))
 
    (setvar "clayer" railLayer)
    (setq settingsList (list "_.mline" "justification" "zero" "scale" railWidth "style" "TOP_RAIL"))
