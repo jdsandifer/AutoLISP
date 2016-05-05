@@ -74,7 +74,8 @@
 					snapMode infillStockLength postSpacing railWidth
 					isCableRailing isPicketRailing cableOffsetDistance
 					tagOffsetDistance tagLayer tagBlock cableLayer 
-					placeDims placeEndPlates placePosts placeCenteLine)
+					placeDims placeEndPlates placePosts placeCenteLine
+					tagScale)
 	
    (command "._UNDO" "_Begin")		; Start UNDO group
 	
@@ -87,32 +88,33 @@
    (JD:SaveVar "clayer" 'systemVariables)
    
    ; Set block names
-   (setq intPostBlock "FB"
+   (setq intPostBlock "STAN"
 			endPlateBlock "end_plate"
-			tagBlock "PICKET PANEL CALL-OUT")
+			tagBlock "POST-DRILLED CALL-OUT")
 			
 	; layer names
    (setq ctrLineLayer "Center"
 			postLayer "Detail"
 			dimLayer "Dims"
 			railLayer "1"
-			tagLayer "PKTP-TAG"
+			tagLayer "POST-TAG"
 			cableLayer "Cable")
 			
 	; and other options
-   (setq dimOffset "24")		; String means easy concatenation later
-	(setq	tagOffsetDistance 9
-			cableOffsetDistance 9
+   (setq dimOffset "48")		; String means easy concatenation later
+	(setq	tagOffsetDistance 18
+			tagScale 2
+			cableOffsetDistance 18
 			snapMode 64)
 	; Get user input?
    ;(setq postSpacing (getreal "\nMax post spacing in inches:"))
 	(setq postSpacing 60)
    ;(setq railWidth (getreal "\nRail width in inches:"))
-	(setq railWidth "5")		; String or integer works here
+	(setq railWidth "3")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
-	(setq isCableRailing nil
-			isPicketRailing T
+	(setq isCableRailing T
+			isPicketRailing nil
 			placeDims T
 			placeEndPlates T
 			placePosts T
@@ -227,7 +229,7 @@
 					(setq postTagPt (polar nextPt (+ (/ PI 2) lineAngle) 		
 												  tagOffsetDistance))
 					(setvar "clayer" tagLayer)
-					(command "._insert" tagBlock "s" 1 "r" 0 postTagPt))
+					(command "._insert" tagBlock "s" tagScale "r" 0 postTagPt))
 					
 				(	isPicketRailing
 					(setq postTagPt 
@@ -238,7 +240,7 @@
 							lineAngle
 							(- 0 (/ spaceLength 2))))
 					(setvar "clayer" tagLayer)
-					(command "._insert" tagBlock "s" 0.5 "r" 0 postTagPt)
+					(command "._insert" tagBlock "s" tagScale "r" 0 postTagPt)
 					))
 								
 			; prep for next loop (dimensioning & call-outs on current segment)

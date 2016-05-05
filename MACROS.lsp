@@ -12,13 +12,13 @@
 ;| Automatic end post and total dimension   |;
 ;| placement based on offset distances.     |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 04/07/2016 |;
+;| Author: J.D. Sandifer    Rev: 05/04/2016 |;
 ;|==========================================|;
 
-(defun C:placeposts (/  systemVariables cornerPostBlock postLayer snapMode 
+(defun C:pp (/  systemVariables cornerPostBlock postLayer snapMode 
 							   egdeOffsetDistance wallOffsetDistance pointList
-								dimLayer isCableRailing)
- 
+								dimLayer isCableRailing dimOffset tagScale)
+	; pp - heehee!
    ; Start UNDO group so the entire process can be easily reversed
 	(command "._UNDO" "_Begin")
 	; setup custom error message?
@@ -29,24 +29,25 @@
    (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
 
    ; Set block & layer names, & other options
-   (setq endPostBlock "FB")
+   (setq endPostBlock "STAN")
    (setq cornerPostBlock endPostBlock)
 	(setq tagBlock "POST-DRILLED CALL-OUT")
    (setq postLayer "Detail")
 	(setq dimLayer "Dims")
 	(setq tagLayer "POST-TAG")
-	(setq isCableRailing nil)
+	(setq isCableRailing T)
 	
 	; Get user input for this??
-   (setq edgeOffsetDistance (- 0 2.4375))
-   (setq wallOffsetDistance 4.5)
-	(setq tagOffsetDistance 9)
-
+   (setq edgeOffsetDistance (- 0 0))
+   (setq wallOffsetDistance 0)
+	(setq tagOffsetDistance 18)
+	(setq tagScale 2)
+	(setq dimOffset 84)
 
 	(setq pointList (GetPointList))
 	
 	(PlaceMainPosts pointList)
-	(DimExterior pointList)
+	(DimExterior pointList dimOffset)
 	
               
 	(JD:ResetAllVars 'systemVariables)
@@ -84,7 +85,7 @@
 	
 	(cond (isCableRailing
 			(setvar "clayer" tagLayer)
-			(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+			(command "._insert" tagBlock "s" tagScale "r" 0 postTagPt)
 			(setq lastTag (entget (entnext (entlast))))
 			(entmod (subst (cons 1 "B") (assoc 1 lastTag) lastTag))))
 	
@@ -122,7 +123,7 @@
 		
 		(cond (isCableRailing
 			(setvar "clayer" tagLayer)
-			(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+			(command "._insert" tagBlock "s" tagScale "r" 0 postTagPt)
 			(setq lastTag (entget (entnext (entlast))))
 			(entmod (subst (cons 1 "D") (assoc 1 lastTag) lastTag))))
 		
@@ -146,7 +147,7 @@
 	
 	(cond (isCableRailing
 		(setvar "clayer" tagLayer)
-		(command "._insert" tagBlock "s" 1 "r" 0 postTagPt)
+		(command "._insert" tagBlock "s" tagScale "r" 0 postTagPt)
 		(setq lastTag (entget (entnext (entlast))))
 		(entmod (subst (cons 1 "C") (assoc 1 lastTag) lastTag))))
 	
@@ -197,12 +198,10 @@
 
 
 	
-; Helper function version of above - for now... 3/30/2016
+; Helper function version of above - for now... 5/04/2016
 
-(defun DimExterior ( pointList / snapMode  dimOffset lastPoint)
+(defun DimExterior ( pointList dimOffset / snapMode  dimOffset lastPoint)
 
-	
-	(setq dimOffset 42)
 	
 	(JD:Save&ChangeVar "osmode" 'systemVariables 0)
 	(JD:Save&ChangeVar "clayer" 'systemVariables dimLayer)
