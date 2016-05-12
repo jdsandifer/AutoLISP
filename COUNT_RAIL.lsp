@@ -80,7 +80,7 @@
 ;;; Counts toprail (mlines) and infill/bottom rail (plines).
 (defun C:cr ( / stockLength roundingFactorToprail
 								roundingFactorInfill layerToCountToprail fudgeFactorToAddToprail fudgeFactorToAddInfill layerToCountInfill selSet subset isConfirmed)
-	(setq stockLength 242)
+	(setq stockLength 240)
 	(setq roundingFactorToprail 3
 			fudgeFactorToAddToprail 9
 			layerToCountToprail "1")

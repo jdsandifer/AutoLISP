@@ -88,33 +88,33 @@
    (JD:SaveVar "clayer" 'systemVariables)
    
    ; Set block names
-   (setq intPostBlock "STAN"
+   (setq intPostBlock "BP"
 			endPlateBlock "end_plate"
-			tagBlock "POST-DRILLED CALL-OUT")
+			tagBlock "PICKET PANEL CALL-OUT")
 			
 	; layer names
    (setq ctrLineLayer "Center"
 			postLayer "Detail"
 			dimLayer "Dims"
 			railLayer "1"
-			tagLayer "POST-TAG"
+			tagLayer "PKTP-TAG"
 			cableLayer "Cable")
 			
 	; and other options
-   (setq dimOffset "48")		; String means easy concatenation later
-	(setq	tagOffsetDistance 18
+   (setq dimOffset "24")		; String means easy concatenation later
+	(setq	tagOffsetDistance 9
 			tagScale 2
-			cableOffsetDistance 18
+			cableOffsetDistance 9
 			snapMode 64)
 	; Get user input?
    ;(setq postSpacing (getreal "\nMax post spacing in inches:"))
-	(setq postSpacing 60)
+	(setq postSpacing 72)
    ;(setq railWidth (getreal "\nRail width in inches:"))
 	(setq railWidth "3")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
-	(setq isCableRailing T
-			isPicketRailing nil
+	(setq isCableRailing nil
+			isPicketRailing T
 			placeDims T
 			placeEndPlates T
 			placePosts T

@@ -29,20 +29,20 @@
    (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
 
    ; Set block & layer names, & other options
-   (setq endPostBlock "STAN")
+   (setq endPostBlock "BP")
    (setq cornerPostBlock endPostBlock)
 	(setq tagBlock "POST-DRILLED CALL-OUT")
    (setq postLayer "Detail")
 	(setq dimLayer "Dims")
 	(setq tagLayer "POST-TAG")
-	(setq isCableRailing T)
+	(setq isCableRailing nil)
 	
 	; Get user input for this??
-   (setq edgeOffsetDistance (- 0 0))
+   (setq edgeOffsetDistance 4)
    (setq wallOffsetDistance 0)
 	(setq tagOffsetDistance 18)
 	(setq tagScale 2)
-	(setq dimOffset 84)
+	(setq dimOffset 48)
 
 	(setq pointList (GetPointList))
 	
