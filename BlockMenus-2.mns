@@ -1,0 +1,140 @@
+//
+//      AutoCAD menu file - C:\LISP\BlockMenus.mns
+//
+
+***MENUGROUP=C:\LISP\BlockMenus.mns
+
+***POP21
+**Hansen 2016
+
+ID_HANBLK      [&Hansen Blocks]
+
+ID_NBL         [->&Note Blocks]
+ID_GNS            [&General Notes](command ".insert" "D:/Lisp/Blocks/GeneralNotes" pause "" "" "")
+ID_WPH	         [&Weep Holes Grout](command ".insert" "D:/Lisp/Blocks/WeepHoles" pause "" "" "")
+ID_WPB	         [&Weep Holes Base plate](command ".insert" "D:/Lisp/Blocks/WeepHoles1" pause "" "" "")
+ID_SIO            [&Sign Off](command ".insert" "D:/Lisp/Blocks/SignOff" pause "" "" "")
+ID_ANS            [<-&AntiSeize](command ".insert" "D:/Lisp/Blocks/AntiSeize" pause "" "" "")
+
+ID_DET         [->&Detail Callouts]
+ID_VDT            [&View Detail](command ".insert" "C:/LISP/NOTES") ^C^C_insert "DETAIL CALL-OUT"
+ID_SDT            [&Section Detail](command ".insert" "D:/Lisp/Blocks/SectionDetail1") ^C^C_insert "SECTION VIEW CALL-OUT"
+ID_VPD            [<-Viewport &Callout](command ".insert" "D:/Lisp/Blocks/Viewportcallout") ^C^C_insert "DETAIL CALL-OUT"
+
+               [--]
+               [--]
+
+ID_A01         [Header](command ".insert" "C:/LISP/PARTS_LIST" *cancel*)(command "-insert" "PARTS LIST" pause "" "")
+ID_A02         [Header w/ Prefabs](command ".insert" "C:/LISP/PARTS_LIST" *cancel*)(command "-insert" "PARTS LIST-2" pause "" "")
+
+               [--]
+
+ID_TR         [->Top Rail]
+ID_TR3601         [100](command ".insert" "36-01-BLOCK-1" pause "" "")
+ID_TR36012        [100+](command ".insert" "36-01-BLOCK-2" pause "" "")
+ID_TR3602         [200](command ".insert" "36-02-BLOCK-1" pause "" "")
+ID_TR36022        [200+](command ".insert" "36-02-BLOCK-2" pause "" "")
+ID_TR3603         [200X](command ".insert" "36-03-BLOCK-1" pause "" "")
+ID_TR36032        [200X+](command ".insert" "36-03-BLOCK-2" pause "" "")
+ID_TR3604         [300](command ".insert" "36-04-BLOCK-1" pause "" "")
+ID-TR36042        [300+](command ".insert" "36-04-BLOCK-2" pause "" "")
+ID_TR3606         [300X](command ".insert" "36-06-BLOCK-1" pause "" "")
+ID-TR36062        [300X+](command ".insert" "36-06-BLOCK-2" pause "" "")
+ID_TR3607         [320X](command ".insert" "36-07-BLOCK-1" pause "" "")
+ID-TR36072        [320X+](command ".insert" "36-07-BLOCK-2" pause "" "")
+ID_TR3608         [350X](command ".insert" "36-08-BLOCK-1" pause "" "")
+ID-TR36082        [350X+](command ".insert" "36-08-BLOCK-2" pause "" "")
+ID_TR3611         [500](command ".insert" "36-11-BLOCK-1" pause "" "")
+ID-TR36112        [500+](command ".insert" "36-11-BLOCK-2" pause "" "")
+ID_TR3615         [Wood Adapter](command ".insert" "36-15-BLOCK-1" pause "" "")
+ID-TR36152        [<-Wood Adapter+](command ".insert" "36-15-BLOCK-2" pause "" "")
+
+ID_B21         [->Infill]
+ID_B22            [GLASS FULL STOCK 20-01](command ".insert" "20-01-BLOCK-1" pause "" "")
+ID_B23            [GLASS FULL PLUS 20-01](command ".insert" "20-01-BLOCK-2" pause "" "")
+ID_B24            [STANDARD FULL STOCK 20-02](command ".insert" "20-02-BLOCK-1" pause "" "")
+ID_B25            [<-STANDARD FULL PLUS 20-02](command ".insert" "20-02-BLOCK-2" pause "" "") 
+
+ID_B14         [->Bottom Rail]
+ID_B15            [GLASS FULL STOCK 06-01](command ".insert" "06-01-BLOCK-1" pause "" "")
+ID_C03            [GLASS FULL PLUS 06-01](command ".insert" "06-01-BLOCK-2" pause "" "")
+ID_B16            [PICKET FULL STOCK 06-02](command ".insert" "06-02-BLOCK-1" pause "" "")
+ID_C04            [<-PICKET FULL PLUS 06-02](command ".insert" "06-02-BLOCK-2" pause "" "")
+
+ID_B13         [->Mid Rail]
+ID_C05            [STANDARD FULL STOCK 24-01](command ".insert" "24-01-BLOCK-1" pause "" "")
+ID_C06            [<-STANDARD FULL PLUS 24-01](command ".insert" "24-01-BLOCK-2" pause "" "")
+
+ID_B26         [->Vinyl]
+ID_B27            [BOTTOM FULL STOCK 38-02](command ".insert" "38-02-BLOCK-1" pause "" "")
+ID_B28            [BOTTOM FULL PLUS 38-02](command ".insert" "38-02-BLOCK-2" pause "" "")
+ID_B29            [TOP FULL STOCK 38-03](command ".insert" "38-03-BLOCK-1" pause "" "")
+ID_B29            [<-TOP FULL PLUS 38-03](command ".insert" "38-03-BLOCK-2" pause "" "")
+
+               [--]
+               
+ID_PC          [Post Cap](command ".insert" "12-05-BLOCK" pause "" "") 
+ID_IPF         [IPF Cap](command ".insert" "12-06-BLOCK" pause "" "")   
+
+ID_PEP         [->End Plates]
+ID_EP1401         [200 End](command ".insert" "14-01-BLOCK" pause "" "")
+ID_EP14014        [200 4 Holes](command ".insert" "14-01-BLOCK-4" pause "" "")
+ID_EP1402         [200X End](command ".insert" "14-02-BLOCK" pause "" "")
+ID_EP14024        [200X 4 Holes](command ".insert" "14-02-BLOCK-4" pause "" "")
+ID_EP1404         [300 End](command ".insert" "14-04-BLOCK" pause "" "" "")
+ID_EP14044        [300 4 Holes](command ".insert" "14-04-BLOCK-4" pause "" "")
+ID_EP1406         [300X End](command ".insert" "14-06-BLOCK" pause "" "" "")
+ID_EP1412         [300X 4 Holes](command ".insert" "14-12-BLOCK" pause "" "")
+ID_EP1407         [320X End](command ".insert" "14-07-BLOCK" pause "" "" "")
+ID_EP14074        [320X 4 Holes](command ".insert" "14-07-BLOCK-4" pause "" "")
+ID_EP1408         [350X End](command ".insert" "14-08-BLOCK" pause "" "" "")
+ID_EP14084        [350X 4 Holes](command ".insert" "14-08-BLOCK-4" pause "" "")
+ID_EP1410         [500 End](command ".insert" "14-10-BLOCK" pause "" "" "")
+ID_EP14104        [<-500 4 Holes](command ".insert" "14-10-BLOCK-4" pause "" "")
+
+               [--]
+
+ID_UX          [->X-Bracket]
+ID_XL             [Left X-Bracket](command ".insert" "18-01-BLOCK-1" pause "" "")
+ID_XR             [<-Right X-Bracket](command ".insert" "18-02-BLOCK-1" pause "" "")
+
+ID_URCB        [->RCB]
+ID_RCB            [RCB Std](command ".insert" "08-09-BLOCK-1" pause "" "") 
+ID_RCB24          [RCB Std 24"](command ".insert" "08-15-BLOCK-1" pause "" "")
+ID_RCB18          [RCB Std 18"](command ".insert" "08-15-BLOCK-2" pause "" "")
+ID_RCB12          [RCB Std 12"](command ".insert" "08-15-BLOCK-3" pause "" "")
+ID_RCB8           [RCB Std 8"](command ".insert" "08-15-BLOCK-4" pause "" "")
+                  [--]
+ID_RCB100         [RCB 100](command ".insert" "08-08-BLOCK-1" pause "" "") 
+ID_RCB10024       [RCB 100 24"](command ".insert" "08-16-BLOCK-1" pause "" "")  
+ID_RCB10018       [RCB 100 18"](command ".insert" "08-16-BLOCK-2" pause "" "")  
+ID_RCB10012       [RCB 100 12"](command ".insert" "08-16-BLOCK-3" pause "" "")  
+ID_RCB1008        [<-RCB 100 8"](command ".insert" "08-16-BLOCK-4" pause "" "") 
+
+ID_NEO         [->Neoprene]
+ID_NEO6           [6" Neoprene](command ".insert" "38-07-BLOCK-1" pause "" "") 
+ID_NEO5           [5" Neoprene](command ".insert" "PL-CUST.-NEO-1.75X5" pause "" "") 
+ID_NEO4           [4.5" Neoprene](command ".insert" "PL-CUST.-NEO-4.5" pause "" "")
+ID_NEO55          [5"x5" Neoprene](command ".insert" "38-06-BLOCK-1" pause "" "")
+ID_NEO35           [<-3"x5" Neoprene](command ".insert" "38-13-BLOCK-1" pause "" "")  
+
+               [--]
+
+ID_F           [->Fasteners]
+ID_F1607          [End Plate to Top Rail](command ".insert" "16-07-BLOCK-1" pause "" "")
+ID_B18            [RCB to Post](command ".insert" "16-11-BLOCK-1" pause "" "")
+ID_B19            [General Use](command ".insert" "16-12-BLOCK-1" pause "" "")
+ID_B20            [X-Bracket to Post](command ".insert" "16-14-BLOCK-1" pause "" "")
+ID_F1654          [4" Lag](command ".insert" "16-54-BLOCK-1" pause "" "")
+ID_F1602          [5" Lag](command ".insert" "16-02-BLOCK-1" pause "" "")
+ID_F1603          [6" Lag](command ".insert" "16-03-BLOCK-1" pause "" "")
+ID_F0201          [<-Conc. Anchors](command ".insert" "02-01-BLOCK-1" pause "" "")
+
+        
+
+
+
+//
+//      End of AutoCAD menu file - C:\LISP\BlockMenus.mnc
+//
+
