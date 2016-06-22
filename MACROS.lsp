@@ -8,52 +8,162 @@
 
 
 
-;|============{ Post Placing }==============|;
-;| Automatic end post and total dimension   |;
-;| placement based on offset distances.     |;
+;|=========={ Block Conversion }============|;
+;| Converts W,X,Y,Z block tags to more      |;
+;| descriptive (and consistent tags).       |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 05/04/2016 |;
+;| Author: J.D. Sandifer    Rev: 05/24/2016 |;
 ;|==========================================|;
 
-(defun C:pp (/  systemVariables cornerPostBlock postLayer snapMode 
-							   egdeOffsetDistance wallOffsetDistance pointList
-								dimLayer isCableRailing dimOffset tagScale)
-	; pp - heehee!
+(defun C:bc (/ systemVariables )
+	
    ; Start UNDO group so the entire process can be easily reversed
 	(command "._UNDO" "_Begin")
 	; setup custom error message?
 	(JD:ClearVars 'systemVariables)
 	(JD:Save&ChangeVar "cmdEcho" 'systemVariables 0)
-	(JD:Save&ChangeVar "osmode" 'systemVariables 33)
-   (JD:Save&ChangeVar "attreq" 'systemVariables 0)
-   (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
 
-   ; Set block & layer names, & other options
-   (setq endPostBlock "BP")
-   (setq cornerPostBlock endPostBlock)
-	(setq tagBlock "POST-DRILLED CALL-OUT")
-   (setq postLayer "Detail")
-	(setq dimLayer "Dims")
-	(setq tagLayer "POST-TAG")
-	(setq isCableRailing nil)
+   
 	
-	; Get user input for this??
-   (setq edgeOffsetDistance 4)
-   (setq wallOffsetDistance 0)
-	(setq tagOffsetDistance 18)
-	(setq tagScale 2)
-	(setq dimOffset 48)
-
-	(setq pointList (GetPointList))
+	(setq blocksSelected (ssget '((0 . "INSERT"))))
 	
-	(PlaceMainPosts pointList)
-	(DimExterior pointList dimOffset)
+	(princ blocksSelected)
 	
               
 	(JD:ResetAllVars 'systemVariables)
    (command "._UNDO" "_End")		; End UNDO group
    
    (princ))	
+	
+	
+	
+;|============{ Post Placing }==============|;
+;| Automatic end post and total dimension   |;
+;| placement based on offset distances.     |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 05/16/2016 |;
+;|==========================================|;
+
+(defun C:pps (/ cornerPostBlock0 postLayer0 endPostBlock0 
+					 egdeOffsetDistance0 wallOffsetDistance0 
+					 dimLayer0 isCableRailing0 dimOffset0 tagScale0
+					 tagLayer0 tagBlock0 tagOffsetDistance0 placeDims0)
+	
+   ; Set block & layer names, & other options
+   (setq postLayer0 "Detail")
+	(setq endPostBlock0 "BP")
+   (setq cornerPostBlock0 endPostBlock0)
+	(setq dimLayer0 "Dims")
+	(setq isCableRailing0 T)
+	(setq tagLayer0 "POST-TAG")
+	(setq tagBlock0 "POST-DRILLED CALL-OUT")
+	(setq placeDims0 nil)
+	
+	; Set distance options
+   (setq edgeOffsetDistance0 4.5)
+   (setq wallOffsetDistance0 4.5)
+	(setq tagOffsetDistance0 24)
+	(setq tagScale0 4)
+	(setq dimOffset0 48)
+
+	; Run dialog box to get user input
+	; Warn if dialog fails and exit
+	; Define a function based on the input so settings are
+	;   saved and can be easily repeated without choices needed each time
+	
+	(setq setupDCLID (load_dialog "PostPlacementSetup.dcl"))
+	
+	(if (not (new_dialog "PostPlacementSetup" setupDCLID))
+		(princ "\nDialog box not found in file!\n")
+		;(exit)
+		)
+	
+	(action_tile "surface"
+		"(setq endPostBlock0 \"BP\")
+		(setq cornerPostBlock0 endPostBlock0)
+		(setq edgeOffsetDistance0 4.5)")
+	(action_tile "fascia" 
+		"(setq endPostBlock0 \"FB\")
+		(setq cornerPostBlock0 \"FBO\")
+		(setq edgeOffsetDistance0 (- 0 2.4375))")
+	(action_tile "stanchion"
+		"(setq endPostBlock0 \"BP\")
+		(setq cornerPostBlock0 endPostBlock0)
+		(setq edgeOffsetDistance0 6.5)")
+	(action_tile "core" 
+		"(setq endPostBlock0 \"CORE\")
+		(setq cornerPostBlock0 \"CORE\")
+		(setq edgeOffsetDistance0 5)
+		(setq tagScale0 4)")
+	
+	(action_tile "detail" "(setq postLayer \"Detail\")")
+	(action_tile "hral-post" "(setq postLayer \"A-HRAL-POST\")")
+	
+	(action_tile "cable" "(setq isCableRailing T)")
+	(action_tile "noCable" "(setq isCableRailing nil)")
+		
+	(action_tile "accept" "(done_dialog)(setq userChoice T)")
+	(action_tile "cancel" "(done_dialog)(setq userChoice nil)")
+	
+	(start_dialog)
+	(unload_dialog setupDCLID)
+	
+	(if (not userChoice)
+		(exit))
+	
+	(setq functionToDefine (strcat
+		"(defun C:pp (/ cornerPostBlock postLayer snapMode placeDims
+						egdeOffsetDistance wallOffsetDistance pointList
+						dimLayer isCableRailing dimOffset tagScale
+						tagLayer tagBlock tagOffsetDistance endPostBlock)
+		(command \"._UNDO\" \"_Begin\")
+		(JD:ClearVars 'systemVariables)
+		(JD:Save&ChangeVar \"cmdEcho\" 'systemVariables 0)
+		(JD:Save&ChangeVar \"osmode\" 'systemVariables 33)
+		(JD:Save&ChangeVar \"attreq\" 'systemVariables 0)
+		(JD:Save&ChangeVar \"blipmode\" 'systemVariables 0)
+				
+		(setq postLayer \"" postLayer0 "\")
+		(setq endPostBlock \"" endPostBlock0 "\")
+		(setq cornerPostBlock \"" cornerPostBlock0 "\")
+		(setq dimLayer \"" dimLayer0 "\")
+		(setq isCableRailing " (if isCableRailing0 "T" "nil") ")
+		(setq tagLayer \"" tagLayer0 "\")
+		(setq tagBlock \"" tagBlock0 "\")
+		(setq placeDims " (if placeDims0 "T" "nil") ")
+		
+		(setq edgeOffsetDistance " (rtos edgeOffsetDistance0 2 4) ")
+		(setq wallOffsetDistance " (rtos wallOffsetDistance0 2 4) ")
+		(setq tagOffsetDistance " (itoa tagOffsetDistance0) ")
+		(setq tagScale " (itoa tagScale0) ")
+		(setq dimOffset " (itoa dimOffset0) ")
+				
+		(setq pointList (GetPointList))
+		
+		(PlaceMainPosts pointList)
+		(if placeDims
+			(DimExterior pointList dimOffset))
+		
+		
+		(JD:ResetAllVars 'systemVariables)
+		(command \"._UNDO\" \"_End\")
+   
+		(princ))"))	; End of defun string setq
+	
+	;(princ functionToDefine)
+	(eval (read functionToDefine))
+	
+	(eval (read "(c:pp)"))
+	
+   (princ))	
+	
+	
+	
+; Simple way to allow "pp" to load the setup function ("pps") if not
+; already setup yet.
+
+(defun C:pp ()
+	(eval (read "(c:pps)")))
 	
 	
 
@@ -87,7 +197,7 @@
 			(setvar "clayer" tagLayer)
 			(command "._insert" tagBlock "s" tagScale "r" 0 postTagPt)
 			(setq lastTag (entget (entnext (entlast))))
-			(entmod (subst (cons 1 "B") (assoc 1 lastTag) lastTag))))
+			(entmod (subst (cons 1 "C") (assoc 1 lastTag) lastTag))))
 	
 	(foreach Pt3 pointList
 		(setq incomingAngle (angle Pt2 Pt1))
@@ -149,7 +259,7 @@
 		(setvar "clayer" tagLayer)
 		(command "._insert" tagBlock "s" tagScale "r" 0 postTagPt)
 		(setq lastTag (entget (entnext (entlast))))
-		(entmod (subst (cons 1 "C") (assoc 1 lastTag) lastTag))))
+		(entmod (subst (cons 1 "B") (assoc 1 lastTag) lastTag))))
 	
 	(JD:ResetVar "clayer" 'systemVariables)
 	
@@ -200,7 +310,7 @@
 	
 ; Helper function version of above - for now... 5/04/2016
 
-(defun DimExterior ( pointList dimOffset / snapMode  dimOffset lastPoint)
+(defun DimExterior ( pointList dimOffset / snapMode lastPoint)
 
 	
 	(JD:Save&ChangeVar "osmode" 'systemVariables 0)

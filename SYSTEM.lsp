@@ -2,7 +2,7 @@
 ;;                                              ;;
 ;;  All functions needed to save and restore    ;;
 ;;  AutoCAD system variables. Built on a hash.  ;;
-;;  (requires FUNCTIONS_HASH)                   ;;
+;;  (requires HASH)                             ;;
 ;;                                              ;;
 ;;::::::::::::::::::::::::::::::::::::::::::::::;;
 ;;                                              ;;
@@ -40,7 +40,7 @@
                   
 ;;; JD:ClearVar(iable)s - Copyright 2016 J.D. Sandifer
 ;;; Clears the list of system variables.
-;;; variableList [symbol] - name of the variable list to clear
+;;; variableList [symbol] - name of variable list to clear (nil value ok)
 
 (defun JD:ClearVars ( variableList / )
 	(JD:ClearHash variableList)
@@ -98,11 +98,11 @@
 ;;; JD:ResetAllVar(iable)s - Copyright 2016 J.D. Sandifer
 ;;; Restores all system variables in the list.
 ;;; variable [string] - system variable to store
-;;; variableList [symbol] - name of the variable list to use
+;;; variableList [symbol] - name of the variable list to use (nil value ok)
 
 (defun JD:ResetAllVars ( variableList / )
 	(foreach var (eval variableList)
-		(setvar (car var) (cdr var)))
+			(setvar (car var) (cdr var)))
 	(JD:ClearVars variableList)
 	(princ "\nSystem variables have been reset.\n")
 	(princ))
@@ -116,7 +116,7 @@
    (princ msg)
 
    (JD:ResetAllVars 'systemVariables)
-	; NEED TO FIX THIS! How can I untangle the variable...?
+	; Not ideal? Relies on global variable, but it nil works...so maybe ok
 	
 	(command-s "._UNDO" "_End")		; End UNDO group
    ;(command "._U")			; Undo whatever got done so far
@@ -163,9 +163,7 @@
     (strcat
         "\n:: SYSTEM.lsp loaded. | \\U+00A9 J.D. Sandifer "
         (menucmd "m=$(edtime,0,yyyy)")
-        " ::"
-    )
-)
+        " ::"))
 (princ)
 
 ;;----------------------------------------------------------------------;;

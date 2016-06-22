@@ -16,6 +16,19 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+; Current test functions for trying out new ideas.
+
+(defun test ( / a)
+	(setq a 1)
+	(setq func (strcat "(defun testb ( / b)
+		(setq b " (rtos a 2 1) ")
+		(princ b)
+		(princ))"))
+	(eval (read func))
+	(princ))
+
+
+
 ; Runs all unit tests
 ; Output: T if all unit tests passed, else nil
 
