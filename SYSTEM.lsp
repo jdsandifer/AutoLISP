@@ -111,16 +111,14 @@
 
 ;;; Error handling function - prints error message nicely and resets system variables
 
-(defun ErrorHandler (msg)
-   (princ "\nThere's a slight problem: ")
-   (princ msg)
+(defun ErrorHandler (errorMessage)
+   (if (not (member msg '("Function cancelled" "quit / exit abort")))
+		(princ (strcat "\nThere's a slight problem: " errorMessage)))
 
    (JD:ResetAllVars 'systemVariables)
-	; Not ideal? Relies on global variable, but it nil works...so maybe ok
+	; Not ideal? Relies on global variable, but nil works...so maybe ok
 	
 	(command-s "._UNDO" "_End")		; End UNDO group
-   ;(command "._U")			; Undo whatever got done so far
-   
    (princ))
 	
 	
