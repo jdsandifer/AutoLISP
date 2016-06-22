@@ -10,9 +10,6 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
-;;  04/13/2016                                  ;;
-;;  - Changed filename to DRAW_PLAN.            ;;
-;;                                              ;;
 ;;  11/08/2015                                  ;;
 ;;  - Added infill counting aspect to           ;;
 ;;    function.                                 ;;
@@ -52,15 +49,22 @@
 ;;  - Made post tag placement conditional.      ;;
 ;;    (Only does it if it's a cable railing.)   ;;
 ;;                                              ;;
+;;  04/13/2016                                  ;;
+;;  - Changed filename to DRAW_PLAN.            ;;
+;;                                              ;;
 ;;  05/03/2016                                  ;;
 ;;  - Made end plate placement conditional.     ;;
 ;;    (Only does it if flag is true - setup     ;;
 ;;    for Series 100 railing.)                  ;;
 ;;                                              ;;
+;;  06/15/2016                                  ;;
+;;  - Revised cable drawing for pline with      ;;
+;;    width, offsetting first point, and        ;;
+;;    placing threaded terminal.                ;;
+;;                                              ;;
 ;;  Todo:                                       ;;
 ;;  - Combine with PlanDrawGoal & Comm w/       ;;
 ;;    appropriate options.                      ;;
-;;  - Add top rail counting?                    ;;
 ;;  - Add choice of post spacing with default.  ;;
 ;;    Ditto on rail width.                      ;;
 ;;  - Revise copy on prompts.                   ;;
@@ -75,7 +79,7 @@
 					isCableRailing isPicketRailing cableOffsetDistance
 					tagOffsetDistance tagLayer tagBlock cableLayer 
 					placeDims placeEndPlates placePosts placeCenteLine
-					tagScale)
+					tagScale cableEndShortening placeRail)
 	
    (command "._UNDO" "_Begin")		; Start UNDO group
 	
@@ -90,35 +94,36 @@
    ; Set block names
    (setq intPostBlock "BP"
 			endPlateBlock "end_plate"
-			tagBlock "PICKET PANEL CALL-OUT")
+			tagBlock "POST-DRILLED CALL-OUT")
 			
 	; layer names
    (setq ctrLineLayer "Center"
 			postLayer "Detail"
 			dimLayer "Dims"
 			railLayer "1"
-			tagLayer "PKTP-TAG"
+			tagLayer "POST-TAG"
 			cableLayer "Cable")
 			
 	; and other options
    (setq dimOffset "24")		; String means easy concatenation later
-	(setq	tagOffsetDistance 9
-			tagScale 2
-			cableOffsetDistance 9
+	(setq	tagOffsetDistance 24
+			tagScale 4
+			cableOffsetDistance 24
+			cableEndShortening 12
 			snapMode 64)
-	; Get user input?
-   ;(setq postSpacing (getreal "\nMax post spacing in inches:"))
-	(setq postSpacing 72)
-   ;(setq railWidth (getreal "\nRail width in inches:"))
-	(setq railWidth "3")		; String or integer works here
+	
+	; rail options
+	(setq postSpacing 50.75)
+	(setq railWidth "2 11/16")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
-	(setq isCableRailing nil
-			isPicketRailing T
-			placeDims T
-			placeEndPlates T
+	(setq isCableRailing T
+			isPicketRailing nil
+			placeDims nil
+			placeEndPlates nil
 			placePosts T
-			placeCenteLine T)
+			placeCenteLine nil
+			placeRail nil)
    
    (PlanDrawTool)			; Actual work done in this function
 
@@ -170,7 +175,7 @@
 		(if (and isFirstTime placeEndPlates)
          (progn
             (setvar "clayer" railLayer)
-            (command "insert" endPlateBlock "y" railWidth "r" 
+            (command "._insert" endPlateBlock "y" railWidth "r" 
 					(angtos (- lineAngle PI) 0 9) Pt1)
             (setq isFirstTime nil)))
       
@@ -243,7 +248,7 @@
 					(command "._insert" tagBlock "s" tagScale "r" 0 postTagPt)
 					))
 								
-			; prep for next loop (dimensioning & call-outs on current segment)
+			; prep for next loop (dimensioning & call-outs on next segment)
 			(setq currentPt nextPt)
 			(setq dimIndex (1- dimIndex)))
 			
@@ -257,16 +262,16 @@
 
    (setvar "osmode" 0)
    
-	(if placeEndPlates
-		(progn
-			(setq insertAngle (angtos lineAngle 0 9))
-			(setvar "clayer" railLayer)
-			(command "insert" endPlateBlock "y" railWidth "r" insertAngle Pt1)))
+	(cond (placeEndPlates
+		(setq insertAngle (angtos lineAngle 0 9))
+		(setvar "clayer" railLayer)
+		(command "._insert" endPlateBlock "y" railWidth "r" insertAngle Pt1)))
 
-   (setvar "clayer" railLayer)
-   (setq settingsList (list "_.mline" "justification" "zero" "scale" railWidth "style" "TOP_RAIL"))
-   (setq settingsList (append settingsList pointList (list "")))
-   (apply 'command settingsList) 
+   (cond (placeRail
+		(setvar "clayer" railLayer)
+		(setq settingsList (list "_.mline" "justification" "zero" "scale" railWidth "style" "TOP_RAIL"))
+		(setq settingsList (append settingsList pointList (list "")))
+		(apply 'command settingsList)))
 	
 	(cond (isCableRailing
 		(setvar "clayer" cableLayer)
@@ -292,19 +297,24 @@
 
 	(JD:ChangeVar "osmode" 0)
 	
-	(setq Pt1 (car pointList))
-	(setq pointList (cdr pointList))
+	(setq CABLE_WIDTH "3/8"
+			TERMINAL_BLOCK "TOGGLE")
 	
-	(setq Pt2 (car pointList))
-	(setq pointList (cdr pointList))
+	(setq Pt1 (JD:CarCdr 'pointList))
+	(setq Pt2 (JD:CarCdr 'pointList))
 	
 	(setq lineAngle (angle Pt1 Pt2))
 	(setq offsetAngle (- lineAngle (/ PI 2)))
 		
-	(setq Pt1offset (polar Pt1 offsetAngle cableOffsetDistance))	
+	(setq Pt1offset (polar
+							(polar Pt1 offsetAngle cableOffsetDistance)
+							(+ offsetAngle (/ PI 2)) 
+							cableEndShortening))	
 	(setq Pt2offset (polar Pt2 offsetAngle cableOffsetDistance))
 	
-	(command "._line" Pt1offset Pt2offset "")
+	(command "._pline" Pt1offset "W" CABLE_WIDTH CABLE_WIDTH Pt2offset "")
+	(command "._insert" TERMINAL_BLOCK "r" 
+							(angtos (+ offsetAngle (/ PI 2)) 0 9) "s" 1 Pt1offset)
 	
 	(setq lastPt1offset Pt2offset)
 	(setq lastLineAngle lineAngle)
@@ -320,7 +330,7 @@
 		(setq Pt2offset (polar Pt2 offsetAngle cableOffsetDistance))
 		
 		(command "._arc" "c" Pt1 lastPt1offset Pt1offset)
-		(command "._line" Pt1offset Pt2offset "")
+		(command "._pline" Pt1offset "W" CABLE_WIDTH CABLE_WIDTH Pt2offset "")
 		
 		; Prep for next round
 		(setq lastPt1offset Pt2offset)

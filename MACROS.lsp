@@ -41,10 +41,10 @@
 ;| Automatic end post and total dimension   |;
 ;| placement based on offset distances.     |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 05/16/2016 |;
+;| Author: J.D. Sandifer    Rev: 06/20/2016 |;
 ;|==========================================|;
 
-(defun C:pps (/ cornerPostBlock0 postLayer0 endPostBlock0 
+(defun C:pps (/ cornerPostBlock0 postLayer0 endPostBlock0 placePosts0
 					 egdeOffsetDistance0 wallOffsetDistance0 
 					 dimLayer0 isCableRailing0 dimOffset0 tagScale0
 					 tagLayer0 tagBlock0 tagOffsetDistance0 placeDims0)
@@ -58,6 +58,7 @@
 	(setq tagLayer0 "POST-TAG")
 	(setq tagBlock0 "POST-DRILLED CALL-OUT")
 	(setq placeDims0 nil)
+	(setq placePosts0 T)
 	
 	; Set distance options
    (setq edgeOffsetDistance0 4.5)
@@ -114,7 +115,7 @@
 	(setq functionToDefine (strcat
 		"(defun C:pp (/ cornerPostBlock postLayer snapMode placeDims
 						egdeOffsetDistance wallOffsetDistance pointList
-						dimLayer isCableRailing dimOffset tagScale
+						dimLayer isCableRailing dimOffset tagScale placePosts
 						tagLayer tagBlock tagOffsetDistance endPostBlock)
 		(command \"._UNDO\" \"_Begin\")
 		(JD:ClearVars 'systemVariables)
@@ -131,6 +132,7 @@
 		(setq tagLayer \"" tagLayer0 "\")
 		(setq tagBlock \"" tagBlock0 "\")
 		(setq placeDims " (if placeDims0 "T" "nil") ")
+		(setq placePosts " (if placePosts0 "T" "nil") ")
 		
 		(setq edgeOffsetDistance " (rtos edgeOffsetDistance0 2 4) ")
 		(setq wallOffsetDistance " (rtos wallOffsetDistance0 2 4) ")
@@ -186,12 +188,17 @@
 	(setq Pt1offset (polar Pt1offset offsetAngle edgeOffsetDistance))
 	(setq Pt1offset (list (car Pt1offset) (cadr Pt1offset)))
 	
-	(setq postTagPt (polar Pt1offset offsetAngle tagOffsetDistance))
+	(setq postTagPt
+		(polar 
+			(polar Pt1offset offsetAngle tagOffsetDistance) 
+			(- offsetAngle (/ PI 2)) 
+			tagOffsetDistance))
 	(setq postTagPt (list (car postTagPt) (cadr postTagPt)))
 	
 	(JD:Save&ChangeVar "clayer" 'systemVariables postLayer)
 	(setq theAngle (angtos lineAngle 0 9))	
-   (command "._insert" endPostBlock "s" 1 "r" theAngle Pt1offset)
+   (if placePosts
+		(command "._insert" endPostBlock "s" 1 "r" theAngle Pt1offset))
 	
 	(cond (isCableRailing
 			(setvar "clayer" tagLayer)
@@ -229,7 +236,8 @@
 				
 		(setq theAngle (angtos outgoingAngle 0 9))
 		(setvar "clayer" postLayer)
-		(command "._insert" cornerPostBlock "s" 1 "r" theAngle Pt2offset)
+		(if placePosts
+			(command "._insert" cornerPostBlock "s" 1 "r" theAngle Pt2offset))
 		
 		(cond (isCableRailing
 			(setvar "clayer" tagLayer)
@@ -248,12 +256,17 @@
 	(setq Pt2offset (polar Pt2offset offsetAngle edgeOffsetDistance))
 	(setq Pt2offset (list (car Pt2offset) (cadr Pt2offset)))
 	
-	(setq postTagPt (polar Pt2offset offsetAngle tagOffsetDistance))
+	(setq postTagPt
+		(polar
+			(polar Pt2offset offsetAngle tagOffsetDistance) 
+			(+ offsetAngle (/ PI 2)) 
+			tagOffsetDistance))
 	(setq postTagPt (list (car postTagPt) (cadr postTagPt)))
 	
 	(setq theAngle (angtos lineAngle 0 9))
 	(setvar "clayer" postLayer)
-   (command "._insert" endPostBlock "s" 1 "r" theAngle Pt2offset)
+   (if placePosts
+		(command "._insert" endPostBlock "s" 1 "r" theAngle Pt2offset))
 	
 	(cond (isCableRailing
 		(setvar "clayer" tagLayer)
