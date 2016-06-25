@@ -12,12 +12,16 @@
 ;| Converts W,X,Y,Z block tags to more      |;
 ;| descriptive (and consistent tags).       |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 05/24/2016 |;
+;| Author: J.D. Sandifer    Rev: 06/22/2016 |;
 ;|==========================================|;
 
-(defun C:bc (/ systemVariables )
+(defun C:bc (/ *error* systemVariables )
 	
-   ; Start UNDO group so the entire process can be easily reversed
+   ; Sets the default error handler to a custom one, localization above
+	; causes it to be reset after this function finishes
+	(setq *error* ErrorHandler)
+	
+	; Start UNDO group so the entire process can be easily reversed
 	(command "._UNDO" "_Begin")
 	; setup custom error message?
 	(JD:ClearVars 'systemVariables)
@@ -41,13 +45,16 @@
 ;| Automatic end post and total dimension   |;
 ;| placement based on offset distances.     |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 06/20/2016 |;
+;| Author: J.D. Sandifer    Rev: 06/22/2016 |;
 ;|==========================================|;
 
-(defun C:pps (/ cornerPostBlock0 postLayer0 endPostBlock0 placePosts0
+(defun C:pps (/ *error* cornerPostBlock0 postLayer0 endPostBlock0 placePosts0
 					 egdeOffsetDistance0 wallOffsetDistance0 
 					 dimLayer0 isCableRailing0 dimOffset0 tagScale0
 					 tagLayer0 tagBlock0 tagOffsetDistance0 placeDims0)
+	; Sets the default error handler to a custom one, localization above
+	; causes it to be reset after this function finishes
+	(setq *error* ErrorHandler)
 	
    ; Set block & layer names, & other options
    (setq postLayer0 "Detail")
@@ -57,14 +64,14 @@
 	(setq isCableRailing0 T)
 	(setq tagLayer0 "POST-TAG")
 	(setq tagBlock0 "POST-DRILLED CALL-OUT")
-	(setq placeDims0 nil)
+	(setq placeDims0 T)
 	(setq placePosts0 T)
 	
 	; Set distance options
    (setq edgeOffsetDistance0 4.5)
    (setq wallOffsetDistance0 4.5)
-	(setq tagOffsetDistance0 24)
-	(setq tagScale0 4)
+	(setq tagOffsetDistance0 9)
+	(setq tagScale0 1)
 	(setq dimOffset0 48)
 
 	; Run dialog box to get user input
@@ -113,10 +120,12 @@
 		(exit))
 	
 	(setq functionToDefine (strcat
-		"(defun C:pp (/ cornerPostBlock postLayer snapMode placeDims
+		"(defun C:pp (/ *error* cornerPostBlock postLayer snapMode placeDims
 						egdeOffsetDistance wallOffsetDistance pointList
 						dimLayer isCableRailing dimOffset tagScale placePosts
 						tagLayer tagBlock tagOffsetDistance endPostBlock)
+		(setq *error* ErrorHandler)
+	
 		(command \"._UNDO\" \"_Begin\")
 		(JD:ClearVars 'systemVariables)
 		(JD:Save&ChangeVar \"cmdEcho\" 'systemVariables 0)
@@ -284,14 +293,18 @@
 ;| Allows for continual dimensioning at     |;
 ;| a specific distance from the points.     |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 03/16/2016 |;
+;| Author: J.D. Sandifer    Rev: 06/22/2016 |;
 ;|==========================================|;
 
 
-(defun C:DLICont ( / snapMode  dimOffset    systemVariables 
+(defun C:DLICont ( / *error* snapMode  dimOffset    systemVariables 
 							lastPoint currentPoint angleToOffset   offsetPoint)
 
-	(command "._UNDO" "_Begin")		; Start UNDO group
+	; Sets the default error handler to a custom one, localization above
+	; causes it to be reset after this function finishes
+	(setq *error* ErrorHandler)
+	
+   (command "._UNDO" "_Begin")		; Start UNDO group
    
 	(setq snapMode 191)
 	(setq dimOffset 48)
@@ -353,13 +366,17 @@
 ;| Places label for middle dimension and    |;
 ;| blanks for all others.                   |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 04/25/2016 |;
+;| Author: J.D. Sandifer    Rev: 06/22/2016 |;
 ;|==========================================|;
 
 
-(defun c:DougsDimLabels ();( / dimSelSet      index      selSetLength 
+(defun c:DougsDimLabels (/ *error*);( / dimSelSet      index      selSetLength 
 							;  dimEntityInfo  dimEntityText)
-	(setq dimSelSet (ssget '((0 . "DIMENSION"))))
+	; Sets the default error handler to a custom one, localization above
+	; causes it to be reset after this function finishes
+	(setq *error* ErrorHandler)
+	
+   (setq dimSelSet (ssget '((0 . "DIMENSION"))))
 	(setq index 0)
 	(setq selSetLength (sslength dimSelSet))
 	(while (< index selSetLength)
@@ -392,13 +409,17 @@
 ;| Places beginning, end, and mid post      |;
 ;| lines for 1.9" dia. handrail elevation.  |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 03/16/2016 |;
+;| Author: J.D. Sandifer    Rev: 06/22/2016 |;
 ;|==========================================|;
 
 
-(defun c:DrawHandrail (/ systemVariables point0
+(defun c:DrawHandrail (/ *error* point0
 								 point1     point2    point3 point4)
-	(command "._UNDO" "_Begin")
+	; Sets the default error handler to a custom one, localization above
+	; causes it to be reset after this function finishes
+	(setq *error* ErrorHandler)
+	
+   (command "._UNDO" "_Begin")
 	; setup custom error message?
 	(JD:ClearVars 'systemVariables)
 	(JD:Save&ChangeVar "CMDECHO" 'systemVariables 0)
@@ -469,14 +490,18 @@
 ;| Rotates a user-selected block 90 degrees |;
 ;| (counter-clockwise) about its insertion. |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 03/16/2016 |;
+;| Author: J.D. Sandifer    Rev: 06/22/2016 |;
 ;|==========================================|;
 
 ;; Note: Only works in world/standard UCS.
 
-(defun c:RotateBlock90 (/ systemVariables block selSet 
+(defun c:RotateBlock90 (/ *error* block selSet 
 								  entityInfo point )
-	(command "._UNDO" "_Begin")
+	; Sets the default error handler to a custom one, localization above
+	; causes it to be reset after this function finishes
+	(setq *error* ErrorHandler)
+	
+   (command "._UNDO" "_Begin")
 	; setup custom error message?
 	(JD:ClearVars 'systemVariables)
 	(JD:Save&ChangeVar "CMDECHO" 'systemVariables 0)
@@ -511,7 +536,7 @@
 ;| Replaces selected blocks with another    |;
 ;| previously selected source block.        |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 01/26/2016 |;
+;| Author: J.D. Sandifer    Rev: 06/22/2016 |;
 ;|------------------------------------------|;
 ;| Based on: Replace Selected Blocks        |;
 ;|           (17-IV-2012)                   |;
@@ -521,9 +546,14 @@
 ;|==========================================|;
 
 
-(defun c:ReplaceBlock ( / sourceBlock  sourceBlockName  sourceBlockEntity   
-								  targetBlock  targetBlockInfo )
-	(command "._UNDO" "_Begin")		; Start UNDO group
+(defun c:ReplaceBlock ( / *error* sourceBlock  sourceBlockName  
+								  sourceBlockEntity    targetBlock  
+								  targetBlockInfo )
+	; Sets the default error handler to a custom one, localization above
+	; causes it to be reset after this function finishes
+	(setq *error* ErrorHandler)
+	
+   (command "._UNDO" "_Begin")		; Start UNDO group
 	
 	(prompt "\nSelect source block: ")	
    ; Ask user to select a source block and continue only if one is found	
@@ -561,7 +591,7 @@
 ;| Replaces blocks in selection with the    |;
 ;| previously selected source block.        |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 02/16/2016 |;
+;| Author: J.D. Sandifer    Rev: 06/22/2016 |;
 ;|------------------------------------------|;
 ;| Based on: Replace Selected Blocks        |;
 ;|           (17-IV-2012)                   |;
@@ -571,9 +601,14 @@
 ;|==========================================|;
 
 
-(defun c:ReplaceBlocks ( / sourceBlock  sourceBlockName  sourceBlockEntity   
-								  targetBlocks  targetBlockInfo  index)
-	(command "._UNDO" "_Begin")		; Start UNDO group
+(defun c:ReplaceBlocks ( / *error* sourceBlock  sourceBlockName  
+								   sourceBlockEntity    targetBlocks  
+									targetBlockInfo  index)
+	; Sets the default error handler to a custom one, localization above
+	; causes it to be reset after this function finishes
+	(setq *error* ErrorHandler)
+	
+   (command "._UNDO" "_Begin")		; Start UNDO group
 	
 	(prompt "\nSelect source block: ")	
    ; Ask user to select a source block and continue only if one is found	

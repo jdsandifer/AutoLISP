@@ -101,10 +101,9 @@
 ;;; variableList [symbol] - name of the variable list to use (nil value ok)
 
 (defun JD:ResetAllVars ( variableList / )
-	(foreach var (eval variableList)
-			(setvar (car var) (cdr var)))
+	(foreach variable (eval variableList)
+			(JD:ResetVar variable variableList))
 	(JD:ClearVars variableList)
-	(princ "\nSystem variables have been reset.\n")
 	(princ))
 	
 	
@@ -112,13 +111,16 @@
 ;;; Error handling function - prints error message nicely and resets system variables
 
 (defun ErrorHandler (errorMessage)
-   (if (not (member msg '("Function cancelled" "quit / exit abort")))
+   (if (not (member errorMessage '("Function cancelled" "quit / exit abort")))
 		(princ (strcat "\nThere's a slight problem: " errorMessage)))
 
-   (JD:ResetAllVars 'systemVariables)
-	; Not ideal? Relies on global variable, but nil works...so maybe ok
+   (JD:Save&ChangeVar "cmdecho" 'systemVariables 0)
 	
 	(command-s "._UNDO" "_End")		; End UNDO group
+	
+	(JD:ResetAllVars 'systemVariables)
+	; Relies on global variable, but nil works...so maybe ok
+	
    (princ))
 	
 	

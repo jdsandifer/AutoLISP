@@ -74,12 +74,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun C:dp (/ intPostBlock ctrLineLayer postLayer dimLayer dimOffset
+(defun C:dp (/ *error* intPostBlock ctrLineLayer postLayer dimLayer dimOffset
 					snapMode infillStockLength postSpacing railWidth
 					isCableRailing isPicketRailing cableOffsetDistance
 					tagOffsetDistance tagLayer tagBlock cableLayer 
 					placeDims placeEndPlates placePosts placeCenteLine
 					tagScale cableEndShortening placeRail)
+	
+	; Sets the default error handler to a custom one, localization above
+	; causes it to be reset after this function finishes
+	(setq *error* ErrorHandler)
 	
    (command "._UNDO" "_Begin")		; Start UNDO group
 	
@@ -106,41 +110,29 @@
 			
 	; and other options
    (setq dimOffset "24")		; String means easy concatenation later
-	(setq	tagOffsetDistance 24
-			tagScale 4
-			cableOffsetDistance 24
-			cableEndShortening 12
+	(setq	tagOffsetDistance 9
+			tagScale 1
+			cableOffsetDistance 9
+			cableEndShortening 5
 			snapMode 64)
 	
 	; rail options
-	(setq postSpacing 50.75)
-	(setq railWidth "2 11/16")		; String or integer works here
+	(setq postSpacing 48)
+	(setq railWidth "2")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
 	(setq isCableRailing T
 			isPicketRailing nil
-			placeDims nil
-			placeEndPlates nil
+			placeDims T
+			placeEndPlates T
 			placePosts T
-			placeCenteLine nil
-			placeRail nil)
+			placeCenteLine nT
+			placeRail T)
    
    (PlanDrawTool)			; Actual work done in this function
 
    (JD:ResetAllVars 'systemVariables)
    (command "._UNDO" "_End")		; End UNDO group
-   
-   (princ))			; Hide last return value (clean exit)
-
-
-
-;;; Error handling function - prints error message nicely and resets system variables
-
-(defun *error* (msg)
-   (princ "\n")
-   (princ msg)
-
-   (JD:ResetAllVars 'systemVariables)
    
    (princ))			; Hide last return value (clean exit)
 
@@ -298,7 +290,7 @@
 	(JD:ChangeVar "osmode" 0)
 	
 	(setq CABLE_WIDTH "3/8"
-			TERMINAL_BLOCK "TOGGLE")
+			TERMINAL_BLOCK "TERMINAL")
 	
 	(setq Pt1 (JD:CarCdr 'pointList))
 	(setq Pt2 (JD:CarCdr 'pointList))

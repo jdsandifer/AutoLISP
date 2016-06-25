@@ -20,6 +20,7 @@
 
 (defun test ( / *error*)
 	(setq *error* ErrorHandler)
+	(getpoint)
 	(itoa nil)
 	(princ))
 
@@ -31,7 +32,7 @@
 (defun C:UnitTests ( / testList testResults)
 
 	(princ "\n")
-	;(ReloadFile "UNIT_TESTS")
+	;(ReloadFile "TEST")
 	
 	(princ "isInserted\n")
 	(Assert 'isInserted "not-a-block" nil)
@@ -46,7 +47,7 @@
 ; Checks if function operates as expected and add result to testList
 ; Input: function (symbol), argument for the function, expected result
 ; Output: result of test
-; Return: none
+; Return: T or nil
 
 
 (defun Assert ( functionName argumentForFunction expectedResult / 
