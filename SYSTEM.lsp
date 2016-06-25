@@ -54,6 +54,7 @@
 ;;; variableList [symbol] - name of the variable list to use
 
 (defun JD:SaveVar ( variable variableList / )
+	(setq variable (strcase variable T))
 	(if (not (JD:GetHash variable variableList))
 		(JD:PutHash variable (getvar variable) variableList))
 	(princ))
@@ -66,6 +67,7 @@
 ;;; newValue [varies] - the value to which to set the variable
 
 (defun JD:ChangeVar ( variable newValue / )
+	(setq variable (strcase variable T))
 	(setvar variable newValue)
 	(princ))
 		
@@ -90,6 +92,7 @@
 ;;; variableList [symbol] - name of the variable list to use
 
 (defun JD:ResetVar ( variable variableList / )
+	(setq variable (strcase variable T))
 	(setvar variable (JD:GetHash variable variableList))
 	(princ))
 		

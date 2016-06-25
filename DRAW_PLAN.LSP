@@ -98,14 +98,14 @@
    ; Set block names
    (setq intPostBlock "BP"
 			endPlateBlock "end_plate"
-			tagBlock "POST-DRILLED CALL-OUT")
+			tagBlock "PICKET PANEL CALL-OUT")
 			
 	; layer names
    (setq ctrLineLayer "Center"
 			postLayer "Detail"
 			dimLayer "Dims"
 			railLayer "1"
-			tagLayer "POST-TAG"
+			tagLayer "PKTP-TAG"
 			cableLayer "Cable")
 			
 	; and other options
@@ -117,16 +117,16 @@
 			snapMode 64)
 	
 	; rail options
-	(setq postSpacing 48)
-	(setq railWidth "2")		; String or integer works here
+	(setq postSpacing 72)
+	(setq railWidth "2-11/16")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
-	(setq isCableRailing T
-			isPicketRailing nil
+	(setq isCableRailing nil
+			isPicketRailing T
 			placeDims T
 			placeEndPlates T
 			placePosts T
-			placeCenteLine nT
+			placeCenteLine T
 			placeRail T)
    
    (PlanDrawTool)			; Actual work done in this function

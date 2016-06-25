@@ -104,11 +104,11 @@
 		(setq edgeOffsetDistance0 5)
 		(setq tagScale0 4)")
 	
-	(action_tile "detail" "(setq postLayer \"Detail\")")
-	(action_tile "hral-post" "(setq postLayer \"A-HRAL-POST\")")
+	(action_tile "detail" "(setq postLayer0 \"Detail\")")
+	(action_tile "hral-post" "(setq postLayer0 \"A-HRAL-POST\")")
 	
-	(action_tile "cable" "(setq isCableRailing T)")
-	(action_tile "noCable" "(setq isCableRailing nil)")
+	(action_tile "cable" "(setq isCableRailing0 T)")
+	(action_tile "noCable" "(setq isCableRailing0 nil)")
 		
 	(action_tile "accept" "(done_dialog)(setq userChoice T)")
 	(action_tile "cancel" "(done_dialog)(setq userChoice nil)")
@@ -204,10 +204,10 @@
 			tagOffsetDistance))
 	(setq postTagPt (list (car postTagPt) (cadr postTagPt)))
 	
-	(JD:Save&ChangeVar "clayer" 'systemVariables postLayer)
 	(setq theAngle (angtos lineAngle 0 9))	
-   (if placePosts
-		(command "._insert" endPostBlock "s" 1 "r" theAngle Pt1offset))
+   (cond (placePosts
+			(JD:Save&ChangeVar "clayer" 'systemVariables postLayer)
+			(command "._insert" endPostBlock "s" 1 "r" theAngle Pt1offset)))
 	
 	(cond (isCableRailing
 			(setvar "clayer" tagLayer)

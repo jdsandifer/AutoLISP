@@ -16,8 +16,8 @@ ID_WPB	         [&Weep Holes Base plate](command ".insert" "D:/Lisp/Blocks/WeepH
 ID_SIO            [&Sign Off](command ".insert" "D:/Lisp/Blocks/SignOff" pause "" "" "")
 ID_ANS            [<-&AntiSeize](command ".insert" "D:/Lisp/Blocks/AntiSeize" pause "" "" "")
 
-ID_PIK         [->&Detail Callouts]
-ID_VDT            [&View Detail](command ".insert" "D:/Lisp/Blocks/ViewDetail1") ^C^C_insert "VIEW DETAIL"
+ID_DET         [->&Detail Callouts]
+ID_VDT            [&View Detail](command ".insert" "C:/LISP/NOTES") ^C^C_insert "DETAIL CALL-OUT"
 ID_SDT            [&Section Detail](command ".insert" "D:/Lisp/Blocks/SectionDetail1") ^C^C_insert "SECTION VIEW CALL-OUT"
 ID_VPD            [<-Viewport &Callout](command ".insert" "D:/Lisp/Blocks/Viewportcallout") ^C^C_insert "DETAIL CALL-OUT"
 
@@ -49,11 +49,11 @@ ID-TR36112        [500+](command ".insert" "36-11-BLOCK-2" pause "" "")
 ID_TR3615         [Wood Adapter](command ".insert" "36-15-BLOCK-1" pause "" "")
 ID-TR36152        [<-Wood Adapter+](command ".insert" "36-15-BLOCK-2" pause "" "")
 
-ID_B21         [->Infill]
-ID_B22            [GLASS FULL STOCK 20-01](command ".insert" "20-01-BLOCK-1" pause "" "")
-ID_B23            [GLASS FULL PLUS 20-01](command ".insert" "20-01-BLOCK-2" pause "" "")
-ID_B24            [STANDARD FULL STOCK 20-02](command ".insert" "20-02-BLOCK-1" pause "" "")
-ID_B25            [<-STANDARD FULL PLUS 20-02](command ".insert" "20-02-BLOCK-2" pause "" "") 
+ID_IN         [->Infill]
+ID_I100           [Series 100](command ".insert" "20-05-BLOCK-1" pause "" "")
+ID_I1002          [Series 100+](command ".insert" "20-05-BLOCK-2" pause "" "")
+ID_ISTD           [Standard](command ".insert" "20-02-BLOCK-1" pause "" "")
+ID_ISTD2          [<-Standard+](command ".insert" "20-02-BLOCK-2" pause "" "")
 
 ID_B14         [->Bottom Rail]
 ID_B15            [GLASS FULL STOCK 06-01](command ".insert" "06-01-BLOCK-1" pause "" "")
@@ -73,7 +73,8 @@ ID_B29            [<-TOP FULL PLUS 38-03](command ".insert" "38-03-BLOCK-2" paus
 
                [--]
                
-ID_P1205       [Post Cap](command ".insert" "12-05-BLOCK" pause "" "")  
+ID_PC          [Post Cap](command ".insert" "12-05-BLOCK" pause "" "") 
+ID_IPF         [IPF Cap](command ".insert" "12-06-BLOCK" pause "" "")   
 
 ID_PEP         [->End Plates]
 ID_EP1401         [200 End](command ".insert" "14-01-BLOCK" pause "" "")
@@ -94,8 +95,8 @@ ID_EP14104        [<-500 4 Holes](command ".insert" "14-10-BLOCK-4" pause "" "")
                [--]
 
 ID_UX          [->X-Bracket]
-ID_XL             [Left X Brkt](command ".insert" "18-01-BLOCK-1" pause "" "")
-ID_XR             [<-Right X Brkt](command ".insert" "18-02-BLOCK-1" pause "" "")
+ID_XL             [Left X-Bracket](command ".insert" "18-01-BLOCK-1" pause "" "")
+ID_XR             [<-Right X-Bracket](command ".insert" "18-02-BLOCK-1" pause "" "")
 
 ID_URCB        [->RCB]
 ID_RCB            [RCB Std](command ".insert" "08-09-BLOCK-1" pause "" "") 
@@ -108,8 +109,21 @@ ID_RCB100         [RCB 100](command ".insert" "08-08-BLOCK-1" pause "" "")
 ID_RCB10024       [RCB 100 24"](command ".insert" "08-16-BLOCK-1" pause "" "")  
 ID_RCB10018       [RCB 100 18"](command ".insert" "08-16-BLOCK-2" pause "" "")  
 ID_RCB10012       [RCB 100 12"](command ".insert" "08-16-BLOCK-3" pause "" "")  
-ID_RCB1008        [<-RCB 100 8"](command ".insert" "08-16-BLOCK-4" pause "" "")  
+ID_RCB1008        [<-RCB 100 8"](command ".insert" "08-16-BLOCK-4" pause "" "") 
 
+ID_NEO         [->Neoprene]
+ID_NEO6           [6" Neoprene](command ".insert" "38-07-BLOCK-1" pause "" "") 
+ID_NEO5           [5" Neoprene](command ".insert" "PL-CUST.-NEO-1.75X5" pause "" "") 
+ID_NEO4           [4.5" Neoprene](command ".insert" "PL-CUST.-NEO-4.5" pause "" "")
+ID_NEO55          [5"x5" Neoprene](command ".insert" "38-06-BLOCK-1" pause "" "")
+ID_NEO35          [<-3"x5" Neoprene](command ".insert" "38-13-BLOCK-1" pause "" "")  
+
+               [--]
+               
+ID_CBLHDW      [->Cable Hardware]
+ID_CH1008         [Acorn Nut](command ".insert" "10-08-BLOCK" pause "" "")
+ID_CH1008         [<-Beveled Washer](command ".insert" "10-11-BLOCK" pause "" "")
+               
                [--]
 
 ID_F           [->Fasteners]
