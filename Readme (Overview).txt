@@ -1,19 +1,19 @@
-AutoLISP Programs to Improve Drafting Efficiency
+Project Overview: AutoLISP Programs to Improve Drafting Efficiency
 
 The files in this repository are AutoLISP files that provide automation 
-of specific tasks in AutoCAD for myself and other my drafting coworkers. 
+of specific tasks in AutoCAD for myself and my drafting coworkers. 
 The language is a basic LISP variant that includes specific commands 
 that integrate with AutoCAD and its functions.
 
-The files are currently in an alpha state about to be moved into internal 
-testing and revision based on user feedback. Also, some functions were 
+The files are constantly being revised and will be moved into internal 
+testing and revision based on user feedback when possible. Some functions were 
 implemented quickly to be ready for a demo for users and the company 
 president. Thus, there is some revision needed to finish conforming to 
 coding best practices like the MVP model, DRY, and basic efficiency, as 
 well as to reduce redundancies in helper functions.
 
 The eventual goal of the project is a set of useful, efficient, and user-
-friendly programs that will improve drafting efficiency as much as 50% on 
+friendly programs that will improve drafting efficiency as much as 100% on 
 simple projects and assist with the speed of all projects. 
 
 (The projects referenced above are architectural railing projects for 
@@ -22,14 +22,17 @@ drawings for each project typically include layout plans, elevations,
 details, and a bill of materials.)
 
 
+Personal Improvement and Initiative
 
 As part of this project, I learned AutoLISP from scratch - never having even 
 seen LISP before. Over the course of two months working about 3 hours per 
 week - so as not to interfere with my daily duties - I learned the language, 
-developed the programs in this repository, and demoed them for other users 
-in the company with very positive feedback. The total work for the project 
-has only been about 24 man hours do date.
+developed the initial programs in this repository, and demoed them for other 
+users in the company with positive feedback. The total work for the project 
+has been less that 100 man hours as of 6/24/16 (it's been about nine months
+since the project began).
 
 I look forward to improving the programs through user testing and feedback 
-in a very iterative and continual improvement process. It's really fun to 
-have found a way to use my programming skills in my current drafting job.
+in a very iterative and continual improvement process. It's rewarding being
+able to use my programming skills in my current drafting job - not something 
+I expected.
