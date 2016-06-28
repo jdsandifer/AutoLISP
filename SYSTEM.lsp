@@ -105,7 +105,7 @@
 
 (defun JD:ResetAllVars ( variableList / )
 	(foreach variable (eval variableList)
-			(JD:ResetVar variable variableList))
+			(JD:ResetVar (car variable) variableList))
 	(JD:ClearVars variableList)
 	(princ))
 	

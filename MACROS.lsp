@@ -45,7 +45,7 @@
 ;| Automatic end post and total dimension   |;
 ;| placement based on offset distances.     |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 06/22/2016 |;
+;| Author: J.D. Sandifer    Rev: 06/27/2016 |;
 ;|==========================================|;
 
 (defun C:pps (/ *error* cornerPostBlock0 postLayer0 endPostBlock0 placePosts0
@@ -213,7 +213,7 @@
 			(setvar "clayer" tagLayer)
 			(command "._insert" tagBlock "s" tagScale "r" 0 postTagPt)
 			(setq lastTag (entget (entnext (entlast))))
-			(entmod (subst (cons 1 "C") (assoc 1 lastTag) lastTag))))
+			(entmod (subst (cons 1 "B") (assoc 1 lastTag) lastTag))))
 	
 	(foreach Pt3 pointList
 		(setq incomingAngle (angle Pt2 Pt1))
@@ -281,7 +281,7 @@
 		(setvar "clayer" tagLayer)
 		(command "._insert" tagBlock "s" tagScale "r" 0 postTagPt)
 		(setq lastTag (entget (entnext (entlast))))
-		(entmod (subst (cons 1 "B") (assoc 1 lastTag) lastTag))))
+		(entmod (subst (cons 1 "C") (assoc 1 lastTag) lastTag))))
 	
 	(JD:ResetVar "clayer" 'systemVariables)
 	

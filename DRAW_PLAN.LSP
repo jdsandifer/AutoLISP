@@ -85,11 +85,11 @@
 	; causes it to be reset after this function finishes
 	(setq *error* ErrorHandler)
 	
-   (command "._UNDO" "_Begin")		; Start UNDO group
-	
    ; Save system variables and change to needed values
    (JD:ClearVars 'systemVariables)
    (JD:Save&ChangeVar "cmdEcho" 'systemVariables 0)
+	(command "._UNDO" "_Begin")		; Start UNDO group
+	
    (JD:Save&ChangeVar "attreq" 'systemVariables 0)
    (JD:Save&ChangeVar "blipmode" 'systemVariables 0)
    (JD:SaveVar "osmode" 'systemVariables)
@@ -98,14 +98,14 @@
    ; Set block names
    (setq intPostBlock "BP"
 			endPlateBlock "end_plate"
-			tagBlock "PICKET PANEL CALL-OUT")
+			tagBlock "POST-DRILLED CALL-OUT")
 			
 	; layer names
    (setq ctrLineLayer "Center"
 			postLayer "Detail"
 			dimLayer "Dims"
 			railLayer "1"
-			tagLayer "PKTP-TAG"
+			tagLayer "POST-TAG"
 			cableLayer "Cable")
 			
 	; and other options
@@ -117,12 +117,12 @@
 			snapMode 64)
 	
 	; rail options
-	(setq postSpacing 72)
+	(setq postSpacing 48)
 	(setq railWidth "2-11/16")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
-	(setq isCableRailing nil
-			isPicketRailing T
+	(setq isCableRailing T
+			isPicketRailing nil
 			placeDims T
 			placeEndPlates T
 			placePosts T
@@ -131,9 +131,9 @@
    
    (PlanDrawTool)			; Actual work done in this function
 
-   (JD:ResetAllVars 'systemVariables)
    (command "._UNDO" "_End")		; End UNDO group
-   
+   (JD:ResetAllVars 'systemVariables)
+	
    (princ))			; Hide last return value (clean exit)
 
 
@@ -306,7 +306,7 @@
 	
 	(command "._pline" Pt1offset "W" CABLE_WIDTH CABLE_WIDTH Pt2offset "")
 	(command "._insert" TERMINAL_BLOCK "r" 
-							(angtos (+ offsetAngle (/ PI 2)) 0 9) "s" 1 Pt1offset)
+							(angtos lineAngle 0 9) "s" 1 Pt1offset)
 	
 	(setq lastPt1offset Pt2offset)
 	(setq lastLineAngle lineAngle)

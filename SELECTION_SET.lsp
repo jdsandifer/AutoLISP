@@ -102,15 +102,13 @@
 ;; Converts a selection set into a list and returns it.
 ;; selectionSet [sel set]
 
-(defun JD:SSToList (ss / sscnt sslist)
-   (princ "\nsstolist")
-   (setq sscnt 0
-	 sslist nil)
-   (repeat (sslength ss)
-      (setq sslist (cons (ssname ss sscnt) sslist))
-      (setq sscnt (1+ sscnt)))
-   (princ "\nsstolist done")
-   sslist)
+(defun JD:SelSet->List (selectionSet / selSetIndex selSetList)
+   (setq selSetIndex 0
+	      selSetList  nil)
+   (repeat (sslength selectionSet)
+      (setq selSetList (cons (ssname selectionSet selSetIndex) selSetList))
+      (setq selSetIndex (1+ selSetIndex)))
+   selSetList)
 
 
 
