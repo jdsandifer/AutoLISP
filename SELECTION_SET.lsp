@@ -1,7 +1,7 @@
 ;;;;;;;[  Selection Set Functions  ];;;;;;;;;;;;;;
 ;;                                              ;;
 ;;  All functions needed to work with           ;;
-;;  selection sets functionally.                ;;
+;;  selection sets functionally. : )            ;;
 ;;                                              ;;
 ;;::::::::::::::::::::::::::::::::::::::::::::::;;
 ;;                                              ;;
@@ -16,6 +16,9 @@
 ;;  - Moved FilterSelectionSet and              ;;
 ;;    PrintSelectionSet here.                   ;;
 ;;  - Did preliminary testing.                  ;;
+;;                                              ;;
+;;  06/27/2016                                  ;;
+;;  - Added SSToList and began updating it.     ;;
 ;;                                              ;;
 ;;  Todo:                                       ;;
 ;;  - Selection set to entity list function     ;;
@@ -94,6 +97,23 @@
 
 
 
+
+;; JD:SelSet->List - J.D. Sandifer, based on the function by Jim Claypool
+;; Converts a selection set into a list and returns it.
+;; selectionSet [sel set]
+
+(defun JD:SSToList (ss / sscnt sslist)
+   (princ "\nsstolist")
+   (setq sscnt 0
+	 sslist nil)
+   (repeat (sslength ss)
+      (setq sslist (cons (ssname ss sscnt) sslist))
+      (setq sscnt (1+ sscnt)))
+   (princ "\nsstolist done")
+   sslist)
+
+
+
 ;;----------------------------------------------------------------------;;
 
 
@@ -101,9 +121,7 @@
     (strcat
         "\n:: SELECTION_SET.lsp loaded. | \\U+00A9 J.D. Sandifer "
         (menucmd "m=$(edtime,0,yyyy)")
-        " ::\n"
-    )
-)
+        " ::\n"))
 (princ)
 
 ;;----------------------------------------------------------------------;;
