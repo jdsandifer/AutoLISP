@@ -41,6 +41,29 @@
 	
 	
 	
+;|========{ Fillet 0 (Corner Join) }========|;
+;| Joins lines to form a corner (fillet w/  |;
+;| 0" radius).                              |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 06/29/2016 |;
+;|==========================================|;
+
+(defun C:ff ( / *error* )
+	
+   ; Sets the default error handler to a custom one, localization above
+	; causes it to be reset after this function finishes
+	(setq *error* ErrorHandler)
+	; Start UNDO group so the entire process can be easily reversed
+	(command "._UNDO" "_Begin")
+	
+	(command "._FILLET" "r" 0)
+	(command "._FILLET" (car (entsel)) (car (entsel)))
+   				  
+	(command "._UNDO" "_End")		; End UNDO group
+   (princ))	
+	
+	
+	
 ;|============{ Post Placing }==============|;
 ;| Automatic end post and total dimension   |;
 ;| placement based on offset distances.     |;
