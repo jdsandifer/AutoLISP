@@ -18,10 +18,9 @@
 
 ; Resets system variables to my defaults
 
-(defun C:Reset nil ( / systemVariables)
-	(setq systemVariables (("cmdecho" . 1)
-								  ("osmode" . 191)))
-	(JD:ResetAllVars 'systemVariables)
+(defun C:Reset nil
+	(setvar "cmdecho" 1)
+	(setvar "osmode" 191)
 	(princ "Reset finished.")
 	(print))
 

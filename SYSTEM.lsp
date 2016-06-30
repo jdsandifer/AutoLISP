@@ -22,7 +22,7 @@
 ;;                                              ;;
 ;;  03/15/2016                                  ;;
 ;;  - Added ChangeVar(iable).                   ;;
-;;  - Added Save&ChangeVar.						   ;;
+;;  - Added Save&ChangeVar.			;;
 ;;                                              ;;
 ;;  02/04/2016                                  ;;
 ;;  - Added SaveVar(iable).                     ;;
@@ -37,115 +37,120 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-                  
+
 ;;; JD:ClearVar(iable)s - Copyright 2016 J.D. Sandifer
 ;;; Clears the list of system variables.
 ;;; variableList [symbol] - name of variable list to clear (nil value ok)
 
-(defun JD:ClearVars ( variableList / )
-	(JD:ClearHash variableList)
-	(princ))
-	
-	
-	
+(defun JD:ClearVars (variableList /)
+   (JD:ClearHash variableList)
+   (princ))
+
+
+
 ;;; JD:SaveVar(iable) - Copyright 2016 J.D. Sandifer
 ;;; Saves the selected system variable if not already saved.
 ;;; variable [string] - system variable to store
 ;;; variableList [symbol] - name of the variable list to use
 
-(defun JD:SaveVar ( variable variableList / )
-	(setq variable (strcase variable T))
-	(if (not (JD:GetHash variable variableList))
-		(JD:PutHash variable (getvar variable) variableList))
-	(princ))
-		
-	
-	
+(defun JD:SaveVar (variable variableList /)
+   (setq variable (strcase variable T))
+   (if (not (JD:GetHash variable variableList))
+      (JD:PutHash variable (getvar variable) variableList))
+   (princ))
+
+
+
 ;;; JD:ChangeVar(iable) - Copyright 2016 J.D. Sandifer
 ;;; Changes the selected system variable.
 ;;; variable [string] - system variable to store
 ;;; newValue [varies] - the value to which to set the variable
 
-(defun JD:ChangeVar ( variable newValue / )
-	(setq variable (strcase variable T))
-	(setvar variable newValue)
-	(princ))
-		
+(defun JD:ChangeVar (variable newValue /)
+   (setq variable (strcase variable T))
+   (setvar variable newValue)
+   (princ))
 
-	
+
+
 ;;; JD:Save&ChangeVar(iable) - Copyright 2016 J.D. Sandifer
 ;;; Saves and changes the selected system variable.
 ;;; variable [string] - system variable to store
 ;;; variableList [symbol] - name of the variable list to use
 ;;; newValue [varies] - the value to which to set the variable
 
-(defun JD:Save&ChangeVar ( variable variableList newValue / )
-	(JD:SaveVar variable variableList)
-	(JD:ChangeVar variable newValue)
-	(princ))
-		
+(defun JD:Save&ChangeVar (variable variableList newValue /)
+   (JD:SaveVar variable variableList)
+   (JD:ChangeVar variable newValue)
+   (princ))
 
-	
+
+
 ;;; JD:ResetVar(iable)s - Copyright 2016 J.D. Sandifer
 ;;; Restores a single system variable from the list (without removing it).
 ;;; variable [string] - system variable to store
 ;;; variableList [symbol] - name of the variable list to use
 
-(defun JD:ResetVar ( variable variableList / )
-	(setq variable (strcase variable T))
-	(setvar variable (JD:GetHash variable variableList))
-	(princ))
-		
-	
-	
+(defun JD:ResetVar (variable variableList / oldValue didSucceed)
+   (setq variable (strcase variable T))
+   (cond
+      ((setq oldValue (JD:GetHash variable variableList))
+       (setvar variable oldValue)
+       (setq didSucceed T))
+      (T
+       (setq didSucceed nil)))
+   didSucceed)
+
+
+
 ;;; JD:ResetAllVar(iable)s - Copyright 2016 J.D. Sandifer
 ;;; Restores all system variables in the list.
 ;;; variable [string] - system variable to store
 ;;; variableList [symbol] - name of the variable list to use (nil value ok)
 
-(defun JD:ResetAllVars ( variableList / )
-	(foreach variable (eval variableList)
-			(JD:ResetVar (car variable) variableList))
-	(JD:ClearVars variableList)
-	(princ))
-	
-	
+(defun JD:ResetAllVars (variableList /)
+   (foreach
+       variablePair (eval variableList)
+      (JD:ResetVar (car variablePair) variableList))
+   (JD:ClearVars variableList)
+   (princ))
+
+
 
 ;;; Error handling function - prints error message nicely and resets system variables
 
 (defun ErrorHandler (errorMessage)
-   (if (not (member errorMessage '("Function cancelled" "quit / exit abort")))
-		(princ (strcat "\nThere's a slight problem: " errorMessage)))
-
+   (if (not (member
+               errorMessage
+               '("Function cancelled" "quit / exit abort")))
+      (princ (strcat "\nThere's a slight problem: " errorMessage)))
+   
    (JD:Save&ChangeVar "cmdecho" 'systemVariables 0)
-	
-	(command-s "._UNDO" "_End")		; End UNDO group
-	
-	(JD:ResetAllVars 'systemVariables)
-	; Relies on global variable, but nil works...so maybe ok
-	
+   (command-s "._UNDO" "_End")          ; End UNDO group
+   (JD:ResetAllVars 'systemVariables)
+      ; Relies on global variable, but nil works...so maybe ok
+
    (princ))
-	
-	
-	
+
+
+
 ;; Start Undo  -  Lee Mac
 ;; Opens an Undo Group.
 
-(defun LM:startundo ( doc )
-    (LM:endundo doc)
-    (vla-startundomark doc)
-)
+(defun
+    LM:startundo (doc)
+   (LM:endundo doc)
+   (vla-startundomark doc))
 
 
 
 ;; End Undo  -  Lee Mac
 ;; Closes an Undo Group.
 
-(defun LM:endundo ( doc )
-    (while (= 8 (logand 8 (getvar 'undoctl)))
-        (vla-endundomark doc)
-    )
-)
+(defun
+    LM:endundo (doc)
+   (while (= 8 (logand 8 (getvar 'undoctl)))
+      (vla-endundomark doc)))
 
 
 
@@ -153,9 +158,13 @@
 ;; Returns the VLA Active Document Object
 
 (defun LM:acdoc nil
-    (eval (list 'defun 'LM:acdoc 'nil (vla-get-activedocument (vlax-get-acad-object))))
-    (LM:acdoc)
-)
+   (eval
+      (list
+         'defun
+         'LM:acdoc
+         'nil
+         (vla-get-activedocument (vlax-get-acad-object))))
+   (LM:acdoc))
 
 
 
@@ -163,10 +172,10 @@
 
 (vl-load-com)
 (princ
-    (strcat
-        "\n:: SYSTEM.lsp loaded. | \\U+00A9 J.D. Sandifer "
-        (menucmd "m=$(edtime,0,yyyy)")
-        " ::"))
+   (strcat
+      "\n:: SYSTEM.lsp loaded. | \\U+00A9 J.D. Sandifer "
+      (menucmd "m=$(edtime,0,yyyy)")
+      " ::"))
 (princ)
 
 ;;----------------------------------------------------------------------;;

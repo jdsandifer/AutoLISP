@@ -13,59 +13,110 @@
 ;;  02/23/2016                                  ;;
 ;;  - Started.                                  ;;
 ;;                                              ;;
+;;  06/28/2016                                  ;;
+;;  - Added Verify for functions that don't     ;;
+;;    return a value.                           ;;
+;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ; Runs all unit tests
 ; Output: T if all unit tests passed, else nil
 
-(defun C:UnitTests ( / testList testResults)
+(defun C:UnitTests ( / testList testResults varList)
 
+	;; Setup for tests
 	(princ "\n")
-	;(ReloadFile "TEST")
+		;(ReloadFile "TEST")
+	(setq varList '(("osmode" . 180)))
 	
-	(princ "isInserted\n")
-	(Assert 'isInserted "not-a-block" nil)
-	(Assert 'isInserted "36-16-BLOCK-2" nil)
-	(Assert 'isInserted "BP" T)
+	;; Actual tests
+	(princ "JD:ResetVar\n")
+	(Verify 'JD:ResetVar '("osmode" 'varList) '(= (getvar "osmode") 180))
+	(Assert 'JD:ResetVar '("cmdecho" 'varList) nil)
+	(setq varList nil)
+	(princ "Set varList to nil.\n")
+	(Assert 'JD:ResetVar '("cmdecho" 'varList) nil)
 	
-	(setq testResults (CountBooleans testList))
-	(PrintTestResults testResults))
+	(princ "JD:ResetAllVars\n")
+	
+	
+	
+	;; Displaying the results of the tests
+		;(setq testResults (CountBooleans testList))
+	(PrintTestResults (CountBooleans testList)))
 		
 	
 	
-; Checks if function operates as expected and add result to testList
-; Input: function (symbol), argument for the function, expected result
+; Checks if function operates as expected and adds result to testList
+; Input: function (symbol), argument (list) for function, expected result
 ; Output: result of test
 ; Return: T or nil
 
 
-(defun Assert ( functionName argumentForFunction expectedResult / 
-					 actualResult passed)
+(defun Assert ( functionName argumentList expectedReturn / 
+					 actualReturn passed)
+	(if (not (= (type argumentList) 'LIST))
+		(setq argumentList (list argumentList)))
 	(cond
-		((= (setq actualResult ((eval functionName) argumentForFunction))
-			  expectedResult)
+		((= (setq actualReturn (eval (cons functionName argumentList)))
+			  expectedReturn)
 			(princ "passed...(")
 			(setq passed T)
-			(setq actualResult nil))
+			(setq actualReturn nil))
 		(T
 			(princ "failed...(")
 			(setq passed nil)
-			(setq actualResult 
-				(strcat (vl-symbol-name actualResult) " instead of "))))
+			(setq actualReturn 
+				(strcat (vl-princ-to-string actualReturn) " instead of "))))
 	
 	;; continue printing result...
 	(princ (strcase (vl-symbol-name functionName) T))
 	(princ " ")
-	(prin1 (eval argumentForFunction))
+	(prin1 argumentList)
 	(princ ") returned ")
-	(if actualResult (princ actualResult))
-	(princ expectedResult)
+	(if actualReturn (princ actualReturn))
+	(princ expectedReturn)
 	(princ "\n")
 	(setq testList (append testList (list passed)))
 	
 	passed)
-		
+	
+	
+	
+; Checks if function operates as expected and adds result to testList
+; (for functions that don't return a value)
+; Input: function (symbol), argument (list) for the function, expression
+; that should return true if the function acts as expected
+; Output: result of test
+; Return: T or nil
+
+
+(defun Verify ( functionName argumentList testForResult / 
+					 passed)
+					 
+	(eval (cons (eval functionName) argumentList))	;run the test
+	(cond
+		((eval testForResult)
+			(princ "passed...(")
+			(setq passed T))
+		(T
+			(princ "failed...(")
+			(setq passed nil)))
+	
+	;; continue printing result...
+	(princ (strcase (vl-symbol-name functionName) T))
+	(princ " ")
+	(prin1 argumentList)
+	(princ ") functioned ")
+	(if passed
+		(princ "as expected")
+		(princ "erroneously"))
+	(princ "\n")
+	(setq testList (append testList (list passed)))
+	
+	passed)
+	
 	
 	
 ; Counts boolean values
@@ -105,8 +156,8 @@
 		(setq falses 0))
 	
 	
-	; add code to count digits in numbers and add correct space before
-	; and use test vs. tests correctly?
+	; add code to count digits in numbers and add correct space before.
+	; also, choose between "test" and "tests" correctly?
 	
 	(princ "\n  ")(princ trues)(princ " tests passed")
 	(princ "\n  ")(princ falses)(princ " tests failed")
