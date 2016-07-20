@@ -119,7 +119,7 @@
     (strcat
         "\n:: SELECTION_SET.lsp loaded. | \\U+00A9 J.D. Sandifer "
         (menucmd "m=$(edtime,0,yyyy)")
-        " ::\n"))
+        " ::"))
 (princ)
 
 ;;----------------------------------------------------------------------;;

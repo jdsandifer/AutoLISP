@@ -79,20 +79,20 @@
 
 ;;; Counts toprail (mlines) and infill/bottom rail (plines).
 (defun C:cr ( / stockLength roundingFactorToprail
-								roundingFactorInfill layerToCountToprail fudgeFactorToAddToprail fudgeFactorToAddInfill layerToCountInfill selSet subset isConfirmed)
-	(setq stockLength 240)
+					 roundingFactorInfill layerToCountToprail 
+					 fudgeFactorToAddToprail fudgeFactorToAddInfill 
+					 layerToCountInfill selSet subset isConfirmed)
+	
+	(setq stockLength 242)
 	(setq roundingFactorToprail 3
 			fudgeFactorToAddToprail 9
 			layerToCountToprail "1")
 	(setq roundingFactorInfill 2
 			fudgeFactorToAddInfill 1
 			layerToCountInfill "Center")
-	
+				
 	(setq selSet (ssget (list '(0 . "mline,*polyline")
-										(cons 8 
-											(strcat layerToCountToprail
-													  ","
-													  layerToCountInfill)))))
+										(cons 8 (strcat layerToCountToprail "," layerToCountInfill)))))
 	
 	;(JD:HighlightSelectionSet nil selSet)
 	;(JD:HighlightSelectionSet T
@@ -130,7 +130,7 @@
    ;; Save system variables
 	(JD:SaveVar "osmode" 'systemVariables)
 	(JD:SaveVar "dimzin" 'systemVariables)
-	(princ "system variable saves")
+	(princ "System variables saved.")
    
    ;; Set defaults (only do global variables if they aren't set yet)
    (MakeVarNotNil '*stockLength* 242)
@@ -428,9 +428,10 @@
       ;;end of cut list
       (cond
 			((or (>= currentCutIndex (length cutList))
-				  (<= stockLengthLeft 0)(<= (length cutList) 0))
+				  (<= stockLengthLeft 0)
+				  (<= (length cutList) 0))
 				(setq currentCutIndex 0)
-								
+										
 				;;add scrap to the full cut list and prep for the next loop
 				(if (= stockLengthLeft -0.125)
 					(JD:PutHash "scrap" 0 'finalCutList)
@@ -440,6 +441,7 @@
 				(JD:ClearHash 'finalCutList)
 
 				(setq stockLengthLeft 0)))) ;end of while loop	
+				
    stockLengthsNeeded)
 		
 			
@@ -492,7 +494,7 @@
     (strcat
         "\n:: COUNT_RAIL.lsp loaded. | \\U+00A9 J.D. Sandifer "
         (menucmd "m=$(edtime,0,yyyy)")
-        " ::\n"))
+        " ::"))
 (princ)
 
 ;;----------------------------------------------------------------------;;

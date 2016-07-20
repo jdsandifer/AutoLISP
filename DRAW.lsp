@@ -20,7 +20,7 @@
 	(setq FUZZ_FACTOR 0.001)
 	(if (not (equal startPt endPt FUZZ_FACTOR))		; Check pts are valid.
    	(command "._arc" "c" centerPt startPt endPt))
-	nil)	
+	nil)
 
 	
 	
@@ -30,7 +30,7 @@
     (strcat
         "\n:: DRAW.lsp loaded. | \\U+00A9 J.D. Sandifer "
         (menucmd "m=$(edtime,0,yyyy)")
-        " ::\n"))
+        " ::"))
 (princ)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -9,6 +9,10 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  06/15/2016                                  ;;
+;;  - Added CarCdr: Return first list item AND  ;;
+;;    remove it from the list.                  ;;
+;;                                              ;;
 ;;  04/13/2016                                  ;;
 ;;  - Added FilterSelectionSet.                 ;;
 ;;                                              ;;
@@ -133,6 +137,16 @@
 	
 	
 	
+;;; JD:CarCdr - same function as car followed by cdr (shortens the list)
+;;; listName [symbol] - name of list to work on
+
+(defun JD:CarCdr (listName / firstItem)
+	(setq firstItem (car (eval listName)))
+	(set listName (cdr (eval listName)))
+	firstItem)
+		
+
+		
 ;;; MakeVarNotNil - simple function for verifying variables are set and
 ;;;                 giving them a default value if not
 ;;; variableName [symbol] - name of variable to check
@@ -211,9 +225,7 @@
     (strcat
         "\n:: FUNCTIONS.lsp loaded. | \\U+00A9 J.D. Sandifer "
         (menucmd "m=$(edtime,0,yyyy)")
-        " ::\n"
-    )
-)
+        " ::"))
 (princ)
 
 ;;----------------------------------------------------------------------;;
