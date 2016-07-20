@@ -45,17 +45,17 @@
 	
 ;; Helper function for above. Converts John's PL blocks to JD's style.
 
-(defun convertPLBlock (currentBlock / )
+(defun convertPLBlock (block / )
 	(princ
-		(getPLBlockType currentBlock)))		;; Just prints the type for now.
+		(getPLBlockType block)))		;; Just prints the type for now.
 		
 		
 		
-;; Helper function for above. Converts John's PL blocks to JD's style.
+;; Helper function for above. Figures out which block type we have.
 
-(defun getPLBlockType (currentBlock / blockType blockAttributes index 
+(defun getPLBlockType (block / blockType blockAttributes index 
 												  currentAttributeName)
-	(setq blockAttributes (getListOfBlockAttributes currentBlock))
+	(setq blockAttributes (getListOfBlockAttributes block))
 	
 	(setq blockType "Unknown")
 	(setq index 0)
@@ -77,11 +77,19 @@
 	
 	
 	
-;; Helper function for above. Converts John's PL blocks to JD's style.
+;; Helper function for above. Get's a list of the block's attributes.
 
 (defun getListOfBlockAttributes (block / attributeList)
 	(setq attributeList nil)
-
+	
+	(setq currentEntity (entnext block))
+	(setq currentEntInfo (entget currentEntity))
+	
+	(while (/= "SEQEND" (assoc 0 currentEntInfo))
+		(if (= "ATTRIB" (assoc 0 currentEntInfo))
+			(cons (assoc 2 currentEntInfo) attributeList))
+		(setq currentEntity (entnext currentEntity))
+		(setq currentEntInfo (entget currentEntity)))
 
 	attributeList)
 
@@ -725,7 +733,7 @@
     (strcat
         "\n:: MACROS.lsp loaded. | \\U+00A9 J.D. Sandifer "
         (menucmd "m=$(edtime,0,yyyy)")
-        " ::\n"))
+        " ::"))
 (princ)
 
 ;;----------------------------------------------------------------------;;
