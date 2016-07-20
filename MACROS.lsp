@@ -15,7 +15,7 @@
 ;| Author: J.D. Sandifer    Rev: 07/13/2016 |;
 ;|==========================================|;
 
-(defun C:plbc (/ *error* systemVariables blocksSelected)
+(defun C:plbc (/ *error* systemVariables blocksSelSet)
 	
    ; Sets the default error handler to a custom one, localization above
 	; causes it to be reset after this function finishes
@@ -29,21 +29,63 @@
 
    
 	
-	(setq blocksSelected (ssget '((0 . "INSERT"))))
+	(setq blocksSelSet (ssget '((0 . "INSERT"))))
 	
-	(foreach currentBlock (JD:SelSet->List blocksSelected)
-		(princ currentBlock))
-;		(convertPLBlock
-;			currentBlock
-;			(getPLBlockType currentBlock)))
+	(foreach currentBlock (JD:SelSet->List blocksSelSet)
+		(convertPLBlock currentBlock))	
 	
               
+				  
 	(JD:ResetAllVars 'systemVariables)
    (command "._UNDO" "_End")		; End UNDO group
    
    (princ))	
 	
 	
+	
+;; Helper function for above. Converts John's PL blocks to JD's style.
+
+(defun convertPLBlock (currentBlock / )
+	(princ
+		(getPLBlockType currentBlock)))		;; Just prints the type for now.
+		
+		
+		
+;; Helper function for above. Converts John's PL blocks to JD's style.
+
+(defun getPLBlockType (currentBlock / blockType blockAttributes index 
+												  currentAttributeName)
+	(setq blockAttributes (getListOfBlockAttributes currentBlock))
+	
+	(setq blockType "Unknown")
+	(setq index 0)
+	
+	(while (= blockType "Unknown")
+		(setq currentAttributeName (nth blockAttributes index))
+		(cond
+			((= currentAttributeName "QTY")
+				(setq blockType "JD"))
+			
+			((or
+				(= currentAttributeName "X")
+				(= currentAttributeName "Y")
+				(= currentAttributeName "Z")
+				(= currentAttributeName "W"))
+				(setq blockType "John")))) 
+	
+	blockType)
+	
+	
+	
+;; Helper function for above. Converts John's PL blocks to JD's style.
+
+(defun getListOfBlockAttributes (block / attributeList)
+	(setq attributeList nil)
+
+
+	attributeList)
+
+
 	
 ;|========{ Fillet 0 (Corner Join) }========|;
 ;| Joins lines to form a corner (fillet w/  |;
@@ -68,7 +110,7 @@
 	(command "._UNDO" "_End")		; End UNDO group
 	
    (princ))	
-	
+
 	
 	
 ;|============{ Post Placing }==============|;

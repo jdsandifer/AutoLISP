@@ -101,8 +101,8 @@
 			tagBlock "POST-DRILLED CALL-OUT")
 			
 	; layer names
-   (setq ctrLineLayer "Center"
-			postLayer "Detail"
+   (setq ctrLineLayer "A-HRAL-CNTR"
+			postLayer "A-HRAL-BRKT"
 			dimLayer "Dims"
 			railLayer "1"
 			tagLayer "POST-TAG"
@@ -111,14 +111,14 @@
 	; and other options
    (setq dimOffset "24")		; String means easy concatenation later
 	(setq	tagOffsetDistance 9
-			tagScale 1
+			tagScale 1.25
 			cableOffsetDistance 9
-			cableEndShortening 5
+			cableEndShortening 9
 			snapMode 64)
 	
 	; rail options
-	(setq postSpacing 42)
-	(setq railWidth "3")		; String or integer works here
+	(setq postSpacing 72)
+	(setq railWidth "2-11/16")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
 	(setq isCableRailing T
