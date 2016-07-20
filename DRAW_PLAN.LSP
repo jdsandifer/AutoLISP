@@ -96,29 +96,29 @@
    (JD:SaveVar "clayer" 'systemVariables)
    
    ; Set block names
-   (setq intPostBlock "FB"
+   (setq intPostBlock "BP"
 			endPlateBlock "end_plate"
 			tagBlock "POST-DRILLED CALL-OUT")
 			
 	; layer names
-   (setq ctrLineLayer "A-HRAL-CNTR"
-			postLayer "A-HRAL-BRKT"
+   (setq ctrLineLayer "Center"
+			postLayer "Detail"
 			dimLayer "Dims"
-			railLayer "A-HRAL-RAIL"
+			railLayer "1"
 			tagLayer "POST-TAG"
 			cableLayer "Cable")
 			
 	; and other options
    (setq dimOffset "24")		; String means easy concatenation later
-	(setq	tagOffsetDistance 14
-			tagScale 1.25
+	(setq	tagOffsetDistance 9
+			tagScale 1
 			cableOffsetDistance 9
-			cableEndShortening 7.5
+			cableEndShortening 5
 			snapMode 64)
 	
 	; rail options
-	(setq postSpacing 72)
-	(setq railWidth "2-11/16")		; String or integer works here
+	(setq postSpacing 42)
+	(setq railWidth "3")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
 	(setq isCableRailing T
@@ -126,7 +126,7 @@
 			placeDims T
 			placeEndPlates T
 			placePosts T
-			placeCenteLine nil
+			placeCenteLine T
 			placeRail T)
    
    (PlanDrawTool)			; Actual work done in this function

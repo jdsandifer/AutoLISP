@@ -8,14 +8,14 @@
 
 
 
-;|=========={ Block Conversion }============|;
+;|===={ Parts List Block Conversion }=======|;
 ;| Converts W,X,Y,Z block tags to more      |;
 ;| descriptive (and consistent tags).       |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 06/22/2016 |;
+;| Author: J.D. Sandifer    Rev: 07/13/2016 |;
 ;|==========================================|;
 
-(defun C:bc (/ *error* systemVariables )
+(defun C:plbc (/ *error* systemVariables blocksSelected)
 	
    ; Sets the default error handler to a custom one, localization above
 	; causes it to be reset after this function finishes
@@ -31,11 +31,11 @@
 	
 	(setq blocksSelected (ssget '((0 . "INSERT"))))
 	
-	(princ blocksSelected)
-	
-;	(loop through each currentBlock in the blocksSelected
-;		(convert based on type
-;			(what type is the currentBlock)))
+	(foreach currentBlock (JD:SelSet->List blocksSelected)
+		(princ currentBlock))
+;		(convertPLBlock
+;			currentBlock
+;			(getPLBlockType currentBlock)))
 	
               
 	(JD:ResetAllVars 'systemVariables)
@@ -52,7 +52,7 @@
 ;| Author: J.D. Sandifer    Rev: 07/12/2016 |;
 ;|==========================================|;
 
-(defun C:ff ( / *error* firstLine)
+(defun C:ff ( / *error* firstLine secondLine)
 	
    ; Sets the default error handler to a custom one, localization above
 	; causes it to be reset after this function finishes
@@ -60,7 +60,7 @@
 	; Start UNDO group so the entire process can be easily reversed
 	(command "._UNDO" "_Begin")
 	
-	(while (/= (setq firstLine (car (entsel))) nil)
+	(while (/= nil (setq firstLine (car (entsel))))
 		(setq secondLine (car (entsel)))
 		(command "._FILLET" "r" 0)
 		(command "._FILLET" firstLine secondLine))
