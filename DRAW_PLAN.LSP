@@ -96,28 +96,28 @@
    (JD:SaveVar "clayer" 'systemVariables)
    
    ; Set block names
-   (setq intPostBlock "BP"
+   (setq intPostBlock "FB"
 			endPlateBlock "end_plate"
 			tagBlock "POST-DRILLED CALL-OUT")
 			
 	; layer names
-   (setq ctrLineLayer "Center"
-			postLayer "Detail"
+   (setq ctrLineLayer "A-HRAL-CNTR"
+			postLayer "A-HRAL-BRKT"
 			dimLayer "Dims"
-			railLayer "1"
+			railLayer "A-HRAL-RAIL"
 			tagLayer "POST-TAG"
 			cableLayer "Cable")
 			
 	; and other options
    (setq dimOffset "24")		; String means easy concatenation later
-	(setq	tagOffsetDistance 9
-			tagScale 1
+	(setq	tagOffsetDistance 14
+			tagScale 1.25
 			cableOffsetDistance 9
-			cableEndShortening 5
+			cableEndShortening 7.5
 			snapMode 64)
 	
 	; rail options
-	(setq postSpacing 48)
+	(setq postSpacing 72)
 	(setq railWidth "2-11/16")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
@@ -126,7 +126,7 @@
 			placeDims T
 			placeEndPlates T
 			placePosts T
-			placeCenteLine T
+			placeCenteLine nil
 			placeRail T)
    
    (PlanDrawTool)			; Actual work done in this function
@@ -321,7 +321,7 @@
 		(setq Pt1offset (polar Pt1 offsetAngle cableOffsetDistance))
 		(setq Pt2offset (polar Pt2 offsetAngle cableOffsetDistance))
 		
-		(command "._arc" "c" Pt1 lastPt1offset Pt1offset)
+		(JD:Arc Pt1 lastPt1offset Pt1offset)
 		(command "._pline" Pt1offset "W" CABLE_WIDTH CABLE_WIDTH Pt2offset "")
 		
 		; Prep for next round
@@ -356,18 +356,15 @@
 
  
 
-;;----------------------------------------------------------------------;;
-
+;-------------------------------------------------------------------------;
 
 (princ
-    (strcat
-        "\n:: DRAW_PLAN.lsp loaded. | \\U+00A9 J.D. Sandifer "
-        (menucmd "m=$(edtime,0,yyyy)")
-        " ::\n"
-    )
-)
+   (strcat
+      "\n:: DRAW_PLAN.lsp loaded. | \\U+00A9 J.D. Sandifer "
+      (menucmd "m=$(edtime,0,yyyy)")
+      " ::\n"))
 (princ)
 
-;;----------------------------------------------------------------------;;
-;;                             End of File                              ;;
-;;----------------------------------------------------------------------;;
+;-------------------------------------------------------------------------;
+;                              End of File                                ;
+;-------------------------------------------------------------------------;

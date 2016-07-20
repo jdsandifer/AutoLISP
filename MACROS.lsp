@@ -33,6 +33,10 @@
 	
 	(princ blocksSelected)
 	
+;	(loop through each currentBlock in the blocksSelected
+;		(convert based on type
+;			(what type is the currentBlock)))
+	
               
 	(JD:ResetAllVars 'systemVariables)
    (command "._UNDO" "_End")		; End UNDO group
@@ -45,10 +49,10 @@
 ;| Joins lines to form a corner (fillet w/  |;
 ;| 0" radius).                              |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 06/29/2016 |;
+;| Author: J.D. Sandifer    Rev: 07/12/2016 |;
 ;|==========================================|;
 
-(defun C:ff ( / *error* )
+(defun C:ff ( / *error* firstLine)
 	
    ; Sets the default error handler to a custom one, localization above
 	; causes it to be reset after this function finishes
@@ -56,10 +60,13 @@
 	; Start UNDO group so the entire process can be easily reversed
 	(command "._UNDO" "_Begin")
 	
-	(command "._FILLET" "r" 0)
-	(command "._FILLET" (car (entsel)) (car (entsel)))
-   				  
+	(while (/= (setq firstLine (car (entsel))) nil)
+		(setq secondLine (car (entsel)))
+		(command "._FILLET" "r" 0)
+		(command "._FILLET" firstLine secondLine))
+   				  					  
 	(command "._UNDO" "_End")		; End UNDO group
+	
    (princ))	
 	
 	

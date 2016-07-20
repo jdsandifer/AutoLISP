@@ -128,7 +128,6 @@
    (JD:Save&ChangeVar "cmdecho" 'systemVariables 0)
    (command-s "._UNDO" "_End")          ; End UNDO group
    (JD:ResetAllVars 'systemVariables)
-      ; Relies on global variable, but nil works...so maybe ok
 
    (princ))
 
