@@ -77,7 +77,7 @@
 	
 	
 	
-;; Helper function for above. Get's a list of the block's attributes.
+;; Helper function for above. Returns a list of the block's attributes.
 
 (defun getListOfBlockAttributes (block / attributeList)
 	(setq attributeList nil)
@@ -85,9 +85,10 @@
 	(setq currentEntity (entnext block))
 	(setq currentEntInfo (entget currentEntity))
 	
-	(while (/= "SEQEND" (assoc 0 currentEntInfo))
-		(if (= "ATTRIB" (assoc 0 currentEntInfo))
-			(cons (assoc 2 currentEntInfo) attributeList))
+	(while (/= "SEQEND" (cdr (assoc 0 currentEntInfo)))
+		(if (= "ATTRIB" (cdr (assoc 0 currentEntInfo)))
+			(setq attributeList 
+				(cons (cdr (assoc 2 currentEntInfo)) attributeList)))
 		(setq currentEntity (entnext currentEntity))
 		(setq currentEntInfo (entget currentEntity)))
 
