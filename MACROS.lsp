@@ -21,24 +21,21 @@
 	; causes it to be reset after this function finishes
 	(setq *error* ErrorHandler)
 	
-	; Start UNDO group so the entire process can be easily reversed
+	; Start UNDO group so the entire function can be easily reversed
 	(command "._UNDO" "_Begin")
-	; setup custom error message?
 	(JD:ClearVars 'systemVariables)
 	(JD:Save&ChangeVar "cmdEcho" 'systemVariables 0)
 
    
 	
 	(setq blocksSelSet (ssget '((0 . "INSERT"))))
-	
 	(foreach currentBlock (JD:SelSet->List blocksSelSet)
-		(convertPLBlock currentBlock))	
+		(ConvertPLBlock currentBlock))	
 	
               
 				  
 	(JD:ResetAllVars 'systemVariables)
    (command "._UNDO" "_End")		; End UNDO group
-   
    (princ))	
 	
 	
@@ -46,17 +43,15 @@
 ;|===={ Parts List Block Conversion }=======|;
 ;| Helper function. Converts a block from   |;
 ;| John's attribute names to JD's. I.e.     |;
-;| makes them more descriptive and uniform. |;
+;| makes them descriptive and consistent.   |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 07/20/2016 |;
+;| Author: J.D. Sandifer    Rev: 07/25/2016 |;
 ;|==========================================|;
 
-(defun convertPLBlock (block / )
-
+(defun ConvertPLBlock (block / )
 	(cond
 		(	(= "John" (getPLBlockType block))
-			(mapcar 'convertEntities (getListOfAttributeEntities block))))
-			
+			(ConvertEntities (GetListOfAttributeEntities block))))
 	(princ))
 	
 	
@@ -65,15 +60,23 @@
 ;| Helper function. Returns a list of the   |;
 ;| block's attribute entities.              |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 07/20/2016 |;
+;| Author: J.D. Sandifer    Rev: 07/25/2016 |;
 ;|==========================================|;
 
-(defun convertEntities (entityList / )
+(defun ConvertEntities (entityList / )
 	(setq attNameList
 		(mapcar 
-			'(lambda (entity) (cdr (assoc 2 (entget entity)))) entityList))
-	(if (use a filter like command to see if it contains "W")
+			'(lambda (entity) (cdr (assoc 2 (entget entity))))
+			entityList))
+	(terpri)
 	(princ attNameList)
+	
+;;	(cond
+;;		((use a filter-like function to see if attNameList contains "W")
+;;			(conversion for WX)
+;;		(T
+;;			(conversion for X))
+;;	(conversion for YZ,DESC, etc.)
 	(terpri)
 	(princ))
 														 
@@ -83,10 +86,10 @@
 ;| Helper function. Returns a list of the   |;
 ;| block's attribute entities.              |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 07/20/2016 |;
+;| Author: J.D. Sandifer    Rev: 07/25/2016 |;
 ;|==========================================|;
 
-(defun getListOfAttributeEntities (block / attributeEntityList 
+(defun GetListOfAttributeEntities (block / attributeEntityList 
 													    currentEntity currentEntInfo)
 	(setq attributeEntityList nil)
 	
@@ -110,9 +113,9 @@
 ;| Author: J.D. Sandifer    Rev: 07/20/2016 |;
 ;|==========================================|;
 
-(defun getPLBlockType (block / blockType blockAttributes index 
+(defun GetPLBlockType (block / blockType blockAttributes index 
 										 currentAttributeName)
-	(setq blockAttributes (getListOfBlockAttributes block))
+	(setq blockAttributes (GetListOfBlockAttributes block))
 	
 	(setq blockType "Unknown")
 	(setq index 0)
@@ -124,7 +127,7 @@
 				(setq blockType "JD"))
 			
 			((or
-				(= currentAttributeName "X")
+				(= currentAttributeName "X") 
 				(= currentAttributeName "Y")
 				(= currentAttributeName "Z")
 				(= currentAttributeName "W"))
@@ -139,23 +142,13 @@
 ;| Helper function. Returns a list of the   |;
 ;| block's attributes' names.               |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 07/20/2016 |;
+;| Author: J.D. Sandifer    Rev: 07/25/2016 |;
 ;|==========================================|;
 
-(defun getListOfBlockAttributes (block / attributeList currentEntity
-													  currentEntInfo)
-	(setq attributeList nil)
-	
-	(setq currentEntity (entnext block))
-	(setq currentEntInfo (entget currentEntity))
-	
-	(while (= "ATTRIB" (cdr (assoc 0 currentEntInfo)))
-		(setq attributeList 
-		   (cons (cdr (assoc 2 currentEntInfo)) attributeList))
-		(setq currentEntity (entnext currentEntity))
-		(setq currentEntInfo (entget currentEntity)))
-
-	attributeList)
+(defun GetListOfBlockAttributes (block)
+	(mapcar 
+		'(lambda (entity) (cdr (assoc 2 (entget entity))))
+		(GetListOfAttributeEntities block)))
 
 
 	
