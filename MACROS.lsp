@@ -51,17 +51,17 @@
 		
 		
 		
-;; Helper function for above. Figures out which block type we have.
+;; Helper function for above. Figures out which type the given block is.
 
 (defun getPLBlockType (block / blockType blockAttributes index 
-												  currentAttributeName)
+										 currentAttributeName)
 	(setq blockAttributes (getListOfBlockAttributes block))
 	
 	(setq blockType "Unknown")
 	(setq index 0)
 	
-	(while (= blockType "Unknown")
-		(setq currentAttributeName (nth blockAttributes index))
+	(while (and (= blockType "Unknown") (< index (length blockAttributes)))
+		(setq currentAttributeName (nth index blockAttributes))
 		(cond
 			((= currentAttributeName "QTY")
 				(setq blockType "JD"))
@@ -71,24 +71,25 @@
 				(= currentAttributeName "Y")
 				(= currentAttributeName "Z")
 				(= currentAttributeName "W"))
-				(setq blockType "John")))) 
+				(setq blockType "John")))
+		(setq index (1+ index))) 
 	
 	blockType)
 	
 	
 	
-;; Helper function for above. Returns a list of the block's attributes.
+;; Helper function. Returns a list of the given block's attributes.
 
-(defun getListOfBlockAttributes (block / attributeList)
+(defun getListOfBlockAttributes (block / attributeList currentEntity
+													  currentEntInfo index)
 	(setq attributeList nil)
 	
 	(setq currentEntity (entnext block))
 	(setq currentEntInfo (entget currentEntity))
 	
-	(while (/= "SEQEND" (cdr (assoc 0 currentEntInfo)))
-		(if (= "ATTRIB" (cdr (assoc 0 currentEntInfo)))
-			(setq attributeList 
-				(cons (cdr (assoc 2 currentEntInfo)) attributeList)))
+	(while (= "ATTRIB" (cdr (assoc 0 currentEntInfo)))
+		(setq attributeList 
+		   (cons (cdr (assoc 2 currentEntInfo)) attributeList))
 		(setq currentEntity (entnext currentEntity))
 		(setq currentEntInfo (entget currentEntity)))
 
