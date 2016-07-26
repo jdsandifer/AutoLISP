@@ -43,15 +43,72 @@
 	
 	
 	
-;; Helper function for above. Converts John's PL blocks to JD's style.
+;|===={ Parts List Block Conversion }=======|;
+;| Helper function. Converts a block from   |;
+;| John's attribute names to JD's. I.e.     |;
+;| makes them more descriptive and uniform. |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 07/20/2016 |;
+;|==========================================|;
 
 (defun convertPLBlock (block / )
-	(princ
-		(getPLBlockType block)))		;; Just prints the type for now.
+
+	(cond
+		(	(= "John" (getPLBlockType block))
+			(mapcar 'convertEntities (getListOfAttributeEntities block))))
+			
+	(princ))
+	
+	
+	
+;|===={ Parts List Block Conversion }=======|;
+;| Helper function. Returns a list of the   |;
+;| block's attribute entities.              |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 07/20/2016 |;
+;|==========================================|;
+
+(defun convertEntities (entityList / )
+	(setq attNameList
+		(mapcar 
+			'(lambda (entity) (cdr (assoc 2 (entget entity)))) entityList))
+	(if (use a filter like command to see if it contains "W")
+	(princ attNameList)
+	(terpri)
+	(princ))
+														 
+														 
+														 
+;|===={ Parts List Block Conversion }=======|;
+;| Helper function. Returns a list of the   |;
+;| block's attribute entities.              |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 07/20/2016 |;
+;|==========================================|;
+
+(defun getListOfAttributeEntities (block / attributeEntityList 
+													    currentEntity currentEntInfo)
+	(setq attributeEntityList nil)
+	
+	(setq currentEntity (entnext block))
+	(setq currentEntInfo (entget currentEntity))
+	
+	(while (= "ATTRIB" (cdr (assoc 0 currentEntInfo)))
+		(setq attributeEntityList 
+		   (cons currentEntity attributeEntityList))
+		(setq currentEntity (entnext currentEntity))
+		(setq currentEntInfo (entget currentEntity)))
+
+	attributeEntityList)
 		
 		
 		
-;; Helper function for above. Figures out which type the given block is.
+;|===={ Parts List Block Conversion }=======|;
+;| Helper function. Returns the block type  |;
+;| of "John", "JD", or "Unknown".           |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 07/20/2016 |;
+;|==========================================|;
 
 (defun getPLBlockType (block / blockType blockAttributes index 
 										 currentAttributeName)
@@ -78,10 +135,15 @@
 	
 	
 	
-;; Helper function. Returns a list of the given block's attributes.
+;|===={ Parts List Block Conversion }=======|;
+;| Helper function. Returns a list of the   |;
+;| block's attributes' names.               |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 07/20/2016 |;
+;|==========================================|;
 
 (defun getListOfBlockAttributes (block / attributeList currentEntity
-													  currentEntInfo index)
+													  currentEntInfo)
 	(setq attributeList nil)
 	
 	(setq currentEntity (entnext block))
