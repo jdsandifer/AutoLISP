@@ -10,9 +10,9 @@
 
 ;|===={ Parts List Block Conversion }=======|;
 ;| Converts W,X,Y,Z block tags to more      |;
-;| descriptive (and consistent tags).       |;
+;| descriptive and consistent tags.         |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 07/13/2016 |;
+;| Author: J.D. Sandifer    Rev: 07/25/2016 |;
 ;|==========================================|;
 
 (defun C:plbc (/ *error* systemVariables blocksSelSet)
@@ -68,15 +68,14 @@
 		(mapcar 
 			'(lambda (entity) (cdr (assoc 2 (entget entity))))
 			entityList))
-	(terpri)
-	(princ attNameList)
-	
-;;	(cond
-;;		((use a filter-like function to see if attNameList contains "W")
-;;			(conversion for WX)
-;;		(T
-;;			(conversion for X))
-;;	(conversion for YZ,DESC, etc.)
+	(cond
+		((JD:Filter '(lambda (str) (= str "W")) attNameList)
+			(princ "\nconversion for WX")
+			(princ "\nconversion for YZ"))
+		(T
+			(princ "\nconversion for X")
+			(princ "\nconversion for Y")))
+	(princ "\nconversion for DESC, etc.")
 	(terpri)
 	(princ))
 														 
