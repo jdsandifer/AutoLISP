@@ -1,0 +1,73 @@
+;;;;;;;[  Functional Programming  ];;;;;;;;;;;;;;;
+;;                                              ;;
+;;  Functions for functional programming.       ;;
+;;                                              ;;
+;;::::::::::::::::::::::::::::::::::::::::::::::;;
+;;                                              ;;
+;;  Author: J.D. Sandifer  (Copyright 2016)     ;;
+;;  Written: 07/26/2016                         ;;
+;;                                              ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                              ;;
+;;  07/26/2016                                  ;;
+;;  - Started with Filter.                      ;;
+;;                                              ;;
+;;  Todo:                                       ;;
+;;  - Make functions more efficient?            ;;
+;;                                              ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;|===={ Filter }============================|;
+;| Applies a supplied comparison function   |;
+;| to a supplied list and returns a list    |;
+;| composed of values that returned true.   |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 07/26/2016 |;
+;|==========================================|;
+
+(defun Filter (comparisonFunction listToFilter / listToReturn)
+	(foreach item listToFilter
+		(if (apply comparisonFunction (list item))
+			(setq listToReturn
+				(append listToReturn (list item)))))
+	listToReturn)
+
+	
+	
+;|===={ Reduce }============================|;
+;| Applies a supplied function to the       |;
+;| first two values of the supplied list.   |;
+;| The result is then used as the first     |;
+;| value for the function and the next      |;
+;| value from the list is the second. This  |;
+;| continues until the list is *reduced*    |;
+;| to one value which is returned.          |;
+;| The given function must use two inputs.  |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 07/26/2016 |;
+;|==========================================|;
+
+(defun Reduce (reductionFunction listToReduce / valueToReturn)
+	(setq valueToReturn (car listToReduce))
+	(setq listToReduce (cdr listToReduce))
+	(foreach item listToReduce
+		(setq valueToReturn
+			(apply reductionFunction (list valueToReturn item))))
+	valueToReturn)	
+		
+		
+;;----------------------------------------------------------------------;;
+
+
+(princ
+    (strcat
+        "\n:: FUNC_PROG.lsp loaded. | \\U+00A9 J.D. Sandifer "
+        (menucmd "m=$(edtime,0,yyyy)")
+        " ::"))
+(princ)
+
+;;----------------------------------------------------------------------;;
+;;                             End of File                              ;;
+;;----------------------------------------------------------------------;;

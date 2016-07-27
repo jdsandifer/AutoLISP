@@ -60,7 +60,7 @@
 ;| Helper function. Returns a list of the   |;
 ;| block's attribute entities.              |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 07/25/2016 |;
+;| Author: J.D. Sandifer    Rev: 07/26/2016 |;
 ;|==========================================|;
 
 (defun ConvertEntities (entityList / )
@@ -69,7 +69,7 @@
 			'(lambda (entity) (cdr (assoc 2 (entget entity))))
 			entityList))
 	(cond
-		((JD:Filter '(lambda (str) (= str "W")) attNameList)
+		((filter '(lambda (str) (= str "W")) attNameList)
 			(princ "\nconversion for WX")
 			(princ "\nconversion for YZ"))
 		(T
