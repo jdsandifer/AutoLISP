@@ -56,11 +56,12 @@
 	
 	
 	
-;|===={ Parts List Block Conversion }=======|;
-;| Helper function. Returns a list of the   |;
-;| block's attribute entities.              |;
+;|===={ Entity List Conversion }============|;
+;| Helper function. Converts each entity    |;
+;| in the supplied entity list for better   |;
+;| tags - descriptive & consistent.         |;
 ;|------------------------------------------|;
-;| Author: J.D. Sandifer    Rev: 07/26/2016 |;
+;| Author: J.D. Sandifer    Rev: 07/27/2016 |;
 ;|==========================================|;
 
 (defun ConvertEntities (entityList / )
@@ -70,17 +71,36 @@
 			entityList))
 	(cond
 		((filter '(lambda (str) (= str "W")) attNameList)
-			(princ "\nconversion for WX")
-			(princ "\nconversion for YZ"))
+			(ConvertEntityTag "W" "QTY" entityList)
+			(ConvertEntityTag "X" "LEN" entityList)
+			(ConvertEntityTag "Y" "QTY2" entityList)
+			(ConvertEntityTag "Z" "LEN2" entityList))
 		(T
-			(princ "\nconversion for X")
-			(princ "\nconversion for Y")))
-	(princ "\nconversion for DESC, etc.")
-	(terpri)
+			(ConvertEntityTag "X" "QTY" entityList)))
+	(ConvertEntityTag "DESC." "DESC" entityList)
 	(princ))
 														 
 														 
 														 
+;|===={ Parts List Block Conversion }=======|;
+;| Helper function. Converts a single type  |;
+;| of attribute entity with the given info. |;
+;| *Returns true if at least one conversion |;
+;| happened.* - will do eventually          |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 07/27/2016 |;
+;|==========================================|;
+
+(defun ConvertEntityTag ( oldTag newTag entityList / tagData)
+	(foreach entity entitylist
+		(if (= (cdr (setq tagData (assoc 2 (entget entity)))) oldTag)
+			(entmod (subst (cons 2 newTag)
+						tagData
+						(entget entity)))))
+	(princ))
+	
+	
+	
 ;|===={ Parts List Block Conversion }=======|;
 ;| Helper function. Returns a list of the   |;
 ;| block's attribute entities.              |;
@@ -88,7 +108,7 @@
 ;| Author: J.D. Sandifer    Rev: 07/25/2016 |;
 ;|==========================================|;
 
-(defun GetListOfAttributeEntities (block / attributeEntityList 
+(defun GetListOfAttributeEntities (block / attributeEntityList  
 													    currentEntity currentEntInfo)
 	(setq attributeEntityList nil)
 	
