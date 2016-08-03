@@ -20,9 +20,9 @@
 
 
 ;|===={ Filter }============================|;
-;| Applies a supplied comparison function   |;
-;| to a supplied list and returns a list    |;
-;| composed of values that returned true.   |;
+;| Returns a sublist of the supplied list   |;
+;| including only values that return true   |;
+;| when input to the supplied function.     |;
 ;|------------------------------------------|;
 ;| Author: J.D. Sandifer    Rev: 07/26/2016 |;
 ;|==========================================|;
@@ -36,6 +36,19 @@
 
 	
 	
+;|===={ Map }===============================|;
+;| Simple wrapper for the "mapcar" function |;
+;| to allow it to be accessed by the more   |;
+;| common functional programming name.      |;
+;|------------------------------------------|;
+;| Author: J.D. Sandifer    Rev: 08/01/2016 |;
+;|==========================================|;
+
+(defun Map (theFunction theList / )
+	(mapcar theFunction theList))
+	
+	
+	
 ;|===={ Reduce }============================|;
 ;| Applies a supplied function to the       |;
 ;| first two values of the supplied list.   |;
@@ -43,8 +56,8 @@
 ;| value for the function and the next      |;
 ;| value from the list is the second. This  |;
 ;| continues until the list is *reduced*    |;
-;| to one value which is returned.          |;
-;| The given function must use two inputs.  |;
+;| to one value which is returned. The      |;
+;| given function must expect two inputs.   |;
 ;|------------------------------------------|;
 ;| Author: J.D. Sandifer    Rev: 07/26/2016 |;
 ;|==========================================|;

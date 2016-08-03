@@ -317,7 +317,6 @@
    
 		(princ))"))	; End of defun string setq
 	
-	;(princ functionToDefine)
 	(eval (read functionToDefine))
 	
 	(eval (read "(c:pp)"))

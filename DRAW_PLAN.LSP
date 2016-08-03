@@ -62,6 +62,12 @@
 ;;    width, offsetting first point, and        ;;
 ;;    placing threaded terminal.                ;;
 ;;                                              ;;
+;;  08/01/2016                                  ;;
+;;  - Added basic menu and dynamic function     ;;
+;;    programming so "dp" always loads menu     ;;
+;;    or runs the command if the menu has been  ;;
+;;    already been seen.                        ;;
+;;                                              ;;
 ;;  Todo:                                       ;;
 ;;  - Combine with PlanDrawGoal & Comm w/       ;;
 ;;    appropriate options.                      ;;
@@ -74,12 +80,69 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun C:dp (/ *error* intPostBlock ctrLineLayer postLayer dimLayer dimOffset
-					snapMode infillStockLength postSpacing railWidth
-					isCableRailing isPicketRailing cableOffsetDistance
-					tagOffsetDistance tagLayer tagBlock cableLayer 
-					placeDims placeEndPlates placePosts placeCenteLine
-					tagScale cableEndShortening placeRail)
+;; Runs menu tool and then gets redefined to run the drawing command with
+;; the newly selected options.
+
+(defun C:dp ( / )
+	(eval (read "(c:dps)")))
+
+
+	
+;; Runs menu tool and then gets redefined to run the drawing command with
+;; the newly selected options.
+
+(defun C:dps ( / postSpacing railWidth)
+
+	(setq railWidth "3")		; default
+	(setq intPostBlock "BP")
+
+	; Run dialog box to get user input
+	; Warn if dialog fails and exit
+	; Define a function based on the input so settings are
+	;   saved and can be easily repeated without choices needed each time
+	
+	(setq setupDCLID (load_dialog "DrawPlanSetup.dcl"))
+	
+	(if (not (new_dialog "DrawPlanSetup" setupDCLID))
+		(princ "\nDialog box not found in file!\n")
+		;(exit)
+		)
+		
+		
+	(action_tile "postSpacingBox"
+		"(setq postSpacing 48)")
+	(action_tile "woodButton"
+		"(setq railWidth \"2-11/16\")")
+		
+		
+	(action_tile "accept" "(done_dialog)(setq userChoice T)")
+	(action_tile "cancel" "(done_dialog)(setq userChoice nil)")
+	
+	(start_dialog)
+	(unload_dialog setupDCLID)
+	
+	(if (not userChoice)
+		(exit))
+		
+
+	(setq functionDefinition (strcat
+		"(defun C:dp ( / ) 
+			(DrawPlan " (itoa postSpacing) " \"" railWidth "\" \"" intPostBlock "\")
+			(princ))"))	            
+	(eval (read functionDefinition))
+		
+	(eval (read "(c:dp)"))
+	(princ))
+
+
+
+;; Variable managenment function - run by dp
+
+(defun DrawPlan ( postSpacing railWidth intPostBlock / *error* ctrLineLayer 				   		postLayer dimLayer dimOffset snapMode infillStockLength 
+							isCableRailing isPicketRailing cableOffsetDistance
+							tagOffsetDistance tagLayer tagBlock cableLayer 
+							placeDims placeEndPlates placePosts placeCenteLine
+							tagScale cableEndShortening placeRail)
 	
 	; Sets the default error handler to a custom one, localization above
 	; causes it to be reset after this function finishes
@@ -96,13 +159,13 @@
    (JD:SaveVar "clayer" 'systemVariables)
    
    ; Set block names
-   (setq intPostBlock "BP"
-			endPlateBlock "end_plate"
+   ;(setq intPostBlock "BP"
+	(setq	endPlateBlock "end_plate"
 			tagBlock "POST-DRILLED CALL-OUT")
 			
 	; layer names
-   (setq ctrLineLayer "A-HRAL-CNTR"
-			postLayer "A-HRAL-BRKT"
+   (setq ctrLineLayer "Center"
+			postLayer "Detail"
 			dimLayer "Dims"
 			railLayer "1"
 			tagLayer "POST-TAG"
@@ -117,8 +180,8 @@
 			snapMode 64)
 	
 	; rail options
-	(setq postSpacing 72)
-	(setq railWidth "2-11/16")		; String or integer works here
+	;(setq postSpacing 72)
+	;(setq railWidth "2-11/16")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
 	(setq isCableRailing T
@@ -195,7 +258,7 @@
 			(cond 
 				(placeCenteLine
 					(setvar "clayer" ctrLineLayer)
-					(command "._pline" currentPt nextPt "")))
+					(command "._pline" currentPt "W" 0 0 nextPt "")))
 			
          (cond
 				(placeDims
