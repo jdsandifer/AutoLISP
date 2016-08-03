@@ -26,7 +26,7 @@ DrawPlanSetup : dialog {		    //dialog name
                label = "&Other:"; }
             
             : edit_box {
-               key = spacingOtherBox; 
+               key = spacing; 
                width = 1; 
                value = "36"; }}
          
@@ -35,12 +35,12 @@ DrawPlanSetup : dialog {		    //dialog name
             
             : radio_button {			
                key = "postFascia" ;				
-               label = "Fascia, Std. Post";
-               value = 1; }
+               label = "Fascia, Std. Post"; }
             
             : radio_button {			
                key = "postSurface" ;				
-               label = "Surface, Std. Post"; }	
+               label = "Surface, Std. Post";
+               value = 1; }	
                         
             : radio_button {			
                key = "postFasciaTrimline";				

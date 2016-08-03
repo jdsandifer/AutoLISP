@@ -5,7 +5,7 @@
 ;;                                              ;;
 ;;::::::::::::::::::::::::::::::::::::::::::::::;;
 ;;                                              ;;
-;;  Author: J.D. Sandifer  (Copyright 2015)     ;;
+;;  Author: J.D. Sandifer  (Copyright 2016)     ;;
 ;;  Written: 10/28/2015                         ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -68,11 +68,13 @@
 ;;    or runs the command if the menu has been  ;;
 ;;    already been seen.                        ;;
 ;;                                              ;;
+;;  08/02/2016                                  ;;
+;;  - Completed basic menu with spacing, type,  ;;
+;;    and intermediade post type.               ;;
+;;                                              ;;
 ;;  Todo:                                       ;;
 ;;  - Combine with PlanDrawGoal & Comm w/       ;;
 ;;    appropriate options.                      ;;
-;;  - Add choice of post spacing with default.  ;;
-;;    Ditto on rail width.                      ;;
 ;;  - Revise copy on prompts.                   ;;
 ;;  - Check for endplate block, top_rail        ;;
 ;;    mline, and current layers and blocks.     ;;
@@ -84,17 +86,18 @@
 ;; the newly selected options.
 
 (defun C:dp ( / )
-	(eval (read "(c:dps)")))
+	(C:dps))
 
 
 	
 ;; Runs menu tool and then gets redefined to run the drawing command with
 ;; the newly selected options.
 
-(defun C:dps ( / postSpacing railWidth)
+(defun C:dps ( / postSpacing railWidth intPostBlock)
 
-	(setq railWidth "3")		; default
-	(setq intPostBlock "BP")
+	(setq postSpacing 48   ; defaults
+			railWidth "3"		
+	      intPostBlock "BP")
 
 	; Run dialog box to get user input
 	; Warn if dialog fails and exit
@@ -115,8 +118,9 @@
 		"(setq postSpacing 60)")
 	(action_tile "spacing72"
 		"(setq postSpacing 72)")		
-	(action_tile "postSpacingBox"
-		"(setq postSpacing 48)")
+	(action_tile "spacing"
+		"(setq postSpacing (atoi $value))")
+		 ;; (set_tile spacingOther \"1\")")
 		
 	;; Top rail type action tiles
 	(action_tile "s100"
@@ -165,7 +169,7 @@
 			(princ))"))	            
 	(eval (read functionDefinition))
 		
-	(eval (read "(c:dp)"))
+	(C:dp)
 	(princ))
 
 
