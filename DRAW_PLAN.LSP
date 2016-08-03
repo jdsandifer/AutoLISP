@@ -108,13 +108,47 @@
 		;(exit)
 		)
 		
-		
+   ;; Post spacing action tiles
+	(action_tile "spacing48"
+		"(setq postSpacing 48)")
+	(action_tile "spacing60"
+		"(setq postSpacing 60)")
+	(action_tile "spacing72"
+		"(setq postSpacing 72)")		
 	(action_tile "postSpacingBox"
 		"(setq postSpacing 48)")
-	(action_tile "woodButton"
+		
+	;; Top rail type action tiles
+	(action_tile "s100"
+		"(setq railWidth \"2\")")
+	(action_tile "s200"
+		"(setq railWidth \"3-1/2\")")
+	(action_tile "s200X"
+		"(setq railWidth \"3\")")
+	(action_tile "s300"
+		"(setq railWidth \"3\")")
+	(action_tile "s300X"
+		"(setq railWidth \"3\")")
+	(action_tile "s320X"
+		"(setq railWidth \"3\")")
+	(action_tile "s350X"
+		"(setq railWidth \"3-3/4\")")
+	(action_tile "s500"
+		"(setq railWidth \"5\")")
+	(action_tile "woodAdapter"
 		"(setq railWidth \"2-11/16\")")
 		
+	;; Intermediate post type action tiles
+	(action_tile "postFascia"
+		"(setq intPostBlock \"FB\")")
+	(action_tile "postSurface"
+		"(setq intPostBlock \"BP\")")	
+	(action_tile "postFasciaTrimline"
+		"(setq intPostBlock \"FBT\")")	
+	(action_tile "postSurfaceTrimline"
+		"(setq intPostBlock \"BPT\")")	
 		
+	;; OK/Cancel choice action tiles	
 	(action_tile "accept" "(done_dialog)(setq userChoice T)")
 	(action_tile "cancel" "(done_dialog)(setq userChoice nil)")
 	
@@ -174,9 +208,9 @@
 	; and other options
    (setq dimOffset "24")		; String means easy concatenation later
 	(setq	tagOffsetDistance 9
-			tagScale 1.25
+			tagScale 1
 			cableOffsetDistance 9
-			cableEndShortening 9
+			cableEndShortening 5
 			snapMode 64)
 	
 	; rail options
