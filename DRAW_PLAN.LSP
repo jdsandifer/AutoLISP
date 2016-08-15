@@ -93,11 +93,19 @@
 ;; Runs menu tool and then gets redefined to run the drawing command with
 ;; the newly selected options.
 
-(defun C:dps ( / postSpacing railWidth intPostBlock)
+(defun C:dps ( / postSpacing railWidth intPostBlock layerStyle toggleHash)
 
 	(setq postSpacing 48   ; defaults
 			railWidth "3"		
-	      intPostBlock "BP")
+	      intPostBlock "BP"
+			layerStyle "Residential"
+			toggleHash nil)
+			
+	(JD:PutHash "Rail" T 'toggleHash)
+	(JD:PutHash "Center Line" T 'toggleHash)
+	(JD:PutHash "Posts" T 'toggleHash)
+	(JD:PutHash "Dimensions" T 'toggleHash)
+	(JD:PutHash "End Plates" T 'toggleHash)
 
 	; Run dialog box to get user input
 	; Warn if dialog fails and exit
@@ -156,6 +164,30 @@
 	(action_tile "postSurfaceTrimline"
 		"(setq intPostBlock \"BPT\")")	
 		
+	;; Layer style action tiles
+	(action_tile "residentialLayers"
+		"(setq layerStyle \"Residential\")")
+	(action_tile "commercialLayers"
+		"(setq layerStyle \"Commercial\")")
+		
+	;; Drawing toggles action tiles
+	(action_tile "railToggle"
+		"(if (= $value \"0\")
+			(JD:PutHash \"Rail\" nil 'toggleHash)
+			(JD:PutHash \"Rail\" T 'toggleHash))")
+	(action_tile "centerLineToggle"
+		"(if (= $value \"0\")
+			(JD:PutHash \"Center Line\" nil 'toggleHash)
+			(JD:PutHash \"Center Line\" T 'toggleHash))")
+	(action_tile "postToggle"
+		"(if (= $value \"0\")
+			(JD:PutHash \"Posts\" nil 'toggleHash)
+			(JD:PutHash \"Posts\" T 'toggleHash))")	
+	(action_tile "dimensionToggle"
+		"(if (= $value \"0\")
+			(JD:PutHash \"Dimensions\" nil 'toggleHash)
+			(JD:PutHash \"Dimensions\" T 'toggleHash))")
+		
 	;; OK/Cancel choice action tiles	
 	(action_tile "accept" "(done_dialog)(setq userChoice T)")
 	(action_tile "cancel" "(done_dialog)(setq userChoice nil)")
@@ -169,7 +201,8 @@
 
 	(setq functionDefinition (strcat
 		"(defun C:dp ( / ) 
-			(DrawPlan " (itoa postSpacing) " \"" railWidth "\" \"" intPostBlock "\")
+			(DrawPlan " (itoa postSpacing) " \"" railWidth "\" \"" intPostBlock "\"
+							\"" layerStyle "\" toggleHash)
 			(princ))"))	            
 	(eval (read functionDefinition))
 		
@@ -180,7 +213,9 @@
 
 ;; Variable managenment function - run by dp
 
-(defun DrawPlan ( postSpacing railWidth intPostBlock / *error* ctrLineLayer 				   		postLayer dimLayer dimOffset snapMode infillStockLength 
+(defun DrawPlan (postSpacing railWidth intPostBlock layerStyle toggleHash
+							/ *error* ctrLineLayer postLayer dimLayer dimOffset 
+							snapMode infillStockLength 
 							isCableRailing isPicketRailing cableOffsetDistance
 							tagOffsetDistance tagLayer tagBlock cableLayer 
 							placeDims placeEndPlates placePosts placeCenteLine
@@ -200,18 +235,32 @@
    (JD:SaveVar "osmode" 'systemVariables)
    (JD:SaveVar "clayer" 'systemVariables)
    
+	
+	(princ "test")
+	(princ layerStyle)
+	(JD:PrintHash 'toggleHash)
    ; Set block names
    ;(setq intPostBlock "BP"
 	(setq	endPlateBlock "end_plate"
 			tagBlock "POST-DRILLED CALL-OUT")
 			
 	; layer names
-   (setq ctrLineLayer "Center"
-			postLayer "Detail"
-			dimLayer "Dims"
-			railLayer "1"
-			tagLayer "POST-TAG"
-			cableLayer "Cable")
+   (cond
+			((= layerStyle "Residential")
+				(setq ctrLineLayer "Center"
+						postLayer "Detail"
+						dimLayer "Dims"
+						railLayer "1"
+						tagLayer "POST-TAG"
+						cableLayer "Cable"))
+						
+		   ((= layerStyle "Commercial")
+				(setq ctrLineLayer "A-HRAL-CNTR"
+						postLayer "A-HRAL-POST"
+						dimLayer "A-ANNO-DIMS"
+						railLayer "A-HRAL-RAIL"
+						tagLayer "POST-TAG"
+						cableLayer "Cable")))
 			
 	; and other options
    (setq dimOffset "24")		; String means easy concatenation later
@@ -226,13 +275,13 @@
 	;(setq railWidth "2-11/16")		; String or integer works here
 	
 	; Set flags to control whether certain things are drawn
-	(setq isCableRailing T
+	(setq isCableRailing nil
 			isPicketRailing nil
-			placeDims T
-			placeEndPlates T
-			placePosts T
-			placeCenteLine T
-			placeRail T)
+			placeDims (JD:GetHash "Dimensions" 'toggleHash)
+			placeEndPlates (JD:GetHash "End Plates" 'toggleHash)
+			placePosts (JD:GetHash "Posts" 'toggleHash)
+			placeCenteLine (JD:GetHash "Center Line" 'toggleHash)
+			placeRail (JD:GetHash "Rail" 'toggleHash))
    
    (PlanDrawTool)			; Actual work done in this function
 

@@ -21,14 +21,15 @@ DrawPlanSetup : dialog {		    //dialog name
                key = "spacing72";				
                label = "&72\" (6'-0\")"; }
          
-            : radio_button {			
-               key = "spacingOther";				
-               label = "&Other:"; }
+            : row {
             
-            : edit_box {
-               key = spacing; 
-               width = 1; 
-               value = "36"; }}
+               : radio_button {			
+                  key = "spacingOther";				
+                  label = "&Other:"; }
+               
+               : edit_box {
+                  key = spacing;
+                  value = "36"; }}}
          
          :boxed_radio_column {
             label = "Intermediate Post Type";
@@ -89,6 +90,53 @@ DrawPlanSetup : dialog {		    //dialog name
          
          : radio_button {			
             key = "woodAdapter";				
-            label = "&Wood Adapter"; }}}
-        
+            label = "&Wood Adapter"; }}
+            
+      : column {	
+      
+         : boxed_radio_column {
+            label = "Layers";
+            fixed_height = true;
+            
+            : radio_button {			
+               key = "commercialLayers";				
+               label = "&Commercial Layers"; }
+            
+            : radio_button {			
+                  key = "residentialLayers";				
+                  label = "&Residential Layers";
+                  value = "1"; }}
+            
+            
+         : boxed_radio_column {
+            label = "Parts to Draw";
+            height = 8;
+            fixed_height = true;
+            
+            : toggle {
+                  key = "railToggle";
+                  label = "Top Rail";
+                  value = "1";
+                  action = ""; }
+            
+            : toggle {
+                  key = "centerLineToggle";
+                  label = "Center Line";
+                  value = "1";
+                  action = ""; }
+                  
+            : toggle {
+                  key = "postToggle";
+                  label = "Posts";
+                  value = "1";
+                  action = ""; }
+                  
+            : toggle {
+                  key = "dimensionToggle";
+                  label = "Dimensions";
+                  value = "1";
+                  action = ""; }
+                  
+            : row { }}}}
+                       
    ok_cancel; }				                  //predifined OK/Cancel
