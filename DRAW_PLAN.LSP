@@ -119,8 +119,12 @@
 	(action_tile "spacing72"
 		"(setq postSpacing 72)")		
 	(action_tile "spacing"
-		"(setq postSpacing (atoi $value))")
-		 ;; (set_tile spacingOther \"1\")")
+		"(cond
+			((= (type (read $value)) 'INT)
+			 (setq postSpacing (atoi $value))
+			 (set_tile \"spacingOther\" \"1\"))
+			(T
+			 (alert \"Post spacing must be a whole number.\")))")
 		
 	;; Top rail type action tiles
 	(action_tile "s100"
