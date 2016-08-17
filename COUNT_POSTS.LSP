@@ -11,6 +11,9 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  08/16/2016 - JD                             ;;
+;;  - Changed "Posts:" to "Posts/pickets:".     ;;
+;;                                              ;;
 ;;  04/18/2016 - JD                             ;;
 ;;  - Combined cable and post call-out          ;;
 ;;    counting into one function with one user  ;;
@@ -79,7 +82,7 @@
 					(cons 2 postCallOut3)
 			   '(-4 . "or>"))))
 	
-	(princ "\nPosts:")	
+	(princ "\nPosts/pickets:")	
    (DisplayCountTable
 		(JD:CountPostCallOuts
 			(JD:FilterSelectionSet
