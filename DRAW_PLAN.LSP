@@ -162,7 +162,9 @@
 	(action_tile "postFasciaTrimline"
 		"(setq intPostBlock \"FBT\")")	
 	(action_tile "postSurfaceTrimline"
-		"(setq intPostBlock \"BPT\")")	
+		"(setq intPostBlock \"BPT\")")
+	(action_tile "postFascia1100"
+		"(setq intPostBlock \"FB-1100\")")		
 		
 	;; Layer style action tiles
 	(action_tile "residentialLayers"
@@ -257,7 +259,7 @@
 		   ((= layerStyle "Commercial")
 				(setq ctrLineLayer "A-HRAL-CNTR"
 						postLayer "A-HRAL-POST"
-						dimLayer "A-ANNO-DIMS"
+						dimLayer "Dims"
 						railLayer "A-HRAL-RAIL"
 						tagLayer "POST-TAG"
 						cableLayer "Cable")))

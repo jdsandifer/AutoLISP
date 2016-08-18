@@ -49,7 +49,11 @@ DrawPlanSetup : dialog {		    //dialog name
          
             : radio_button {			
                key = "postSurfaceTrimline";				
-               label = "Surface, Trimline"; }}}
+               label = "Surface, Trimline"; }
+               
+            : radio_button {			
+               key = "postFascia1100" ;				
+               label = "Fascia, 1100 Post"; }}}
             
       :boxed_radio_column {		      	//define radio column
          label = "Top Rail Type";      	//label
