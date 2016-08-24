@@ -9,7 +9,7 @@
 ;;                                              ;;
 ;;::::::::::::::::::::::::::::::::::::::::::::::;;
 ;;                                              ;;
-;;  Author: J.D. Sandifer  (Copyright 2015)     ;;
+;;  Author: J.D. Sandifer  (Copyright 2016)     ;;
 ;;  Written: 11/17/2015                         ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -85,14 +85,17 @@
 	
 	(setq stockLength 242)
 	(setq roundingFactorToprail 3
-			fudgeFactorToAddToprail 9
-			layerToCountToprail "1")
+			fudgeFactorToAddToprail 6
+			layerToCountToprail "A-HRAL-RAIL")
 	(setq roundingFactorInfill 2
-			fudgeFactorToAddInfill 1
-			layerToCountInfill "Center")
+			fudgeFactorToAddInfill 0
+			layerToCountInfill "A-HRAL-CNTR")
 				
-	(setq selSet (ssget (list '(0 . "mline,*polyline")
-										(cons 8 (strcat layerToCountToprail "," layerToCountInfill)))))
+	(setq selSet
+		(ssget
+			(list
+				'(0 . "mline,*polyline")
+				(cons 8 (strcat layerToCountToprail "," layerToCountInfill)))))
 	
 	;(JD:HighlightSelectionSet nil selSet)
 	;(JD:HighlightSelectionSet T
@@ -213,26 +216,6 @@
    (JD:ResetVar "dimzin" 'systemVariables)
    
 	qtyNeeded)
-
-
-
-
-;;; Error handling function - prints error message nicely and resets system variables
-
-(defun errorHandler (msg)
-   (princ "\nOops! ")
-   (princ msg)
-
-   ;; Reset system variables
-	(JD:ResetVar "osmode" 'systemVariables)
-   (JD:ResetVar "dimzin" 'systemVariables)
-
-   (princ "\nSystem variables reset")
-   (princ "\n")
-	
-	(setq *error* nil)
-   (princ))			; Hide last return value (clean exit)
-
 
 
 

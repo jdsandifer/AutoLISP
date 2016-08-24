@@ -93,7 +93,7 @@
 ;; Runs menu tool and then gets redefined to run the drawing command with
 ;; the newly selected options.
 
-(defun C:dps ( / postSpacing railWidth intPostBlock layerStyle toggleHash)
+(defun C:dps ( / postSpacing railWidth intPostBlock layerStyle)
 
 	(setq postSpacing 48   ; defaults
 			railWidth "3"		
@@ -205,7 +205,8 @@
 		"(defun C:dp ( / ) 
 			(DrawPlan " (itoa postSpacing) " \"" railWidth "\" \"" intPostBlock "\"
 							\"" layerStyle "\" toggleHash)
-			(princ))"))	            
+			(princ))"))
+	;(princ functionDefinition)
 	(eval (read functionDefinition))
 		
 	(C:dp)
