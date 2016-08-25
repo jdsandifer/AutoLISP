@@ -239,8 +239,7 @@
    (JD:SaveVar "clayer" 'systemVariables)
    
 	
-	(princ "test")
-	(princ layerStyle)
+	(princ "Layer style: ")(princ layerStyle)
 	(JD:PrintHash 'toggleHash)
    ; Set block names
    ;(setq intPostBlock "BP"
@@ -253,7 +252,7 @@
 				(setq ctrLineLayer "Center"
 						postLayer "Detail"
 						dimLayer "Dims"
-						railLayer "1"
+						railLayer "Detail"
 						tagLayer "POST-TAG"
 						cableLayer "Cable"))
 						
@@ -266,7 +265,7 @@
 						cableLayer "Cable")))
 			
 	; and other options
-   (setq dimOffset "24")		; String means easy concatenation later
+   (setq dimOffset (itoa (- 30)))		; String means easy concatenation later
 	(setq	tagOffsetDistance 9
 			tagScale 1
 			cableOffsetDistance 9

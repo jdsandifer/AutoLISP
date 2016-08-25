@@ -228,7 +228,7 @@
    (setq wallOffsetDistance0 4.5)
 	(setq tagOffsetDistance0 9)
 	(setq tagScale0 1)
-	(setq dimOffset0 48)
+	(setq dimOffset0 (- 54))
 
 	; Run dialog box to get user input
 	; Warn if dialog fails and exit

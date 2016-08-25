@@ -14,6 +14,10 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  08/24/2016                                  ;;
+;;  - Added total length display.               ;;
+;;  - Added picket panel option for infill.     ;;
+;;                                              ;;
 ;;  04/06/2016                                  ;;
 ;;  - Tweaked chopping function to fix bug.     ;;
 ;;  - Added CountStockLengths to simplify       ;;
@@ -78,18 +82,24 @@
 
 
 ;;; Counts toprail (mlines) and infill/bottom rail (plines).
-(defun C:cr ( / stockLength roundingFactorToprail
+(defun C:cr ( / stockLength roundingFactorToprail picketList picketChart
 					 roundingFactorInfill layerToCountToprail 
 					 fudgeFactorToAddToprail fudgeFactorToAddInfill 
-					 layerToCountInfill selSet subset isConfirmed)
+					 layerToCountInfill selSet subset isConfirmed infillType
+					 roundingFactorPicket fudgeFactorToAddPicket layerToCountPicket
+					 totalPickets totalPicketLength infillList inches)
 	
 	(setq stockLength 242)
-	(setq roundingFactorToprail 3
+	(setq roundingFactorToprail 2
 			fudgeFactorToAddToprail 6
 			layerToCountToprail "A-HRAL-RAIL")
 	(setq roundingFactorInfill 2
 			fudgeFactorToAddInfill 0
 			layerToCountInfill "A-HRAL-CNTR")
+	(setq roundingFactorPicket 1
+			fudgeFactorToAddPicket 2
+			layerToCountPicket "Center")
+	(setq infillType "Cable")
 				
 	(setq selSet
 		(ssget
@@ -114,18 +124,259 @@
 									(JD:FilterSelectionSet (cons 0 "mline") selSet)))
 							stockLength)
 					stockLength))))
+	(cond 
+		(	(/= infillType "Picket")
+			(setq infillList
+				(MeasureLineSegments
+					roundingFactorInfill
+					fudgeFactorToAddInfill
+					(JD:FilterSelectionSet (cons 8 layerToCountInfill)  
+						(JD:FilterSelectionSet (cons 0 "*polyline") selSet))))
+			(setq inches
+				(reduce
+					'+ 
+					(map 
+						'(lambda (x) (* (car x) (cdr x))) 
+						infillList)))
+			(princ
+				(strcat "\nTotal length of infill needed: "
+					(rtos 
+						(RoundUpByDbl 
+							0.5 
+							(/ inches 12.0))
+						2
+						2)
+					"' ("
+					(itoa inches)
+					"\")"))			
+			(princ 
+				(strcat "\nInfill/bottom rail stock lengths: " 
+					(itoa 
+						(CountRails
+							infillList
+							stockLength))))
+			(princ))
+		(	(= infillType "Picket")
+			(setq picketList
+				(MeasureLineSegments
+					roundingFactorPicket
+					fudgeFactorToAddPicket
+					(JD:FilterSelectionSet (cons 8 layerToCountPicket)  
+						(JD:FilterSelectionSet (cons 0 "*polyline") selSet))))
+			(setq picketChart '(	(22 . 4)
+										(27 . 5)
+										(31 .	6)
+										(36 .	7)
+										(40 .	8)
+										(45 .	9)
+										(50 .	10)
+										(54 .	11)
+										(59 . 12)
+										(64 .	13)
+										(68 .	14)
+										(73 .	15)
+										(77 .	16)
+										(1000 . 200) )) ;last one is just a buffer
+			(setq totalPicketLength 0
+					totalPickets 0)
+			(foreach picketPair picketList
+				(setq index 0)
+				(while (< (car (nth index picketChart)) (car picketPair))
+					(setq index (1+ index)))
+				(setq totalPicketLength
+					(+ 
+						(* 
+							(cdr picketPair) 
+							(car (nth index picketChart)))
+						totalPicketLength))
+				(setq totalPickets (+ (* (cdr picketPair) (cdr (nth index picketChart)))totalPickets)))
+			(princ
+				(strcat
+					"\nTotal pickets: "
+					(itoa totalPickets)
+					"\nTotal picket length: "
+					(rtos
+						(RoundUpByDbl 
+							0.5
+							(/ 
+								totalPicketLength
+								12.0))
+						2
+						2)))))
+			
+		(princ))
+		
+		
+		
+;; ChopLongLengths - Cuts all lengths longer than stock length and adds back parts. 
+;; cutList - [association list] The cut list.
 
-	(princ 
-		(strcat "\nInfill/bottom rail stock lengths: " 
-			(itoa 
-				(CountRails 
-					(MeasureLineSegments
-						roundingFactorInfill
-						fudgeFactorToAddInfill
-						(JD:FilterSelectionSet (cons 8 layerToCountInfill)  
-							(JD:FilterSelectionSet (cons 0 "*polyline") selSet)))
-					stockLength))))
-	(princ))
+(defun ChopLongLengths (cutList stockLength / currentCutIndex currentCutLength
+			currentCutQuantity multiplier remainder finalCutList splices
+			MIN-CHOP-LENGTH ROUND-UP-LENGTH)
+
+	(setq MIN-CHOP-LENGTH 87
+			ROUND-UP-LENGTH 24)
+			
+			
+   (princ "\nStock length: ")
+   (princ stockLength)
+   
+   (setq currentCutIndex 0)
+	(setq finalCutList nil)
+	(setq splices 0)
+	
+   (while (< currentCutIndex (length cutList))
+
+      (setq currentCutLength (car (nth currentCutIndex cutList)))
+      (setq currentCutQuantity (cdr (nth currentCutIndex cutList)))
+
+      (if (> currentCutLength stockLength)
+			(progn
+				(princ "\n= ")
+				(princ currentCutQuantity)
+				(princ " x ")
+				(princ currentCutLength)
+				(princ ", ")
+				(setq multiplier (fix (/ currentCutLength stockLength)))
+				(princ multiplier)
+				(setq splices (+ splices (* multiplier currentCutQuantity)))
+					; how many stock lengths do we need (per long length)?
+				(princ ", ")
+				(setq remainder
+					(RoundUpTo 2 (rem currentCutLength stockLength)))
+				(princ remainder)
+					; what's left over after the chop?
+				(setq cutList
+					(vl-remove (assoc currentCutLength cutList) cutList))
+					; remove the long piece
+				(setq finalCutList
+					(Assoc+Qty stockLength finalCutList
+								  (* multiplier currentCutQuantity)))
+					; add the stock lengths
+				(cond
+					; if it's too small, make it long enough (66")
+					(	(<= remainder MIN-CHOP-LENGTH)
+						(setq finalCutList (Assoc+Qty MIN-CHOP-LENGTH finalCutList 
+													currentCutQuantity)))
+					; make sure we don't add to greater than stock length
+					(	(and
+							(> remainder MIN-CHOP-LENGTH)
+							(<= remainder (- stocklength ROUND-UP-LENGTH)))
+						(setq finalCutList (Assoc+Qty (+ remainder ROUND-UP-LENGTH)
+												 finalCutList
+												 currentCutQuantity)))
+					; if the remainder is long enough, add a stock length, too
+					(	(> remainder (- stocklength ROUND-UP-LENGTH))
+						(setq finalCutList (Assoc+Qty stockLength finalCutList
+								  currentCutQuantity)))))
+			(progn
+				(setq finalCutList 
+					(Assoc+Qty currentCutLength finalCutList currentCutQuantity))
+				(setq currentCutIndex (1+ currentCutIndex))))
+				
+      (princ) )
+		
+	(JD:DisplayAssocList finalCutList)
+	
+	(princ "Total length of rail needed: ")
+	(setq inches
+		(reduce
+			'+ 
+			(map 
+				'(lambda (x) (* (car x) (cdr x))) 
+				finalCutList)))
+	(princ (RoundUpByDbl 0.5 (/ inches 12.0)))
+	(princ "' (")
+	(princ inches)
+	(princ "\")")
+
+	(princ "\nSplices needed: ")
+	(princ splices)
+	(princ " (")
+	(princ (* 2 splices))
+	(princ " splice plates)")
+	(princ "\n")
+		
+   (OrderList finalCutList))
+
+
+
+;;; CountRails
+;;; Determines stock lengths needed to fulfil quantities of rail in cutList.
+;;; cutList - [association list] (Length . qtyNeeded) list of railing cuts 
+;;; (must be shorter than stock length).
+;;; Returns an association list of stock lengths starting with full length
+;;; (like cutList).
+
+(defun CountRails (cutList stockLength / 
+						 stockLengthLeft currentCutIndex stockLengthsNeeded currentCutKey bladeWidth); finalCuts finalCutList)
+
+   ;Counters
+   (setq stockLengthLeft 0.000)
+   (setq currentCutIndex 0)
+   (setq stockLengthsNeeded 0)	; will become association list (currently integer)
+   (setq bladeWidth 0.125)
+	
+;;;;prep for full cut list counting
+   (setq finalCuts nil)
+	(JD:ClearHash 'finalCutList)
+	(JD:ClearHash '*fullCutList*)
+
+   (while (> (length cutList) 0)
+      
+      (setq currentCutLength (car (nth currentCutIndex cutList)))
+      
+      (cond
+			;; Cut length is too long
+			((> currentCutLength stockLength)
+				(*error*
+				(strcat "Problem: Current cut ("
+				(itoa currentCutLength)
+				"\") is longer than stock length ("
+				(itoa stockLength) "\")."))
+				(setq cutList nil))
+	      
+			;;no more length
+			((<= stockLengthLeft 0)
+				(setq stockLengthLeft stockLength)
+				(setq stockLengthsNeeded (1+ stockLengthsNeeded)))
+	 
+			;;there is more length, but cut won't fit
+			((and (> stockLengthLeft 0)
+					(> currentCutLength stockLengthLeft))
+				(setq currentCutIndex (1+ currentCutIndex)))
+	    
+			;;there is more length and cut will fit
+			((and (> stockLengthLeft 0) (<= currentCutLength stockLengthLeft))
+            ;subtract cut length from stock length
+				(setq stockLengthLeft (- stockLengthLeft currentCutLength bladeWidth))
+            ;;add this cut to the full cut list			
+				(setq finalCuts (append finalCuts (list currentCutLength)))
+				(JD:PutHash "cuts" (list finalCuts) 'finalCutList)
+
+            ;decrement cut length quantity (or remove from list) - function
+				(setq cutList (assoc-- currentCutLength cutList))))
+
+      ;;end of cut list
+      (cond
+			((or (>= currentCutIndex (length cutList))
+				  (<= stockLengthLeft 0)
+				  (<= (length cutList) 0))
+				(setq currentCutIndex 0)
+										
+				;;add scrap to the full cut list and prep for the next loop
+				(if (= stockLengthLeft -0.125)
+					(JD:PutHash "scrap" 0 'finalCutList)
+					(JD:PutHash "scrap" stockLengthLeft 'finalCutList))
+				(setq *fullCutList* (append *fullCutList* (list finalCutList)))
+				(setq finalCuts nil)
+				(JD:ClearHash 'finalCutList)
+
+				(setq stockLengthLeft 0)))) ;end of while loop	
+				
+   stockLengthsNeeded)
+		
 	
 	
 	
@@ -271,163 +522,6 @@
 
 
    
-;; ChopLongLengths - Cuts all lengths longer than stock length and adds back parts. 
-;; cutList - [association list] The cut list.
-
-(defun ChopLongLengths (cutList stockLength / currentCutIndex currentCutLength
-			currentCutQuantity multiplier remainder finalCutList splices
-			MIN-CHOP-LENGTH ROUND-UP-LENGTH)
-
-	(setq MIN-CHOP-LENGTH 87
-			ROUND-UP-LENGTH 24)
-			
-			
-   (princ "\nStock length: ")
-   (princ stockLength)
-   
-   (setq currentCutIndex 0)
-	(setq finalCutList nil)
-	(setq splices 0)
-	
-   (while (< currentCutIndex (length cutList))
-
-      (setq currentCutLength (car (nth currentCutIndex cutList)))
-      (setq currentCutQuantity (cdr (nth currentCutIndex cutList)))
-
-      (if (> currentCutLength stockLength)
-			(progn
-				(princ "\n= ")
-				(princ currentCutQuantity)
-				(princ " x ")
-				(princ currentCutLength)
-				(princ ", ")
-				(setq multiplier (fix (/ currentCutLength stockLength)))
-				(princ multiplier)
-				(setq splices (+ splices (* multiplier currentCutQuantity)))
-					; how many stock lengths do we need (per long length)?
-				(princ ", ")
-				(setq remainder
-					(RoundUpTo 2 (rem currentCutLength stockLength)))
-				(princ remainder)
-					; what's left over after the chop?
-				(setq cutList
-					(vl-remove (assoc currentCutLength cutList) cutList))
-					; remove the long piece
-				(setq finalCutList
-					(Assoc+Qty stockLength finalCutList
-								  (* multiplier currentCutQuantity)))
-					; add the stock lengths
-				(cond
-					; if it's too small, make it long enough (66")
-					(	(<= remainder MIN-CHOP-LENGTH)
-						(setq finalCutList (Assoc+Qty MIN-CHOP-LENGTH finalCutList 
-													currentCutQuantity)))
-					; make sure we don't add to greater than stock length
-					(	(and
-							(> remainder MIN-CHOP-LENGTH)
-							(<= remainder (- stocklength ROUND-UP-LENGTH)))
-						(setq finalCutList (Assoc+Qty (+ remainder ROUND-UP-LENGTH)
-												 finalCutList
-												 currentCutQuantity)))
-					; if the remainder is long enough, add a stock length, too
-					(	(> remainder (- stocklength ROUND-UP-LENGTH))
-						(setq finalCutList (Assoc+Qty stockLength finalCutList
-								  currentCutQuantity)))))
-			(progn
-				(setq finalCutList 
-					(Assoc+Qty currentCutLength finalCutList currentCutQuantity))
-				(setq currentCutIndex (1+ currentCutIndex))))
-				
-      (princ) )
-
-	(princ "\nSplices needed: ")
-	(princ splices)
-	(princ " (")
-	(princ (* 2 splices))
-	(princ " splice plates)")
-	(princ "\n")
-		
-   (OrderList finalCutList))
-
-
-
-
-;;; CountRails
-;;; Determines stock lengths needed to fulfil quantities of rail in cutList.
-;;; cutList - [association list] (Length . qtyNeeded) list of railing cuts 
-;;; (must be shorter than stock length).
-;;; Returns an association list of stock lengths starting with full length
-;;; (like cutList).
-
-(defun CountRails (cutList stockLength / 
-						 stockLengthLeft currentCutIndex stockLengthsNeeded currentCutKey bladeWidth); finalCuts finalCutList)
-
-   ;Counters
-   (setq stockLengthLeft 0.000)
-   (setq currentCutIndex 0)
-   (setq stockLengthsNeeded 0)	; will become association list (currently integer)
-   (setq bladeWidth 0.125)
-	
-;;;;prep for full cut list counting
-   (setq finalCuts nil)
-	(JD:ClearHash 'finalCutList)
-	(JD:ClearHash '*fullCutList*)
-
-   (while (> (length cutList) 0)
-      
-      (setq currentCutLength (car (nth currentCutIndex cutList)))
-      
-      (cond
-			;; Cut length is too long
-			((> currentCutLength stockLength)
-				(*error*
-				(strcat "Problem: Current cut ("
-				(itoa currentCutLength)
-				"\") is longer than stock length ("
-				(itoa stockLength) "\")."))
-				(setq cutList nil))
-	      
-			;;no more length
-			((<= stockLengthLeft 0)
-				(setq stockLengthLeft stockLength)
-				(setq stockLengthsNeeded (1+ stockLengthsNeeded)))
-	 
-			;;there is more length, but cut won't fit
-			((and (> stockLengthLeft 0)
-					(> currentCutLength stockLengthLeft))
-				(setq currentCutIndex (1+ currentCutIndex)))
-	    
-			;;there is more length and cut will fit
-			((and (> stockLengthLeft 0) (<= currentCutLength stockLengthLeft))
-            ;subtract cut length from stock length
-				(setq stockLengthLeft (- stockLengthLeft currentCutLength bladeWidth))
-            ;;add this cut to the full cut list			
-				(setq finalCuts (append finalCuts (list currentCutLength)))
-				(JD:PutHash "cuts" (list finalCuts) 'finalCutList)
-
-            ;decrement cut length quantity (or remove from list) - function
-				(setq cutList (assoc-- currentCutLength cutList))))
-
-      ;;end of cut list
-      (cond
-			((or (>= currentCutIndex (length cutList))
-				  (<= stockLengthLeft 0)
-				  (<= (length cutList) 0))
-				(setq currentCutIndex 0)
-										
-				;;add scrap to the full cut list and prep for the next loop
-				(if (= stockLengthLeft -0.125)
-					(JD:PutHash "scrap" 0 'finalCutList)
-					(JD:PutHash "scrap" stockLengthLeft 'finalCutList))
-				(setq *fullCutList* (append *fullCutList* (list finalCutList)))
-				(setq finalCuts nil)
-				(JD:ClearHash 'finalCutList)
-
-				(setq stockLengthLeft 0)))) ;end of while loop	
-				
-   stockLengthsNeeded)
-		
-			
 			
 ;;; PrintCutList - Copyright 2016 J.D. Sandifer
 ;;; Prints cut list to the command line in a nice format.
