@@ -9,6 +9,9 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  08/24/2016                                  ;;
+;;  - Added DisplayAssocList.                   ;;
+;;                                              ;;
 ;;  06/15/2016                                  ;;
 ;;  - Added CarCdr: Return first list item AND  ;;
 ;;    remove it from the list.                  ;;
@@ -197,6 +200,22 @@
 
 (defun OrderListAscending (theList)
    (OrderListBy theList '(lambda (e1 e2) (< (car e1) (car e2)))))
+
+
+	
+;; DisplayAssocList - Displays the association list as a table: label then quantity
+;; result - [association list] Labels paired with quantities.
+
+(defun JD:DisplayAssocList (assocList)
+   (princ "\n=Desc==Qty=\n")
+   (foreach item assocList
+      (progn
+			(princ " ")
+			(princ (car item))
+			(princ " . ")
+			(princ (cdr item))
+			(princ "\n")))
+   (princ "===========\n") )
 
 
 
