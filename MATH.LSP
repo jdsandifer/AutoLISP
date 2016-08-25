@@ -85,6 +85,18 @@
 
 
 
+;;; RoundUpByDbl
+;;; Rounds the value up to the next multiple of "multiple" and returns it as an integer.
+
+(defun RoundUpByDbl (multiple value)
+   (if (= (rem value multiple) 0)
+      ; Then
+      (* value 1.0)
+      ; Else
+      (* (+ (- value (rem value multiple)) multiple) 1.0)))
+		
+		
+		
 ;;; Rounding up helper function (legacy support - uses new RoundUpTo function)
 
 (defun RoundUpInt (value)
