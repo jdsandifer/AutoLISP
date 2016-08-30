@@ -14,6 +14,15 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  08/30/2016                                  ;;
+;;  - Finished CountRailParts. And 2nd version. ;;
+;;  - Added ListRemove & ListSearch (temp.).    ;;
+;;  - Moved them to functions.                  ;;
+;;  - Added unit tests.                         ;;
+;;                                              ;;
+;;  08/29/2016                                  ;;
+;;  - Added CountRailParts.                     ;;
+;;                                              ;;
 ;;  08/24/2016                                  ;;
 ;;  - Added total length display.               ;;
 ;;  - Added picket panel option for infill.     ;;
@@ -79,6 +88,29 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+; Runs all unit tests for this file
+; Output: T if all unit tests passed, else nil
+
+(defun C:TestCountRail ( / testList)
+	;; Setup for tests
+	(princ "\n")
+	(princ "Testing COUNT_RAIL\n")
+	(princ "--------------------\n")
+	
+	;; Actual tests
+	(princ "CountRailParts\n")
+	(Assert 'CountRailParts '('() 242) '())
+	(Assert 'CountRailParts '('(242) 242) '((242 . 1)))
+	(Assert 'CountRailParts '('(242 242) 242) '((242 . 2)))	
+	(Assert 'CountRailParts '('(242 180) 242) '((242 . 2)))
+	(Assert 'CountRailParts '('(242 160) 242) '((242 . 1)(168 . 1)))		
+	(Assert 'CountRailParts '('(242 160 12) 242) '((242 . 1)(180 . 1)))	
+	(Assert 'CountRailParts '('(242 160 12 12) 242) '((242 . 2)))			
+	(Assert 'CountRailParts '('(242 160 24 24 12 12 12) 242) '((242 . 2)(12 . 1)))
+		
+	;; Displaying the results of the tests
+	(JD:PrintTestResults (JD:CountBooleans testList)))
 
 
 ;;; Counts toprail (mlines) and infill/bottom rail (plines).
@@ -321,27 +353,59 @@
 
 
 
-; CountRailParts - choose best part list cuts to fulfill quantities needed
-;|
-(defun CountRailPartsx ( cutList stockLength / newCutList itemLen)
-	if we have items
-		pull the first item
-		if 20' >= item > 15'
-			add a stock length to cut list
-		else
-			search list for an item to add to make it larger
-			if found
-				combine items
-				repeat
-			else
-				add 2' rounded length to stock list
+;CountRailParts - choose best part list cuts to fulfill quantities needed
+
+(defun CountRailParts (cutList stockLength / newCutList itemLen addIndex)
+	(setq newCutList '())
+	(while (> (length cutList) 0)
+		(setq first (ListRemove 0 'cutList))
+		(setq itemLen (- stocklength first))
+		(setq addIndex (ListSearch '(>= itemLen (nth i theList)) cutList))
+		(cond
+			(	addIndex
+				(setq first (+ first (nth addIndex cutList)))
+				(ListRemove addIndex 'cutList)
+				(setq cutList (append (list first) cutList)))
+			(	T
+				(cond 
+					(	(and (>= stocklength first) (< (* 0.74 stocklength) first))
+						(setq newCutList (Assoc++ stocklength newCutList)))
+					(	T
+						(setq first (RoundUpBy 12 first))
+						(setq newCutList (Assoc++ first newCutList)))))))
+	(setq newCutList (SortAssocListKeys newCutList '>)))
 	
-	)
-|;
+	
+	
+;| first working version
+;CountRailParts - choose best part list cuts to fulfill quantities needed
+
+(defun CountRailParts (cutList stockLength / newCutList itemLen addIndex)
+	(setq newCutList '())
+	(while (> (length cutList) 0)
+		(setq first (ListRemove 0 'cutList))
+		(cond 
+			(	(and (>= stocklength first) (< (* 0.74 stocklength) first))
+				(setq newCutList (Assoc++ stocklength newCutList)))
+
+			(	T
+				(setq itemLen (- stocklength first))
+				(setq addIndex (ListSearch '(>= itemLen (nth i theList)) cutList))
+				(cond
+					(	addIndex
+						(setq first (+ first (nth addIndex cutList)))
+						(ListRemove addIndex 'cutList)
+						(setq cutList (append (list first) cutList)))
+					(	T
+						(setq first (RoundUpBy 12 first))
+						(setq newCutList (Assoc++ first newCutList)))))))
+	(setq newCutList (SortAssocListKeys newCutList '>)))
+|;	
+
 
 
 ;;; CountRails
-;;; Determines stock lengths needed to fulfil quantities of rail in cutList.
+;;; Determines stock lengths needed to fulfill quantities of rail in cutList.
 ;;; cutList - [association list] (Length . qtyNeeded) list of railing cuts 
 ;;; (must be shorter than stock length).
 ;;; Returns an association list of stock lengths starting with full length

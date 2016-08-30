@@ -10,8 +10,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
 ;;  08/29/2016                                  ;;
-;;  - Added SortAssocListKeys and             ;;
-;;    SortAssocListValues.                    ;;
+;;  - Added SortAssocListKeys and               ;;
+;;    SortAssocListValues.                      ;;
 ;;  - Added unit tests for above.               ;;
 ;;                                              ;;
 ;;  08/24/2016                                  ;;
@@ -96,6 +96,54 @@
 		'('(("a" . 1)("c" . 3)("b" . 0)) '>)
 		'(("c" . 3)("a" . 1)("b" . 0)))
 		
+	(princ "\n")
+	(princ "ListRemove\n")
+	(setq aList '(1))
+	(princ aList)(princ "\n")
+	(Assert 'ListRemove '(0 'aList) 1)
+	(setq aList '(1))
+	(Verify 'ListRemove '(0 'aList) '(equal alist '()))
+	(setq aList '(1 2))
+	(princ aList)(princ "\n")
+	(Assert 'ListRemove '(0 'aList) 1)
+	(setq aList '(1 2))
+	(Verify 'ListRemove '(0 'aList) '(equal alist '(2)))
+	(setq aList '(1 2))
+	(Assert 'ListRemove '(1 'aList) 2)
+	(setq aList '(1 2))
+	(Verify 'ListRemove '(1 'aList) '(equal alist '(1)))
+	(setq aList '(1 2 3))
+	(princ aList)(princ "\n")
+	(Assert 'ListRemove '(0 'aList) 1)
+	(setq aList '(1 2 3))
+	(Verify 'ListRemove '(0 'aList) '(equal alist '(2 3)))
+	(setq aList '(1 2 3))
+	(Assert 'ListRemove '(1 'aList) 2)
+	(setq aList '(1 2 3))
+	(Verify 'ListRemove '(1 'aList) '(equal alist '(1 3)))
+	(setq aList '(1 2 3))
+	(Assert 'ListRemove '(2 'aList) 3)
+	(setq aList '(1 2 3))
+	(Verify 'ListRemove '(2 'aList) '(equal alist '(1 2)))
+	
+	(princ "\n")
+	(princ "ListSearch\n")
+	(setq aList '())
+	(princ aList)(princ "\n")
+	(Assert 'ListSearch '('(= 1 (nth i theList)) aList) nil)
+	(setq aList '(1))
+	(princ aList)(princ "\n")
+	(Assert 'ListSearch '('(= 1 (nth i theList)) aList) 0)
+	(setq aList '(1 2))
+	(princ aList)(princ "\n")
+	(Assert 'ListSearch '('(= 1 (nth i theList)) aList) 0)
+	(Assert 'ListSearch '('(= 2 (nth i theList)) aList) 1)
+	(setq aList '("a" "b" "c"))
+	(princ aList)(princ "\n")
+	(Assert 'ListSearch '('(= "a" (nth i theList)) aList) 0)
+	(Assert 'ListSearch '('(= "b" (nth i theList)) aList) 1)
+	(Assert 'ListSearch '('(= "c" (nth i theList)) aList) 2)
+		
 	;; Displaying the results of the tests
 	(JD:PrintTestResults (JD:CountBooleans testList)))
 		
@@ -140,48 +188,6 @@
 
 	
 
-;; BubbleSort - does bubble sort using supplied function
-;; theList - [list] list to be sorted
-;; functionName [symbol] - function to use in sorting
-
-(defun BubbleSort (theList functionName / 
-					    stillSwapping index theList temp)
-   (setq stillSwapping T
-			index 1)		; loop through starting with second value
-	(while stillSwapping
-		(setq stillSwapping nil)
-		(while (< index (length theList))
-			(cond (
-				(not (or ((eval functionName)(nth (1- index) theList)(nth index theList))
-							(= (nth (1- index) theList)(nth index theList))))
-				(setq theList (SwapListItems theList (1- index)))
-				(setq stillSwapping T)))
-			(setq index (1+ index)))	
-		(setq index 1))
-	theList)
-
-	
-
-;; SwapListItems - Returns list with two neighboring items swapped
-;; theList - [list] list to be sorted
-;; firstItemIndex [integer] - index of first item to be sorted
-
-(defun SwapListItems (theList firstItemIndex / index finalList)
-   (setq index 0)
-	(while (< index (length theList))
-		(if (/= index firstItemIndex)
-			(setq finalList (append finalList (list (nth index theList))))
-			(progn
-				(setq finalList (append finalList (list (nth (1+ index)
-																			theList))))
-				(setq finalList (append finalList (list (nth index theList))))
-				(setq index (1+ index))))
-		
-		(setq index (1+ index)))
-	finalList)
-	
-	
-	
 ;; DisplayCount - Displays the count list as a table: label then quantity
 ;; result - [association list] Labels paired with quantities.
 
@@ -192,7 +198,7 @@
 	
 	
 	
-;;; JD:CarCdr - same function as car followed by cdr (shortens the list)
+;;; JD:CarCdr - same function as car followed by cdr (returns/removes 1st item)
 ;;; listName [symbol] - name of list to work on
 
 (defun JD:CarCdr (listName / firstItem)
@@ -200,8 +206,37 @@
 	(set listName (cdr (eval listName)))
 	firstItem)
 		
-
 		
+
+; Removes the item at index n and returns it. List is altered.
+; Arg: n [int 0 to list length-1] = index to remove, listName = symbol of list
+; Ret: nth item from list
+; FX:  list no longer contains nth item
+		
+(defun ListRemove (n listName / returnItem newList)
+	(setq returnItem (nth n (eval listName))) 
+	(foreach i (Range 0 (- (length (eval listName)) 1) 1)
+		(if (/= i n)
+			(setq newList (append newList (list (nth i (eval listName)))))))
+	(set listName newList)
+	returnItem)
+
+	
+
+; Returns first index of item that matches criteria
+; Arg: criteria ['(comparator test (nth i theList)], theList = list to search
+; Ret: index of item if found, nil if not
+	
+(defun ListSearch (criteria theList / n)
+	(if (/= nil theList)
+		(foreach i (Range 0 (1- (length theList)) 1)
+			(if (eval criteria)
+				(setq n i)))
+		(setq n nil))
+		n)
+			
+			
+			
 ;;; MakeVarNotNil - simple function for verifying variables are set and
 ;;;                 giving them a default value if not
 ;;; variableName [symbol] - name of variable to check
@@ -274,7 +309,7 @@
 	
 	
 	
-;;; SortAssocListValuesBy - Sorts the list by the provided comparison function
+;;; SortAssocListValues - Sorts the list by the provided comparison function
 ;;; 					using vl-sort-i to get sorted indexes and assembling a 
 ;;;   			   sorted list with those indexes.
 ;;; thelist - [list] name of the list to sort
@@ -298,7 +333,7 @@
 
 (defun UnAssoc (theAssoclist / newList)
    (foreach item theAssoclist
-		)
+		))
 					
 					
 					
