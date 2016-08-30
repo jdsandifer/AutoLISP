@@ -20,36 +20,29 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-; Runs all unit tests
+; Tests the testing functions.
 ; Output: T if all unit tests passed, else nil
 
-(defun C:UnitTests ( / testList testResults varList)
+(defun C:Test ( / testList testResults varList)
 
 	;; Setup for tests
 	(princ "\n")
-		;(ReloadFile "TEST")
-	(setq varList '(("osmode" . 180)))
+	(princ "Testing TEST\n")
+	(princ "---------------\n")
 	
 	;; Actual tests
-	(princ "JD:ResetVar\n")
-	(Verify 'JD:ResetVar '("osmode" 'varList) '(= (getvar "osmode") 180))
-	(Assert 'JD:ResetVar '("cmdecho" 'varList) nil)
-	(setq varList nil)
-	(princ "Set varList to nil.\n")
-	(Assert 'JD:ResetVar '("cmdecho" 'varList) nil)
-	
-	(princ "JD:ResetAllVars\n")
-	
-	
-	
+	(princ "Assert\n")
+	(Assert '+ '(1 2 3) 6)
+	;(princ "Verify\n")
+	;(Verify 'JD:ResetVar '("osmode" 'varList) '(= (getvar "osmode") 180))
+			
 	;; Displaying the results of the tests
-		;(setq testResults (CountBooleans testList))
-	(PrintTestResults (CountBooleans testList)))
+	(JD:PrintTestResults (JD:CountBooleans testList)))
 		
 	
 	
 ; Checks if function operates as expected and adds result to testList
-; Input: function (symbol), argument (list) for function, expected result
+; Input: function (symbol), argument (list) for function, expected return value
 ; Output: result of test
 ; Return: T or nil
 
@@ -59,7 +52,7 @@
 	(if (not (= (type argumentList) 'LIST))
 		(setq argumentList (list argumentList)))
 	(cond
-		((= (setq actualReturn (eval (cons functionName argumentList)))
+		((equal (setq actualReturn (eval (cons functionName argumentList)))
 			  expectedReturn)
 			(princ "passed...(")
 			(setq passed T)
@@ -73,7 +66,14 @@
 	;; continue printing result...
 	(princ (strcase (vl-symbol-name functionName) T))
 	(princ " ")
-	(prin1 argumentList)
+	(princ 
+		(vl-string-subst 
+			"'"
+			"(QUOTE " 
+			(vl-string-subst 
+				"'"
+				"(QUOTE " 
+				(vl-prin1-to-string argumentList))))
 	(princ ") returned ")
 	(if actualReturn (princ actualReturn))
 	(princ expectedReturn)
@@ -125,7 +125,7 @@
 ; Return: assoc. list of the qty of T's and F's - (("T" . 10) ("F" . 0))
 
 
-(defun CountBooleans ( booleanList / countList)
+(defun JD:CountBooleans ( booleanList / countList)
 	(foreach listItem booleanList
 		(if (= listItem T)
 			(setq countList (Assoc++ "T" countList))
@@ -143,7 +143,7 @@
 ;			  0 tests failed
 ; Note: there are always four characters before each "tests"
 
-(defun PrintTestResults ( testResults / trues falses)
+(defun JD:PrintTestResults ( testResults / trues falses)
 	(princ "\nResults:")
 	(princ "\n----------------")
 	

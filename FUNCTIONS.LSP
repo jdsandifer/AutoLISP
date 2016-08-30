@@ -9,6 +9,9 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  08/29/2016                                  ;;
+;;  - Added SortAssocListKeysBy.                ;;
+;;                                              ;;
 ;;  08/24/2016                                  ;;
 ;;  - Added DisplayAssocList.                   ;;
 ;;                                              ;;
@@ -46,6 +49,44 @@
 ;;  - Make functions more efficient.            ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+; Runs all unit tests for this file
+; Output: T if all unit tests passed, else nil
+
+(defun C:TestFunctions ( / testList testResults varList)
+
+	;; Setup for tests
+	(princ "\n")
+	(princ "Testing FUNCTIONS\n")
+	(princ "--------------------\n")
+	
+	;; Actual tests
+	(princ "SortAssocListKeysBy\n")
+	(Assert
+		'SortAssocListKeysBy
+		'('(("a" . 1)) '<)
+		'(("a" . 1)))
+	(Assert
+		'SortAssocListKeysBy
+		'('(("a" . 1)("b" . 0)) '<)
+		'(("a" . 1)("b" . 0)))
+	(Assert
+		'SortAssocListKeysBy
+		'('(("a" . 1)("c" . 3)("b" . 0)) '<)
+		'(("a" . 1)("b" . 0)("c" . 3)))
+	(Assert
+		'SortAssocListKeysBy
+		'('(("a" . 1)("c" . 3)("b" . 0)) '>)
+		'(("c" . 3)("b" . 0)("a" . 1)))
+		
+	;; Displaying the results of the tests
+	(JD:PrintTestResults (JD:CountBooleans testList)))
+		
+	
+
 
 
 
@@ -202,6 +243,25 @@
    (OrderListBy theList '(lambda (e1 e2) (< (car e1) (car e2)))))
 
 
+	
+;;; SortAssocListKeysBy - Sorts the list by the provided comparison function
+;;; 					using vl-sort-i to get sorted indexes and assembling a 
+;;;   			   sorted list with those indexes.
+;;; thelist - [list] name of the list to sort
+;;; functionName - [symbol] the function to use 
+;;; Based on (mapcar '(lambda (x) (nth x a)) (vl-sort-i a '<))
+;;; provided by *Kim, HeeTea on forums.autodesk.com, 1/23/2002 (02/06/16)
+
+
+
+(defun SortAssocListKeysBy (theAssoclist functionName)
+   (mapcar '(lambda (index) (nth index theAssoclist))
+				(vl-sort-i
+					(mapcar
+						'car theAssoclist)
+					functionName)))
+	
+	
 	
 ;; DisplayAssocList - Displays the association list as a table: label then quantity
 ;; result - [association list] Labels paired with quantities.
