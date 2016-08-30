@@ -10,8 +10,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
 ;;  08/29/2016                                  ;;
-;;  - Added SortAssocListKeysBy and             ;;
-;;    SortAssocListValuesBy.                    ;;
+;;  - Added SortAssocListKeys and             ;;
+;;    SortAssocListValues.                    ;;
 ;;  - Added unit tests for above.               ;;
 ;;                                              ;;
 ;;  08/24/2016                                  ;;
@@ -53,8 +53,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-
-
 ; Runs all unit tests for this file
 ; Output: T if all unit tests passed, else nil
 
@@ -65,36 +63,36 @@
 	(princ "--------------------\n")
 	
 	;; Actual tests
-	(princ "SortAssocListKeysBy\n")
-	(Assert 'SortAssocListKeysBy '('() '<) '())
-	(Assert 'SortAssocListKeysBy '('(("a" . 1)) '<) '(("a" . 1)))
+	(princ "SortAssocListKeys\n")
+	(Assert 'SortAssocListKeys '('() '<) '())
+	(Assert 'SortAssocListKeys '('(("a" . 1)) '<) '(("a" . 1)))
 	(Assert
-		'SortAssocListKeysBy
+		'SortAssocListKeys
 		'('(("a" . 1)("b" . 0)) '<)
 		'(("a" . 1)("b" . 0)))
 	(Assert
-		'SortAssocListKeysBy
+		'SortAssocListKeys
 		'('(("a" . 1)("c" . 3)("b" . 0)) '<)
 		'(("a" . 1)("b" . 0)("c" . 3)))
 	(Assert
-		'SortAssocListKeysBy
+		'SortAssocListKeys
 		'('(("a" . 1)("c" . 3)("b" . 0)) '>)
 		'(("c" . 3)("b" . 0)("a" . 1)))
 		
 	(princ "\n")
-	(princ "SortAssocListValuesBy\n")
-	(Assert 'SortAssocListValuesBy '('() '<) '())
-	(Assert 'SortAssocListValuesBy '('(("a" . 1)) '<) '(("a" . 1)))
+	(princ "SortAssocListValues\n")
+	(Assert 'SortAssocListValues '('() '<) '())
+	(Assert 'SortAssocListValues '('(("a" . 1)) '<) '(("a" . 1)))
 	(Assert
-		'SortAssocListValuesBy
+		'SortAssocListValues
 		'('(("a" . 1)("b" . 0)) '<)
 		'(("b" . 0)("a" . 1)))
 	(Assert
-		'SortAssocListValuesBy
+		'SortAssocListValues
 		'('(("a" . 1)("c" . 3)("b" . 0)) '<)
 		'(("b" . 0)("a" . 1)("c" . 3)))
 	(Assert
-		'SortAssocListValuesBy
+		'SortAssocListValues
 		'('(("a" . 1)("c" . 3)("b" . 0)) '>)
 		'(("c" . 3)("a" . 1)("b" . 0)))
 		
@@ -102,9 +100,6 @@
 	(JD:PrintTestResults (JD:CountBooleans testList)))
 		
 	
-
-
-
 
 ;;; Assoc+Qty  -  J.D. (inspired by Assoc++ by Lee Mac)
 ;;; Adds to the value of a key in an association list if present,
@@ -260,7 +255,7 @@
 
 
 	
-;;; SortAssocListKeysBy - Sorts the list by the provided comparison function
+;;; SortAssocListKeys - Sorts the list by the provided comparison function
 ;;; 					using vl-sort-i to get sorted indexes and assembling a 
 ;;;   			   sorted list with those indexes.
 ;;; thelist - [list] name of the list to sort
@@ -270,7 +265,7 @@
 
 
 
-(defun SortAssocListKeysBy (theAssoclist functionName)
+(defun SortAssocListKeys (theAssoclist functionName)
    (mapcar '(lambda (index) (nth index theAssoclist))
 				(vl-sort-i
 					(mapcar
@@ -289,7 +284,7 @@
 
 
 
-(defun SortAssocListValuesBy (theAssoclist functionName)
+(defun SortAssocListValues (theAssoclist functionName)
    (mapcar '(lambda (index) (nth index theAssoclist))
 				(vl-sort-i
 					(mapcar
@@ -298,6 +293,15 @@
 	
 	
 	
+;;; UnAssoc - Turns an assoc list back into a regular list (multiples)
+;;; theAssoclist - [assoc list] name of the list to split up
+
+(defun UnAssoc (theAssoclist / newList)
+   (foreach item theAssoclist
+		)
+					
+					
+					
 ;; DisplayAssocList - Displays the association list as a table: label then quantity
 ;; result - [association list] Labels paired with quantities.
 

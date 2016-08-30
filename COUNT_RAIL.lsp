@@ -92,7 +92,7 @@
 	(setq stockLength 242)
 	(setq roundingFactorToprail 2
 			fudgeFactorToAddToprail 6
-			layerToCountToprail "A-HRAL-RAIL")
+			layerToCountToprail "Detail")
 	(setq roundingFactorInfill 2
 			fudgeFactorToAddInfill 0
 			layerToCountInfill "A-HRAL-CNTR")
@@ -106,11 +106,6 @@
 			(list
 				'(0 . "mline,*polyline")
 				(cons 8 (strcat layerToCountToprail "," layerToCountInfill)))))
-	
-	;(JD:HighlightSelectionSet nil selSet)
-	;(JD:HighlightSelectionSet T
-	;	(setq subset
-	;		(JD:FilterSelectionSet (cons 8 layerToCount) selSet)))
 	
 	(princ 
 		(strcat "\nTop rail stock lengths: " 
@@ -204,6 +199,34 @@
 		
 		
 		
+;;; Counts toprail (mlines) and returns assoc list of best cuts for parts list.
+(defun C:crp ( / stockLength roundingFactorToprail fudgeFactorToAddToprail 
+					  layerToCountToprail selSet)
+	
+	(setq stockLength 242)
+	(setq roundingFactorToprail 2
+			fudgeFactorToAddToprail 6
+			layerToCountToprail "Detail")
+					
+	(setq selSet
+		(ssget
+			(list
+				'(0 . "mline")
+				(cons 8 layerToCountToprail))))
+	
+	(princ 
+		(CountRailParts 
+			(ChopLongLengths
+					(MeasureLineSegments
+						roundingFactorToprail 
+						fudgeFactorToAddToprail
+						(JD:FilterSelectionSet (cons 8 layerToCountToprail) 
+							(JD:FilterSelectionSet (cons 0 "mline") selSet)))
+					stockLength)
+			stockLength)))
+					
+					
+					
 ;; ChopLongLengths - Cuts all lengths longer than stock length and adds back parts. 
 ;; cutList - [association list] The cut list.
 
@@ -298,6 +321,25 @@
 
 
 
+; CountRailParts - choose best part list cuts to fulfill quantities needed
+;|
+(defun CountRailPartsx ( cutList stockLength / newCutList itemLen)
+	if we have items
+		pull the first item
+		if 20' >= item > 15'
+			add a stock length to cut list
+		else
+			search list for an item to add to make it larger
+			if found
+				combine items
+				repeat
+			else
+				add 2' rounded length to stock list
+	
+	)
+|;
+
+
 ;;; CountRails
 ;;; Determines stock lengths needed to fulfil quantities of rail in cutList.
 ;;; cutList - [association list] (Length . qtyNeeded) list of railing cuts 
@@ -305,7 +347,7 @@
 ;;; Returns an association list of stock lengths starting with full length
 ;;; (like cutList).
 
-(defun CountRails (cutList stockLength / 
+(defun CountRails ( cutList stockLength / 
 						 stockLengthLeft currentCutIndex stockLengthsNeeded currentCutKey bladeWidth); finalCuts finalCutList)
 
    ;Counters
