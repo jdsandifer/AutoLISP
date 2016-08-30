@@ -156,6 +156,7 @@
 							infillList
 							stockLength))))
 			(princ))
+			
 		(	(= infillType "Picket")
 			(setq picketList
 				(MeasureLineSegments
@@ -176,7 +177,7 @@
 										(68 .	14)
 										(73 .	15)
 										(77 .	16)
-										(1000 . 200) )) ;last one is just a buffer
+										(1000 . 200) )) ;last one is just a buffer item
 			(setq totalPicketLength 0
 					totalPickets 0)
 			(foreach picketPair picketList
@@ -185,24 +186,19 @@
 					(setq index (1+ index)))
 				(setq totalPicketLength
 					(+ 
+						(* (cdr picketPair) (car (nth index picketChart)))
+						totalPicketLength))
+				(setq totalPickets 
+					(+ 
 						(* 
 							(cdr picketPair) 
-							(car (nth index picketChart)))
-						totalPicketLength))
-				(setq totalPickets (+ (* (cdr picketPair) (cdr (nth index picketChart)))totalPickets)))
+							(cdr (nth index picketChart)))totalPickets)))
 			(princ
 				(strcat
 					"\nTotal pickets: "
 					(itoa totalPickets)
 					"\nTotal picket length: "
-					(rtos
-						(RoundUpByDbl 
-							0.5
-							(/ 
-								totalPicketLength
-								12.0))
-						2
-						2)))))
+					(rtos (RoundUpByDbl 0.5 (/ totalPicketLength 12.0)) 2 2)))))
 			
 		(princ))
 		

@@ -17,14 +17,22 @@
 ;;  - Added Verify for functions that don't     ;;
 ;;    return a value.                           ;;
 ;;                                              ;;
+;;  08/29/2016                                  ;;
+;;  - Added JD:ReplaceAllSubst to clean up      ;;
+;;    display of argument lists.                ;;
+;;  - Tweaked Assert and Verify to use it.      ;;
+;;  - Added tests of the tests...still need     ;;
+;;    real tests of Assert & Verify. Maybe not  ;;
+;;    immediately print results? Separate       ;;
+;;    function?                                 ;;
+;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ; Tests the testing functions.
 ; Output: T if all unit tests passed, else nil
 
-(defun C:Test ( / testList testResults varList)
-
+(defun C:Test ( / testList)
 	;; Setup for tests
 	(princ "\n")
 	(princ "Testing TEST\n")
@@ -33,9 +41,26 @@
 	;; Actual tests
 	(princ "Assert\n")
 	(Assert '+ '(1 2 3) 6)
-	;(princ "Verify\n")
-	;(Verify 'JD:ResetVar '("osmode" 'varList) '(= (getvar "osmode") 180))
-			
+	(princ "\nVerify\n")
+	
+	(setq varToTest nil)
+	(Verify 'set '('varToTest 6) '(= varToTest 6))
+	(setq varToTest nil)
+	
+	(princ "\nJD:ReplaceAllSubst\n")
+	(Assert 'JD:ReplaceAllSubst '("y" "a" "Hello") "Hello")
+	(Assert 'JD:ReplaceAllSubst '("o" "a" "Hella") "Hello")
+	(Assert 'JD:ReplaceAllSubst '("o" "a" "Hella hella hella") "Hello hello hello")
+	(Assert 'JD:ReplaceAllSubst '("o" "a" "a hella") "o hello")
+	(Assert 'JD:ReplaceAllSubst '("o" "a" "A hella") "A hello")
+	(Assert 'JD:ReplaceAllSubst '("o" "a" "hallaw") "hollow")
+	
+	(princ "\nJD:CountBooleans\n")
+	(Assert 'JD:CountBooleans '('()) '(("T" . 0)("F" . 0)))
+	(Assert 'JD:CountBooleans '('(T T T)) '(("T" . 3)("F" . 0)))
+	(Assert 'JD:CountBooleans '('(F F F)) '(("T" . 0)("F" . 3)))
+	(Assert 'JD:CountBooleans '('(F T F)) '(("T" . 1)("F" . 2)))
+	
 	;; Displaying the results of the tests
 	(JD:PrintTestResults (JD:CountBooleans testList)))
 		
@@ -67,13 +92,10 @@
 	(princ (strcase (vl-symbol-name functionName) T))
 	(princ " ")
 	(princ 
-		(vl-string-subst 
+		(JD:ReplaceAllSubst 
 			"'"
 			"(QUOTE " 
-			(vl-string-subst 
-				"'"
-				"(QUOTE " 
-				(vl-prin1-to-string argumentList))))
+			(vl-prin1-to-string argumentList)))
 	(princ ") returned ")
 	(if actualReturn (princ actualReturn))
 	(princ expectedReturn)
@@ -107,7 +129,11 @@
 	;; continue printing result...
 	(princ (strcase (vl-symbol-name functionName) T))
 	(princ " ")
-	(prin1 argumentList)
+	(princ 
+		(JD:ReplaceAllSubst 
+			"'"
+			"(QUOTE " 
+			(vl-prin1-to-string argumentList)))
 	(princ ") functioned ")
 	(if passed
 		(princ "as expected")
@@ -119,6 +145,20 @@
 	
 	
 	
+; Changes all "pattern"s to "newSubst". Like vl-string-subst, but replaces
+;    ALL instances of pattern instead of just the first one.
+; Argument: String to alter.
+; Return: Altered string.
+
+(defun JD:ReplaceAllSubst (newSubst pattern string / pattern)
+	(while (vl-string-search pattern string)
+		(setq
+			string
+			(vl-string-subst newSubst pattern string)))
+	string)
+	
+	
+	
 ; Counts boolean values
 ; Input: simple list of boolean values - (T T T T T T T T T T)
 ; Output: none
@@ -126,6 +166,7 @@
 
 
 (defun JD:CountBooleans ( booleanList / countList)
+	(setq countList '(("T" . 0)("F" . 0)))
 	(foreach listItem booleanList
 		(if (= listItem T)
 			(setq countList (Assoc++ "T" countList))
@@ -144,9 +185,6 @@
 ; Note: there are always four characters before each "tests"
 
 (defun JD:PrintTestResults ( testResults / trues falses)
-	(princ "\nResults:")
-	(princ "\n----------------")
-	
 	(setq trues (cdr (Assoc "T" testResults)))
 	(setq falses (cdr (Assoc "F" testResults)))
 	
@@ -154,6 +192,11 @@
 		(setq trues 0))
 	(if (= falses nil)
 		(setq falses 0))
+	
+	(princ "\nResults:")
+	(if (= falses 0)
+		(princ " ALL PASS"))
+	(princ "\n-----------------")
 	
 	
 	; add code to count digits in numbers and add correct space before.
