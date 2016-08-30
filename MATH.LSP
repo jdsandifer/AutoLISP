@@ -9,6 +9,9 @@
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
+;;  08/30/2016                                  ;;
+;;  - Added unit tests for RoundUpBy.           ;;
+;;                                              ;;
 ;;  03/16/2016                                  ;;
 ;;  - Moved math functions to this file.        ;;
 ;;    No more list and general functions...     ;;
@@ -37,6 +40,24 @@
 ;;  - Make functions more efficient.            ;;
 ;;                                              ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+; Runs all unit tests for this file
+; Output: T if all unit tests passed, else nil
+
+(defun C:TestMath ( / testList)
+	;; Setup for tests
+	(princ "\n")
+	(princ "Testing MATH\n")
+	(princ "--------------------\n")
+	
+	;; Actual tests
+	(princ "RoundUpBy\n")
+	(Assert 'RoundUpBy '(12 12) 12)
+	(Assert 'RoundUpBy '(12 12.0) 12)
+		
+	;; Displaying the results of the tests
+	(JD:PrintTestResults (JD:CountBooleans testList)))
 
 
 

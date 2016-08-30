@@ -143,6 +143,11 @@
 	(Assert 'ListSearch '('(= "a" (nth i theList)) aList) 0)
 	(Assert 'ListSearch '('(= "b" (nth i theList)) aList) 1)
 	(Assert 'ListSearch '('(= "c" (nth i theList)) aList) 2)
+	(setq aList '(1 2 3))
+	(princ aList)(princ "\n")
+	(Assert 'ListSearch '('(<= 1 (nth i theList)) aList) 0)
+	(Assert 'ListSearch '('(<= 2 (nth i theList)) aList) 1)
+	(Assert 'ListSearch '('(<= 3 (nth i theList)) aList) 2)
 		
 	;; Displaying the results of the tests
 	(JD:PrintTestResults (JD:CountBooleans testList)))
@@ -228,12 +233,18 @@
 ; Ret: index of item if found, nil if not
 	
 (defun ListSearch (criteria theList / n)
-	(if (/= nil theList)
-		(foreach i (Range 0 (1- (length theList)) 1)
-			(if (eval criteria)
-				(setq n i)))
-		(setq n nil))
-		n)
+	(cond
+		(	(/= nil theList)
+			(setq i 0)
+			(while (< i (length theList))
+				(cond
+					(	(eval criteria)
+						(setq n i)
+						(setq i (length theList))))
+				(setq i (1+ i))))
+		( 	T
+			(setq n nil)))
+	n)
 			
 			
 			

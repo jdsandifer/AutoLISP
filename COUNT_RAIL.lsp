@@ -17,7 +17,7 @@
 ;;  08/30/2016                                  ;;
 ;;  - Finished CountRailParts. And 2nd version. ;;
 ;;  - Added ListRemove & ListSearch (temp.).    ;;
-;;  - Moved them to functions.                  ;;
+;;  - Then moved them to FUNCTIONS.             ;;
 ;;  - Added unit tests.                         ;;
 ;;                                              ;;
 ;;  08/29/2016                                  ;;
