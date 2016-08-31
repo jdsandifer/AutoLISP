@@ -1,3 +1,6 @@
 
 *.dwg
 3rd_Party/
+Old/.DS_Store
+
+Related/.DS_Store
