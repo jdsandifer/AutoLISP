@@ -63,6 +63,38 @@
 	(princ "--------------------\n")
 	
 	;; Actual tests
+	(princ "Assoc*\n")
+	(Assert 'Assoc* '(1 '()) '())
+	(Assert 'Assoc* '(1 '((222 . 1))) '((222 . 1)))
+	(Assert 'Assoc* '(0 '((222 . 1))) '((222 . 1)))
+	(Assert 'Assoc* '(-5 '((222 . 1))) '((222 . 1)))
+	(Assert 'Assoc* '(7 '((222 . 1))) '((222 . 7)))
+	(Assert
+		'Assoc* 
+		'(1 '((222 . 3)(60 . 10)(12 . 5))) 
+		'((222 . 3)(60 . 10)(12 . 5)))
+	(Assert
+		'Assoc* 
+		'(4 '((222 . 3)(60 . 10)(12 . 5))) 
+		'((222 . 12)(60 . 40)(12 . 20)))
+	
+	(princ "\n")
+	(princ "AssocAppend\n")
+	(Assert 'AssocAppend '('() '()) '())
+	(Assert 'AssocAppend '('((222 . 1)) '()) '((222 . 1)))
+	(Assert 'AssocAppend '('() '((222 . 1))) '((222 . 1)))
+	(Assert 'AssocAppend '('((222 . 1)) '((222 . 1))) '((222 . 2)))
+	(Assert 'AssocAppend '('((242 . 1)) '((222 . 1))) '((242 . 1)(222 . 1)))
+	(Assert
+		'AssocAppend 
+		'('((242 . 1)(222 . 1)) '((222 . 1)(12 . 5))) 
+		'((242 . 1)(222 . 2)(12 . 5)))
+	(Assert
+		'AssocAppend 
+		'('((222 . 1)(60 . 3)(24 . 1)) '((242 . 1)(222 . 1)(24 . 2)(12 . 5))) 
+		'((242 . 1)(222 . 2)(60 . 3)(24 . 3)(12 . 5)))
+	
+	(princ "\n")
 	(princ "ListRemove\n")
 	(setq aList '(1))
 	(princ aList)(princ "\n")
@@ -229,6 +261,34 @@
 
 	
 
+; Assoc* - Multiplies each item in the qtylist by multiplier
+; multiplier - [int] amount to multiply each item by
+; qtyList - [qty list] the list to multiply (may be nil)
+
+(defun Assoc* ( multiplier qtyList / )
+	(if (> multiplier 0)
+		(foreach item qtyList
+			(setq qtylist 
+				(subst (cons (car item) (* multiplier (cdr item))) item qtylist)))
+		qtylist))
+	
+	
+	
+; AssocAppend - Adds one qtylist to another
+; qtyListA - [qty list] the list to multiply (may be nil)
+; qtyListB - [qty list] the list to multiply (may be nil)
+
+(defun AssocAppend ( qtyListA qtyListB / )
+	(if qtyListA
+		(progn
+			(foreach item qtyListB
+				(setq qtyListA
+					(Assoc+Qty (car item) qtyListA (cdr item))))
+			(SortKeys qtyListA '>))
+		qtyListB))
+	
+	
+	
 ;; DisplayCount - Displays the count list as a table: label then quantity
 ;; result - [association list] Labels paired with quantities.
 

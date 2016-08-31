@@ -19,6 +19,9 @@
 ;;  - Renamed MeasureLinear to                  ;;
 ;;    MeasureLineSegments.                      ;;
 ;;                                              ;;
+;;  08/30/2016                                  ;;
+;;  - Swapped new sort function in.             ;;
+;;                                              ;;
 ;;  Todo:                                       ;;
 ;;  - Turn return value into true quantity      ;;
 ;;    list through additional helper            ;;
@@ -84,7 +87,7 @@
 		(setq segmentLength (RoundUpTo roundingFactor
 			(+ fudgeFactorToAdd segmentLength)))
 		(setq lineQtyList (Assoc++ segmentLength lineQtyList)))
-	(OrderList lineQtyList))
+	(SortKeys lineQtyList '>))
 	
 
 	
