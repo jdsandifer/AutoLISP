@@ -171,7 +171,7 @@
 		(if (= listItem T)
 			(setq countList (Assoc++ "T" countList))
 			(setq countList (Assoc++ "F" countList))))
-	(OrderList countList))
+	(SortKeys countList '>))
 	
 	
 	
@@ -185,8 +185,8 @@
 ; Note: there are always four characters before each "tests"
 
 (defun JD:PrintTestResults ( testResults / trues falses)
-	(setq trues (cdr (Assoc "T" testResults)))
-	(setq falses (cdr (Assoc "F" testResults)))
+	(setq trues (cdr (assoc "T" testResults)))
+	(setq falses (cdr (assoc "F" testResults)))
 	
 	(if (= trues nil)
 		(setq trues 0))

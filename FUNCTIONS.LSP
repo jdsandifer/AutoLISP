@@ -10,9 +10,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
 ;;  08/29/2016                                  ;;
-;;  - Added SortAssocListKeys and               ;;
-;;    SortAssocListValues.                      ;;
+;;  - Added SortKeys and                        ;;
+;;    SortValues.                               ;;
 ;;  - Added unit tests for above.               ;;
+;;  - Added QtyList & UnQtyList.                ;;
 ;;                                              ;;
 ;;  08/24/2016                                  ;;
 ;;  - Added DisplayAssocList.                   ;;
@@ -57,46 +58,11 @@
 ; Output: T if all unit tests passed, else nil
 
 (defun C:TestFunctions ( / testList)
-	;; Setup for tests
 	(princ "\n")
 	(princ "Testing FUNCTIONS\n")
 	(princ "--------------------\n")
 	
 	;; Actual tests
-	(princ "SortAssocListKeys\n")
-	(Assert 'SortAssocListKeys '('() '<) '())
-	(Assert 'SortAssocListKeys '('(("a" . 1)) '<) '(("a" . 1)))
-	(Assert
-		'SortAssocListKeys
-		'('(("a" . 1)("b" . 0)) '<)
-		'(("a" . 1)("b" . 0)))
-	(Assert
-		'SortAssocListKeys
-		'('(("a" . 1)("c" . 3)("b" . 0)) '<)
-		'(("a" . 1)("b" . 0)("c" . 3)))
-	(Assert
-		'SortAssocListKeys
-		'('(("a" . 1)("c" . 3)("b" . 0)) '>)
-		'(("c" . 3)("b" . 0)("a" . 1)))
-		
-	(princ "\n")
-	(princ "SortAssocListValues\n")
-	(Assert 'SortAssocListValues '('() '<) '())
-	(Assert 'SortAssocListValues '('(("a" . 1)) '<) '(("a" . 1)))
-	(Assert
-		'SortAssocListValues
-		'('(("a" . 1)("b" . 0)) '<)
-		'(("b" . 0)("a" . 1)))
-	(Assert
-		'SortAssocListValues
-		'('(("a" . 1)("c" . 3)("b" . 0)) '<)
-		'(("b" . 0)("a" . 1)("c" . 3)))
-	(Assert
-		'SortAssocListValues
-		'('(("a" . 1)("c" . 3)("b" . 0)) '>)
-		'(("c" . 3)("a" . 1)("b" . 0)))
-		
-	(princ "\n")
 	(princ "ListRemove\n")
 	(setq aList '(1))
 	(princ aList)(princ "\n")
@@ -148,6 +114,76 @@
 	(Assert 'ListSearch '('(<= 1 (nth i theList)) aList) 0)
 	(Assert 'ListSearch '('(<= 2 (nth i theList)) aList) 1)
 	(Assert 'ListSearch '('(<= 3 (nth i theList)) aList) 2)
+	
+	(princ "\n")
+	(princ "SortKeys\n")
+	(Assert 'SortKeys '('() '<) '())
+	(Assert 'SortKeys '('(("a" . 1)) '<) '(("a" . 1)))
+	(Assert
+		'SortKeys
+		'('(("a" . 1)("b" . 0)) '<)
+		'(("a" . 1)("b" . 0)))
+	(Assert
+		'SortKeys
+		'('(("a" . 1)("c" . 3)("b" . 0)) '<)
+		'(("a" . 1)("b" . 0)("c" . 3)))
+	(Assert
+		'SortKeys
+		'('(("a" . 1)("c" . 3)("b" . 0)) '>)
+		'(("c" . 3)("b" . 0)("a" . 1)))
+		
+	(princ "\n")
+	(princ "Sort\n")
+	(Assert 'Sort '('() '<) '())
+	(Assert 'Sort '('(1) '<) '(1))
+	(Assert 'Sort '('("a" "b") '<) '("a" "b"))
+	(Assert 'Sort '('("a" "b") '>) '("b" "a"))
+	(Assert 'Sort '('(1 2 3) '<) '(1 2 3))
+	(Assert 'Sort '('(2 3 1) '<) '(1 2 3))
+	(Assert 'Sort '('(3 2 1) '<) '(1 2 3))
+	(Assert 'Sort '('(1 3 2) '<) '(1 2 3))
+	(Assert 'Sort '('(4 1 1022 3 10) '<) '(1 3 4 10 1022))
+		
+	(princ "\n")
+	(princ "SortValues\n")
+	(Assert 'SortValues '('() '<) '())
+	(Assert 'SortValues '('(("a" . 1)) '<) '(("a" . 1)))
+	(Assert
+		'SortValues
+		'('(("a" . 1)("b" . 0)) '<)
+		'(("b" . 0)("a" . 1)))
+	(Assert
+		'SortValues
+		'('(("a" . 1)("c" . 3)("b" . 0)) '<)
+		'(("b" . 0)("a" . 1)("c" . 3)))
+	(Assert
+		'SortValues
+		'('(("a" . 1)("c" . 3)("b" . 0)) '>)
+		'(("c" . 3)("a" . 1)("b" . 0)))
+		
+	(princ "\n")
+	(princ "QtyList\n")
+	(Assert 'QtyList '('()) '())
+	(Assert 'QtyList '('("a")) '(("a" . 1)))
+	(Assert 'QtyList '('("a" "b" 100)) '(("a" . 1)("b" . 1)(100 . 1)))
+		
+	(princ "\n")
+	(princ "UnQtyList\n")
+	(Assert 'UnQtyList '('()) '())
+	(Assert 'UnQtyList '('(("a" . 1))) '("a"))
+	(Assert 'UnQtyList '('(("a" . 1)("b" . 1)(100 . 1))) '("a" "b" 100))
+	(Assert
+		'UnQtyList 
+		'('((242 . 3)(180 . 2)(24 . 10)(12 . 2)))
+		'(242 242 242 180 180 24 24 24 24 24 24 24 24 24 24 12 12))
+	
+	(princ "\n")
+	(princ "JD:DisplayAssocList \n")	
+	(JD:DisplayAssocList '(("A" . "apple")("B" . "banana")("C" . "canteloupe"))) 
+	
+	(princ "\n")
+	(princ "JD:DisplayQtyList \n")	
+	(JD:DisplayQtyList '((242 . 1)(180 . 2)("RUN A" . 3))) 
 		
 	;; Displaying the results of the tests
 	(JD:PrintTestResults (JD:CountBooleans testList)))
@@ -165,7 +201,7 @@
    (if (setq item (assoc theKey theList))
       (setq theList
 			   (subst (cons theKey (+ (cdr item) addQuantity)) item theList))
-      (setq theList (cons  (cons theKey addQuantity) theList)))
+      (setq theList (append  theList (list (cons theKey addQuantity)))))
 	(if (<= (cdr (assoc theKey theList)) 0)
 		(setq theList (vl-remove (assoc theKey theList) theList)))
    theList)
@@ -260,16 +296,7 @@
 		
 		
 		
-;;; Set&SortListBy - Sorts the list by the provided comparison function.
-;;; functionName - [symbol] the function to use 
-;;; listName - [symbol] name of the list to sort
-
-(defun Set&SortListBy (listName functionName)
-   (set listName (BubbleSort (eval listName) functionName)))
-	
-	
-	
-;;; OrderListBy - Sorts the list by the provided comparison function
+;;; Sort - Sorts the list by the provided comparison function
 ;;; 					using vl-sort-i to get sorted indexes and assembling a 
 ;;;   			   sorted list with those indexes.
 ;;; thelist - [list] name of the list to sort
@@ -279,29 +306,13 @@
 
 
 
-(defun OrderListBy (thelist functionName)
+(defun Sort (thelist functionName)
    (mapcar '(lambda (index) (nth index thelist))
 				(vl-sort-i thelist functionName)))
 	
 	
 	
-;;; OrderList - List ordering using OrderListBy (legacy support)
-;;; theList - [association list] Sorts in descending (alphanumerical) order by keys. 
-
-(defun OrderList (theList)
-   (OrderListBy theList '(lambda (e1 e2) (> (car e1) (car e2)))))
-
-
-
-;; OrderListAscending - List ordering using OrderListBy (legacy support)
-;; list - [association list] Sorts in ascending (alphabetical) order by keys. 
-
-(defun OrderListAscending (theList)
-   (OrderListBy theList '(lambda (e1 e2) (< (car e1) (car e2)))))
-
-
-	
-;;; SortAssocListKeys - Sorts the list by the provided comparison function
+;;; SortKeys - Sorts the list by the provided comparison function
 ;;; 					using vl-sort-i to get sorted indexes and assembling a 
 ;;;   			   sorted list with those indexes.
 ;;; thelist - [list] name of the list to sort
@@ -311,7 +322,7 @@
 
 
 
-(defun SortAssocListKeys (theAssoclist functionName)
+(defun SortKeys (theAssoclist functionName)
    (mapcar '(lambda (index) (nth index theAssoclist))
 				(vl-sort-i
 					(mapcar
@@ -320,7 +331,7 @@
 	
 	
 	
-;;; SortAssocListValues - Sorts the list by the provided comparison function
+;;; SortValues - Sorts the list by the provided comparison function
 ;;; 					using vl-sort-i to get sorted indexes and assembling a 
 ;;;   			   sorted list with those indexes.
 ;;; thelist - [list] name of the list to sort
@@ -330,21 +341,33 @@
 
 
 
-(defun SortAssocListValues (theAssoclist functionName)
+(defun SortValues (theAssoclist functionName)
    (mapcar '(lambda (index) (nth index theAssoclist))
 				(vl-sort-i
 					(mapcar
 						'cdr theAssoclist)
 					functionName)))
-	
-	
-	
-;;; UnAssoc - Turns an assoc list back into a regular list (multiples)
+
+					
+					
+;;; QtyList - Turns a list with possible multiples into an association list
 ;;; theAssoclist - [assoc list] name of the list to split up
 
-(defun UnAssoc (theAssoclist / newList)
-   (foreach item theAssoclist
-		))
+(defun QtyList (thelist / newQtyList)
+   (foreach item thelist
+		(setq newQtyList (Assoc++ item newQtyList)))
+	newQtyList)
+	
+	
+	
+;;; UnQtyList - Turns an assoc list back into a regular list (multiples)
+;;; theAssoclist - [assoc list] name of the list to split up
+
+(defun UnQtyList (theQtylist / newList)
+   (foreach item theQtylist
+		(foreach i (Range 1 (cdr item) 1)
+			(setq newList (append newlist (list (car item))))))
+	newList)
 					
 					
 					
@@ -352,6 +375,23 @@
 ;; result - [association list] Labels paired with quantities.
 
 (defun JD:DisplayAssocList (assocList)
+   (princ "\n=Key===Value=\n")
+   (foreach item assocList
+      (progn
+			(princ " ")
+			(princ (car item))
+			(princ " . ")
+			(princ (cdr item))
+			(princ "\n")))
+   (princ "===========\n")
+	(princ))
+
+
+
+;; DisplayQtyList - Displays the association list as a table: label then quantity
+;; result - [association list] Labels paired with quantities.
+
+(defun JD:DisplayQtyList (assocList)
    (princ "\n=Desc==Qty=\n")
    (foreach item assocList
       (progn
@@ -360,7 +400,8 @@
 			(princ " . ")
 			(princ (cdr item))
 			(princ "\n")))
-   (princ "===========\n") )
+   (princ "===========\n")
+	(princ))
 
 
 

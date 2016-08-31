@@ -15,10 +15,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                              ;;
 ;;  08/30/2016                                  ;;
-;;  - Finished CountRailParts. And 2nd version. ;;
+;;  - Finished CountRailParts.                  ;;
 ;;  - Added ListRemove & ListSearch (temp.).    ;;
 ;;  - Then moved them to FUNCTIONS.             ;;
 ;;  - Added unit tests.                         ;;
+;;  - Fixed all functions to use new sorts,     ;;
+;;    and so on?                                ;;
+;;  - Tweaked RailCountSub to use               ;;
+;;    CountRailParts.                           ;;
 ;;                                              ;;
 ;;  08/29/2016                                  ;;
 ;;  - Added CountRailParts.                     ;;
@@ -111,127 +115,11 @@
 		
 	;; Displaying the results of the tests
 	(JD:PrintTestResults (JD:CountBooleans testList)))
-
-
-;;; Counts toprail (mlines) and infill/bottom rail (plines).
-(defun C:cr ( / stockLength roundingFactorToprail picketList picketChart
-					 roundingFactorInfill layerToCountToprail 
-					 fudgeFactorToAddToprail fudgeFactorToAddInfill 
-					 layerToCountInfill selSet subset isConfirmed infillType
-					 roundingFactorPicket fudgeFactorToAddPicket layerToCountPicket
-					 totalPickets totalPicketLength infillList inches)
 	
-	(setq stockLength 242)
-	(setq roundingFactorToprail 2
-			fudgeFactorToAddToprail 6
-			layerToCountToprail "Detail")
-	(setq roundingFactorInfill 2
-			fudgeFactorToAddInfill 0
-			layerToCountInfill "A-HRAL-CNTR")
-	(setq roundingFactorPicket 1
-			fudgeFactorToAddPicket 2
-			layerToCountPicket "Center")
-	(setq infillType "Cable")
-				
-	(setq selSet
-		(ssget
-			(list
-				'(0 . "mline,*polyline")
-				(cons 8 (strcat layerToCountToprail "," layerToCountInfill)))))
-	
-	(princ 
-		(strcat "\nTop rail stock lengths: " 
-			(itoa 
-				(CountRails 
-					(ChopLongLengths
-							(MeasureLineSegments
-								roundingFactorToprail 
-								fudgeFactorToAddToprail
-								(JD:FilterSelectionSet (cons 8 layerToCountToprail) 
-									(JD:FilterSelectionSet (cons 0 "mline") selSet)))
-							stockLength)
-					stockLength))))
-	(cond 
-		(	(/= infillType "Picket")
-			(setq infillList
-				(MeasureLineSegments
-					roundingFactorInfill
-					fudgeFactorToAddInfill
-					(JD:FilterSelectionSet (cons 8 layerToCountInfill)  
-						(JD:FilterSelectionSet (cons 0 "*polyline") selSet))))
-			(setq inches
-				(reduce
-					'+ 
-					(map 
-						'(lambda (x) (* (car x) (cdr x))) 
-						infillList)))
-			(princ
-				(strcat "\nTotal length of infill needed: "
-					(rtos 
-						(RoundUpByDbl 
-							0.5 
-							(/ inches 12.0))
-						2
-						2)
-					"' ("
-					(itoa inches)
-					"\")"))			
-			(princ 
-				(strcat "\nInfill/bottom rail stock lengths: " 
-					(itoa 
-						(CountRails
-							infillList
-							stockLength))))
-			(princ))
-			
-		(	(= infillType "Picket")
-			(setq picketList
-				(MeasureLineSegments
-					roundingFactorPicket
-					fudgeFactorToAddPicket
-					(JD:FilterSelectionSet (cons 8 layerToCountPicket)  
-						(JD:FilterSelectionSet (cons 0 "*polyline") selSet))))
-			(setq picketChart '(	(22 . 4)
-										(27 . 5)
-										(31 .	6)
-										(36 .	7)
-										(40 .	8)
-										(45 .	9)
-										(50 .	10)
-										(54 .	11)
-										(59 . 12)
-										(64 .	13)
-										(68 .	14)
-										(73 .	15)
-										(77 .	16)
-										(1000 . 200) )) ;last one is just a buffer item
-			(setq totalPicketLength 0
-					totalPickets 0)
-			(foreach picketPair picketList
-				(setq index 0)
-				(while (< (car (nth index picketChart)) (car picketPair))
-					(setq index (1+ index)))
-				(setq totalPicketLength
-					(+ 
-						(* (cdr picketPair) (car (nth index picketChart)))
-						totalPicketLength))
-				(setq totalPickets 
-					(+ 
-						(* 
-							(cdr picketPair) 
-							(cdr (nth index picketChart)))totalPickets)))
-			(princ
-				(strcat
-					"\nTotal pickets: "
-					(itoa totalPickets)
-					"\nTotal picket length: "
-					(rtos (RoundUpByDbl 0.5 (/ totalPicketLength 12.0)) 2 2)))))
-			
-		(princ))
 		
 		
-		
-;;; Counts toprail (mlines) and returns assoc list of best cuts for parts list.
+;;; Counts toprail (mlines) and prints list of best cuts for parts list.
+
 (defun C:crp ( / stockLength roundingFactorToprail fudgeFactorToAddToprail 
 					  layerToCountToprail selSet)
 	
@@ -349,11 +237,14 @@
 	(princ " splice plates)")
 	(princ "\n")
 		
-   (OrderList finalCutList))
+   (SortKeys finalCutList '>))
 
 
 
 ;CountRailParts - choose best part list cuts to fulfill quantities needed
+;Arg: cutlist [list] - (non-qtylist) list of needed cuts in inches
+;		stocklength [int] - in inches
+;Ret: [qtylist] - list of parts list lengths needed (whole feet only) in inches
 
 (defun CountRailParts (cutList stockLength / newCutList itemLen addIndex)
 	(setq newCutList '())
@@ -373,37 +264,257 @@
 					(	T
 						(setq first (RoundUpBy 12 first))
 						(setq newCutList (Assoc++ first newCutList)))))))
-	(setq newCutList (SortAssocListKeys newCutList '>)))
+	(setq newCutList (SortKeys newCutList '>)))
 	
 	
 	
-;| first working version
-;CountRailParts - choose best part list cuts to fulfill quantities needed
+; Menu based system to create a global cutlist with the ability to multiply
+; each measurement by a multiplier for multiple similar runs only drawn once
+; Arg: none
+; Ret: none
+; FX:  creates a cut list (qty list) in *cutList*
+;      can also calculate stock lengths needed and will print info to cmd line	
+	
+(defun RailCountSub ( / floorsMultiplier qtyNeeded timeToReturn input 			
+								roundingFactorToprail fudgeFactorToAddToprail 
+								layerToCountToprail selSet addlist)
+   ;; Save system variables
+	(JD:SaveVar "osmode" 'systemVariables)
+	(JD:SaveVar "dimzin" 'systemVariables)
+	(princ "System variables saved.")
+   
+   ;; Set defaults (only do global variables if they aren't set yet)
+	(setq roundingFactorToprail 2
+			fudgeFactorToAddToprail 6
+			layerToCountToprail "Detail")
+			
+   (MakeVarNotNil '*stockLength* 242)
+   (MakeVarNotNil '*ctrLineLayer* "Detail")
+   (MakeVarNotNil '*choice* "Add")
+	(setq floorsMultiplier 1)
+	(princ "variable setup")
 
-(defun CountRailParts (cutList stockLength / newCutList itemLen addIndex)
-	(setq newCutList '())
-	(while (> (length cutList) 0)
-		(setq first (ListRemove 0 'cutList))
-		(cond 
-			(	(and (>= stocklength first) (< (* 0.74 stocklength) first))
-				(setq newCutList (Assoc++ stocklength newCutList)))
+   (while (/= timeToReturn "True")
+   	(initget "Stock Multiplier Layer Add Count RESET Done")
+		(setq *choice*
+			(cond
+				((getkword
+					(strcat "\nChoose cut list option [Stock/Multiplier/"
+							  "Layer/Add/Count/RESET/Done] <" *choice* ">:" )))
+			(*choice*)))
+		
+		(cond
+			(	(= *choice* "RESET")
+				(ResetCutList)
+				(setq *choice* "Add"))
 
-			(	T
-				(setq itemLen (- stocklength first))
-				(setq addIndex (ListSearch '(>= itemLen (nth i theList)) cutList))
-				(cond
-					(	addIndex
-						(setq first (+ first (nth addIndex cutList)))
-						(ListRemove addIndex 'cutList)
-						(setq cutList (append (list first) cutList)))
-					(	T
-						(setq first (RoundUpBy 12 first))
-						(setq newCutList (Assoc++ first newCutList)))))))
-	(setq newCutList (SortAssocListKeys newCutList '>)))
-|;	
+			(	(= *choice* "Done")
+				(setq timeToReturn "True")
+				(setq *choice* "RESET"))
+
+			( 	(= *choice* "Stock")
+				(setq *choice* "Add")
+				(initget (+ 2 4))				; prevent 0 or negative values
+				(setq *stockLength*
+					(cond
+						((getint (strcat "\nStock length (in inches) <" 
+											  (itoa *stockLength*)
+											  ">:")))
+						(*stockLength*))) )
+
+			( 	(= *choice* "Multiplier")
+				(setq *choice* "Add")
+				(initget (+ 2 4))				; prevent 0 or negative values
+				(setq floorsMultiplier
+					(cond
+						((getint
+							(strcat "\nNumber of identical floors (multiplier) <" 
+									  (itoa floorsMultiplier)
+									  ">:")))
+						(floorsMultiplier))))
+
+			( 	(= *choice* "Layer")
+				(setq *choice* "Add")
+				(setq input (getstring (strcat "\nCenter line layer <"
+														 *ctrLineLayer*
+														 ">:")))
+				(if (/= input "")
+					(setq *ctrLineLayer* input)))
+			
+			( 	(= *choice* "Add")
+			
+				(setq selSet
+					(ssget
+						(list
+							'(0 . "mline")
+							(cons 8 layerToCountToprail))))
+				(setq addList
+					(UnQtyList
+						(MeasureLineSegments
+							roundingFactorToprail 
+							fudgeFactorToAddToprail
+							(JD:FilterSelectionSet (cons 8 layerToCountToprail) 
+								(JD:FilterSelectionSet (cons 0 "mline") selSet)))))
+				(foreach i (Range 1 floorsMultiplier 1)
+					(setq *cutlist* (append *cutlist* addList)))
+				(setq *cutlist* (Sort *cutlist* '>))
+			
+				(princ "\nCutlist: ")
+				(DisplayCount *cutList*))
+		
+			( 	(= *choice* "Count")
+				(setq *choice* "Done")
+				(setq *cutList*
+					(SortKeys
+						(ChopLongLengths
+							(QtyList 
+								(Sort
+									*cutList*
+									'>))
+							*stockLength*)
+						'>))
+				(princ "\nCutlist: ")
+				(DisplayCount *cutList*)
+		
+				;; Counting for parts list handled in this function
+				(setvar "dimzin" 8)
+				(setq qtyNeeded
+					(CountRailParts
+						(UnQtyList *cutList*)
+						*stockLength*))
+								
+				;; Display handled in these functions
+				;(PrintCutList *fullCutList*)
+				(princ "Stock lengths: ")
+				(JD:DisplayQtyList qtyNeeded))))
+
+   ;; Restore changed system variables
+   (JD:ResetVar "osmode" 'systemVariables)
+   (JD:ResetVar "dimzin" 'systemVariables)
+   
+	qtyNeeded)
 
 
 
+;;; Counts toprail (mlines) and infill/bottom rail (plines). Old version...
+
+(defun C:cr ( / stockLength roundingFactorToprail picketList picketChart
+					 roundingFactorInfill layerToCountToprail 
+					 fudgeFactorToAddToprail fudgeFactorToAddInfill 
+					 layerToCountInfill selSet subset isConfirmed infillType
+					 roundingFactorPicket fudgeFactorToAddPicket layerToCountPicket
+					 totalPickets totalPicketLength infillList inches)
+	
+	(setq stockLength 242)
+	(setq roundingFactorToprail 2
+			fudgeFactorToAddToprail 6
+			layerToCountToprail "Detail")
+	(setq roundingFactorInfill 2
+			fudgeFactorToAddInfill 0
+			layerToCountInfill "A-HRAL-CNTR")
+	(setq roundingFactorPicket 1
+			fudgeFactorToAddPicket 2
+			layerToCountPicket "Center")
+	(setq infillType "Cable")
+				
+	(setq selSet
+		(ssget
+			(list
+				'(0 . "mline,*polyline")
+				(cons 8 (strcat layerToCountToprail "," layerToCountInfill)))))
+	
+	(princ 
+		(strcat "\nTop rail stock lengths: " 
+			(itoa 
+				(CountRails 
+					(ChopLongLengths
+							(MeasureLineSegments
+								roundingFactorToprail 
+								fudgeFactorToAddToprail
+								(JD:FilterSelectionSet (cons 8 layerToCountToprail) 
+									(JD:FilterSelectionSet (cons 0 "mline") selSet)))
+							stockLength)
+					stockLength))))
+	(cond 
+		(	(/= infillType "Picket")
+			(setq infillList
+				(MeasureLineSegments
+					roundingFactorInfill
+					fudgeFactorToAddInfill
+					(JD:FilterSelectionSet (cons 8 layerToCountInfill)  
+						(JD:FilterSelectionSet (cons 0 "*polyline") selSet))))
+			(setq inches
+				(reduce
+					'+ 
+					(map 
+						'(lambda (x) (* (car x) (cdr x))) 
+						infillList)))
+			(princ
+				(strcat "\nTotal length of infill needed: "
+					(rtos 
+						(RoundUpByDbl 
+							0.5 
+							(/ inches 12.0))
+						2
+						2)
+					"' ("
+					(itoa inches)
+					"\")"))			
+			(princ 
+				(strcat "\nInfill/bottom rail stock lengths: " 
+					(itoa 
+						(CountRails
+							infillList
+							stockLength))))
+			(princ))
+			
+		(	(= infillType "Picket")
+			(setq picketList
+				(MeasureLineSegments
+					roundingFactorPicket
+					fudgeFactorToAddPicket
+					(JD:FilterSelectionSet (cons 8 layerToCountPicket)  
+						(JD:FilterSelectionSet (cons 0 "*polyline") selSet))))
+			(setq picketChart '(	(22 . 4)
+										(27 . 5)
+										(31 .	6)
+										(36 .	7)
+										(40 .	8)
+										(45 .	9)
+										(50 .	10)
+										(54 .	11)
+										(59 . 12)
+										(64 .	13)
+										(68 .	14)
+										(73 .	15)
+										(77 .	16)
+										(1000 . 200) )) ;last one is just a buffer item
+			(setq totalPicketLength 0
+					totalPickets 0)
+			(foreach picketPair picketList
+				(setq index 0)
+				(while (< (car (nth index picketChart)) (car picketPair))
+					(setq index (1+ index)))
+				(setq totalPicketLength
+					(+ 
+						(* (cdr picketPair) (car (nth index picketChart)))
+						totalPicketLength))
+				(setq totalPickets 
+					(+ 
+						(* 
+							(cdr picketPair) 
+							(cdr (nth index picketChart)))totalPickets)))
+			(princ
+				(strcat
+					"\nTotal pickets: "
+					(itoa totalPickets)
+					"\nTotal picket length: "
+					(rtos (RoundUpByDbl 0.5 (/ totalPicketLength 12.0)) 2 2)))))
+			
+		(princ))
+		
+		
+		
 ;;; CountRails
 ;;; Determines stock lengths needed to fulfill quantities of rail in cutList.
 ;;; cutList - [association list] (Length . qtyNeeded) list of railing cuts 
@@ -479,99 +590,8 @@
 				
    stockLengthsNeeded)
 		
-	
-	
-	
-(defun RailCountSub (/ floorsMultiplier qtyNeeded timeToReturn input)
-   ;; Save system variables
-	(JD:SaveVar "osmode" 'systemVariables)
-	(JD:SaveVar "dimzin" 'systemVariables)
-	(princ "System variables saved.")
-   
-   ;; Set defaults (only do global variables if they aren't set yet)
-   (MakeVarNotNil '*stockLength* 242)
-   (MakeVarNotNil '*ctrLineLayer* "A-HRAL-CNTR")
-   (MakeVarNotNil '*choice* "Add")
-	(setq floorsMultiplier 1)
-	(princ "variable setup")
-
-   (while (/= timeToReturn "True")
-   	(initget "Stock Multiplier Layer Add Count RESET Done")
-		(setq *choice*
-			(cond
-				((getkword
-					(strcat "\nChoose cut list option [Stock/Multiplier/"
-							  "Layer/Add/Count/RESET/Done] <" *choice* ">:" )))
-			(*choice*)))
 		
-		(cond
-			(	(= *choice* "RESET")
-				(ResetCutList)
-				(setq *choice* "Add"))
-
-			(	(= *choice* "Done")
-				(setq timeToReturn "True")
-				(setq *choice* "RESET"))
-
-			( 	(= *choice* "Stock")
-				(setq *choice* "Add")
-				(initget (+ 2 4))				; prevent 0 or negative values
-				(setq *stockLength*
-					(cond
-						((getint (strcat "\nStock length (in inches) <" 
-											  (itoa *stockLength*)
-											  ">:")))
-						(*stockLength*))) )
-
-			( 	(= *choice* "Multiplier")
-				(setq *choice* "Add")
-				(initget (+ 2 4))				; prevent 0 or negative values
-				(setq floorsMultiplier
-					(cond
-						((getint
-							(strcat "\nNumber of identical floors (multiplier) <" 
-									  (itoa floorsMultiplier)
-									  ">:")))
-						(floorsMultiplier))))
-
-			( 	(= *choice* "Layer")
-				(setq *choice* "Add")
-				(setq input (getstring (strcat "\nCenter line layer <"
-														 *ctrLineLayer*
-														 ">:")))
-				(if (/= input "")
-					(setq *ctrLineLayer* input)))
-			
-			( 	(= *choice* "Add")
-				(setq *cutList*
-					(OrderList (append *cutList* (MeasureCenterLines))))
-				(princ "\nCutlist: ")
-				(DisplayCount *cutList*))
-		
-			( 	(= *choice* "Count")
-				(setq *choice* "Done")
-				(setq *cutList* (OrderList 
-					(ChopLongLengths *cutList* *stockLength*)))
-				(princ "\nCutlist: ")
-				(DisplayCount *cutList*)
-		
-				;; Counting for parts list handled in this function
-				(setvar "dimzin" 8)
-				(setq qtyNeeded (CountRails *cutList* *stockLength*))
-								
-				;; Display handled in these functions
-				(PrintCutList *fullCutList*)
-				(princ "Stock lengths: ")
-				(DisplayCount qtyNeeded))))
-
-   ;; Restore changed system variables
-   (JD:ResetVar "osmode" 'systemVariables)
-   (JD:ResetVar "dimzin" 'systemVariables)
-   
-	qtyNeeded)
-
-
-
+	
 ; MeasureCenterLines
 ; Created: 10/29/2015 by J.D. Sandifer
 ; Purpose: Measures lengths of lines on *ctrLineLayer* layer and returns a 
@@ -617,10 +637,9 @@
    )
       ; end of while loop
 
-   (OrderList cutlist)
+   (SortKeys cutlist '>)
    
 )
-
 
 
    
