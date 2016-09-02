@@ -525,6 +525,8 @@
 		
 		
 		
+;;; Heading towards obsoletion...retained for reference unti sure	
+	
 ;;; CountRails
 ;;; Determines stock lengths needed to fulfill quantities of rail in cutList.
 ;;; cutList - [association list] (Length . qtyNeeded) list of railing cuts 
@@ -602,6 +604,8 @@
 		
 		
 	
+;;; Heading towards obsoletion...retained for reference unti sure
+	
 ; MeasureCenterLines
 ; Created: 10/29/2015 by J.D. Sandifer
 ; Purpose: Measures lengths of lines on *ctrLineLayer* layer and returns a 
@@ -653,7 +657,8 @@
 
 
    
-			
+;;; Heading towards obsoletion...retained for reference unti sure	
+	
 ;;; PrintCutList - Copyright 2016 J.D. Sandifer
 ;;; Prints cut list to the command line in a nice format.
 ;;; cutList [full cut list] - the full cut list
