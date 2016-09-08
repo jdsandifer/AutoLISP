@@ -1,3 +1,7 @@
+# Detect .lsp files as AutoLISP
+$ cat .gitattributes
+*.lsp linguist-language=AutoLISP
+
 # Auto detect text files and perform LF normalization
 * text=auto
 
