@@ -1,7 +1,3 @@
-# Detect .lsp files as AutoLISP
-*.lsp linguist-language=AutoLISP
-*.LSP linguist-language=AutoLISP
-
 # Auto detect text files and perform LF normalization
 * text=auto
 
