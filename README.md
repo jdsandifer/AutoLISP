@@ -16,8 +16,6 @@ As part of this project, I learned AutoLISP from scratch - never having seen LIS
 I look forward to improving the programs through user testing and feedback in a very iterative and continually improving process. It's rewarding being able to use my programming skills in my current drafting job - not something I expected.
 
 ###Other Info
-Files in the `/3rd Party` folder are written by others and used by permission - primarily to help me learn new techiques or commands in the language.
-
 The `/Old` folder has stubs of previous coding. Most of it has been revised and simplified and moved to a newer file. I'm retaining it for refecence - it may be useful in future functions.
 
 Items in the `/Related` folder include items that aren't AutoLISP code, but are important to retain; custom AutoCAD menu code and a Notepad++ AutoLISP language file are two examples.
