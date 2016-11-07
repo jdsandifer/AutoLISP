@@ -11,7 +11,7 @@ The eventual goal of the project is a set of useful, efficient, and user-friendl
 (The projects referenced above are architectural railing projects for everything from small residences to large commercial buildings. The drawings for each project typically include layout plans, elevations, details, and a bill of materials.)
 
 ###Personal Improvement and Initiative
-As part of this project, I learned AutoLISP from scratch - never having seen LISP before. Over the course of two months working about 3 hours per week - so as not to interfere with my daily duties - I learned the language, developed the initial programs in this repository, and demoed them for other users in the company with positive feedback. The total work for the project has been less that 100 man hours as of 6/24/16 (it's been about nine months since the project began).
+As part of this project, I learned AutoLISP from scratch - never having seen LISP before. Over the course of two months working about 3 hours per week - so as not to interfere with my daily duties - I learned the language, developed the initial programs in this repository, and demoed them for other users in the company with positive feedback. The total work on the project so far has been around 150 man hours.
 
 I look forward to improving the programs through user testing and feedback in a very iterative and continually improving process. It's rewarding being able to use my programming skills in my current drafting job - not something I expected.
 
