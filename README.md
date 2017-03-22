@@ -1,6 +1,6 @@
-#AutoLISP (Professional Coding Experience)
+# AutoLISP (Professional Coding Experience)
 
-###Project Overview
+### Project Overview
 The files in this repository are AutoLISP files that provide automation of specific tasks in AutoCAD for myself and my drafting coworkers. 
 The language is a basic LISP variant that includes specific commands that integrate with AutoCAD and its functions.
 
@@ -10,12 +10,12 @@ The eventual goal of the project is a set of useful, efficient, and user-friendl
 
 (The projects referenced above are architectural railing projects for everything from small residences to large commercial buildings. The drawings for each project typically include layout plans, elevations, details, and a bill of materials.)
 
-###Personal Improvement and Initiative
+### Personal Improvement and Initiative
 As part of this project, I learned AutoLISP from scratch - never having seen LISP before. Over the course of two months working about 3 hours per week - so as not to interfere with my daily duties - I learned the language, developed the initial programs in this repository, and demoed them for other users in the company with positive feedback. The total work on the project so far has been around 150 man hours.
 
 I look forward to improving the programs through user testing and feedback in a very iterative and continually improving process. It's rewarding being able to use my programming skills in my current drafting job - not something I expected.
 
-###Other Info
+### Other Info
 The `/Old` folder has stubs of previous coding. Most of it has been revised and simplified and moved to a newer file. I'm retaining it for refecence - it may be useful in future functions.
 
 Items in the `/Related` folder include items that aren't AutoLISP code, but are important to retain; custom AutoCAD menu code and a Notepad++ AutoLISP language file are two examples.
