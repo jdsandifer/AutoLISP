@@ -19,3 +19,9 @@ I look forward to improving the programs through user testing and feedback in a 
 The `/Old` folder has stubs of previous coding. Most of it has been revised and simplified and moved to a newer file. I'm retaining it for refecence - it may be useful in future functions.
 
 Items in the `/Related` folder include items that aren't AutoLISP code, but are important to retain; custom AutoCAD menu code and a Notepad++ AutoLISP language file are two examples.
+
+### Code
+
+Here's a link to a good example of some of my later code. It includes important things like the file header, good explanations before each function, clear variable and function names, and it's actually the code for a data structure to be used by other programs (good modularity).
+
+[ Hash.lsp ](https://github.com/jdsandifer/AutoLISP/blob/master/HASH.lsp)
